@@ -1,0 +1,78 @@
+[
+  {
+    "sha": "2dbae28a1d263902d647822937f9c42090c4adcc",
+    "message": "Merge tag 'bitmap-for-6.16-rc6' of https://github.com/norov/linux\n\nPull bitops UAPI fix from Yury Norov:\n \"Fix BITS_PER_LONG merge error\n\n  Tomas' fix for __BITS_PER_LONG was effectively reverted by a wrong\n  merge. Fix it and add the related files to MAINTAINERS\"\n\n* tag 'bitmap-for-6.16-rc6' of https://github.com/norov/linux:\n  MAINTAINERS: bitmap: add UAPI headers\n  uapi: bitops: use UAPI-safe variant of BITS_PER_LONG again (2)",
+    "author": "Linus Torvalds",
+    "date": "2025-07-08T12:22:16-07:00",
+    "files_changed": [
+      "include/uapi/linux/bits.h",
+      "tools/include/uapi/linux/bits.h"
+    ],
+    "diff": "diff --git a/MAINTAINERS b/MAINTAINERS\nindex 1ff244fe3e1a..2b8d9e608829 100644\n--- a/MAINTAINERS\n+++ b/MAINTAINERS\n@@ -4181,6 +4181,7 @@ F:\tinclude/linux/cpumask_types.h\n F:\tinclude/linux/find.h\n F:\tinclude/linux/nodemask.h\n F:\tinclude/linux/nodemask_types.h\n+F:\tinclude/uapi/linux/bits.h\n F:\tinclude/vdso/bits.h\n F:\tlib/bitmap-str.c\n F:\tlib/bitmap.c\n@@ -4193,6 +4194,7 @@ F:\ttools/include/linux/bitfield.h\n F:\ttools/include/linux/bitmap.h\n F:\ttools/include/linux/bits.h\n F:\ttools/include/linux/find.h\n+F:\ttools/include/uapi/linux/bits.h\n F:\ttools/include/vdso/bits.h\n F:\ttools/lib/bitmap.c\n F:\ttools/lib/find_bit.c\ndiff --git a/include/uapi/linux/bits.h b/include/uapi/linux/bits.h\nindex 682b406e1067..a04afef9efca 100644\n--- a/include/uapi/linux/bits.h\n+++ b/include/uapi/linux/bits.h\n@@ -4,9 +4,9 @@\n #ifndef _UAPI_LINUX_BITS_H\n #define _UAPI_LINUX_BITS_H\n \n-#define __GENMASK(h, l) (((~_UL(0)) << (l)) & (~_UL(0) >> (BITS_PER_LONG - 1 - (h))))\n+#define __GENMASK(h, l) (((~_UL(0)) << (l)) & (~_UL(0) >> (__BITS_PER_LONG - 1 - (h))))\n \n-#define __GENMASK_ULL(h, l) (((~_ULL(0)) << (l)) & (~_ULL(0) >> (BITS_PER_LONG_LONG - 1 - (h))))\n+#define __GENMASK_ULL(h, l) (((~_ULL(0)) << (l)) & (~_ULL(0) >> (__BITS_PER_LONG_LONG - 1 - (h))))\n \n #define __GENMASK_U128(h, l) \\\n \t((_BIT128((h)) << 1) - (_BIT128(l)))\ndiff --git a/tools/include/uapi/linux/bits.h b/tools/include/uapi/linux/bits.h\nindex 682b406e1067..a04afef9efca 100644\n--- a/tools/include/uapi/linux/bits.h\n+++ b/tools/include/uapi/linux/bits.h\n@@ -4,9 +4,9 @@\n #ifndef _UAPI_LINUX_BITS_H\n #define _UAPI_LINUX_BITS_H\n \n-#define __GENMASK(h, l) (((~_UL(0)) << (l)) & (~_UL(0) >> (BITS_PER_LONG - 1 - (h))))\n+#define __GENMASK(h, l) (((~_UL(0)) << (l)) & (~_UL(0) >> (__BITS_PER_LONG - 1 - (h))))\n \n-#define __GENMASK_ULL(h, l) (((~_ULL(0)) << (l)) & (~_ULL(0) >> (BITS_PER_LONG_LONG - 1 - (h))))\n+#define __GENMASK_ULL(h, l) (((~_ULL(0)) << (l)) & (~_ULL(0) >> (__BITS_PER_LONG_LONG - 1 - (h))))\n \n #define __GENMASK_U128(h, l) \\\n \t((_BIT128((h)) << 1) - (_BIT128(l)))",
+    "stats": {
+      "insertions": 6,
+      "deletions": 4,
+      "files": 3
+    }
+  },
+  {
+    "sha": "570db4b39f535a8bb722adb8be0280d09e34ca99",
+    "message": "module: Make sure relocations are applied to the per-CPU section\n\nThe per-CPU data section is handled differently than the other sections.\nThe memory allocations requires a special __percpu pointer and then the\nsection is copied into the view of each CPU. Therefore the SHF_ALLOC\nflag is removed to ensure move_module() skips it.\n\nLater, relocations are applied and apply_relocations() skips sections\nwithout SHF_ALLOC because they have not been copied. This also skips the\nper-CPU data section.\nThe missing relocations result in a NULL pointer on x86-64 and very\nsmall values on x86-32. This results in a crash because it is not\nskipped like NULL pointer would and can't be dereferenced.\n\nSuch an assignment happens during static per-CPU lock initialisation\nwith lockdep enabled.\n\nAllow relocation processing for the per-CPU section even if SHF_ALLOC is\nmissing.\n\nReported-by: kernel test robot <oliver.sang@intel.com>\nCloses: https://lore.kernel.org/oe-lkp/202506041623.e45e4f7d-lkp@intel.com\nFixes: 1a6100caae425 (\"Don't relocate non-allocated regions in modules.\") #v2.6.1-rc3\nSigned-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>\nReviewed-by: Petr Pavlu <petr.pavlu@suse.com>\nLink: https://lore.kernel.org/r/20250610163328.URcsSUC1@linutronix.de\nSigned-off-by: Daniel Gomez <da.gomez@samsung.com>\nMessage-ID: <20250610163328.URcsSUC1@linutronix.de>",
+    "author": "Sebastian Andrzej Siewior",
+    "date": "2025-07-08T20:52:30+02:00",
+    "files_changed": [
+      "kernel/module/main.c"
+    ],
+    "diff": "diff --git a/kernel/module/main.c b/kernel/module/main.c\nindex 7822b91fca6b..c2c08007029d 100644\n--- a/kernel/module/main.c\n+++ b/kernel/module/main.c\n@@ -1573,8 +1573,14 @@ static int apply_relocations(struct module *mod, const struct load_info *info)\n \t\tif (infosec >= info->hdr->e_shnum)\n \t\t\tcontinue;\n \n-\t\t/* Don't bother with non-allocated sections */\n-\t\tif (!(info->sechdrs[infosec].sh_flags & SHF_ALLOC))\n+\t\t/*\n+\t\t * Don't bother with non-allocated sections.\n+\t\t * An exception is the percpu section, which has separate allocations\n+\t\t * for individual CPUs. We relocate the percpu section in the initial\n+\t\t * ELF template and subsequently copy it to the per-CPU destinations.\n+\t\t */\n+\t\tif (!(info->sechdrs[infosec].sh_flags & SHF_ALLOC) &&\n+\t\t    (!infosec || infosec != info->index.pcpu))\n \t\t\tcontinue;\n \n \t\tif (info->sechdrs[i].sh_flags & SHF_RELA_LIVEPATCH)",
+    "stats": {
+      "insertions": 8,
+      "deletions": 2,
+      "files": 1
+    }
+  },
+  {
+    "sha": "ca3881f6fd8e9b6eb2d51e8718d07d3b8029d886",
+    "message": "module: Fix memory deallocation on error path in move_module()\n\nThe function move_module() uses the variable t to track how many memory\ntypes it has allocated and consequently how many should be freed if an\nerror occurs.\n\nThe variable is initially set to 0 and is updated when a call to\nmodule_memory_alloc() fails. However, move_module() can fail for other\nreasons as well, in which case t remains set to 0 and no memory is freed.\n\nFix the problem by initializing t to MOD_MEM_NUM_TYPES. Additionally, make\nthe deallocation loop more robust by not relying on the mod_mem_type_t enum\nhaving a signed integer as its underlying type.\n\nFixes: c7ee8aebf6c0 (\"module: add stop-grap sanity check on module memcpy()\")\nSigned-off-by: Petr Pavlu <petr.pavlu@suse.com>\nReviewed-by: Sami Tolvanen <samitolvanen@google.com>\nReviewed-by: Daniel Gomez <da.gomez@samsung.com>\nLink: https://lore.kernel.org/r/20250618122730.51324-2-petr.pavlu@suse.com\nSigned-off-by: Daniel Gomez <da.gomez@samsung.com>\nMessage-ID: <20250618122730.51324-2-petr.pavlu@suse.com>",
+    "author": "Petr Pavlu",
+    "date": "2025-07-08T20:52:29+02:00",
+    "files_changed": [
+      "kernel/module/main.c"
+    ],
+    "diff": "diff --git a/kernel/module/main.c b/kernel/module/main.c\nindex 413ac6ea3702..9ac994b2f354 100644\n--- a/kernel/module/main.c\n+++ b/kernel/module/main.c\n@@ -2697,7 +2697,7 @@ static int find_module_sections(struct module *mod, struct load_info *info)\n static int move_module(struct module *mod, struct load_info *info)\n {\n \tint i;\n-\tenum mod_mem_type t = 0;\n+\tenum mod_mem_type t = MOD_MEM_NUM_TYPES;\n \tint ret = -ENOMEM;\n \tbool codetag_section_found = false;\n \n@@ -2776,7 +2776,7 @@ static int move_module(struct module *mod, struct load_info *info)\n \treturn 0;\n out_err:\n \tmodule_memory_restore_rox(mod);\n-\tfor (t--; t >= 0; t--)\n+\twhile (t--)\n \t\tmodule_memory_free(mod, t);\n \tif (codetag_section_found)\n \t\tcodetag_free_module_sections(mod);",
+    "stats": {
+      "insertions": 2,
+      "deletions": 2,
+      "files": 1
+    }
+  },
+  {
+    "sha": "50f930db22365738d9387c974416f38a06e8057e",
+    "message": "ksmbd: fix potential use-after-free in oplock/lease break ack\n\nIf ksmbd_iov_pin_rsp return error, use-after-free can happen by\naccessing opinfo->state and opinfo_put and ksmbd_fd_put could\ncalled twice.\n\nReported-by: Ziyan Xu <research@securitygossip.com>\nSigned-off-by: Namjae Jeon <linkinjeon@kernel.org>\nSigned-off-by: Steve French <stfrench@microsoft.com>",
+    "author": "Namjae Jeon",
+    "date": "2025-07-08T11:25:44-05:00",
+    "files_changed": [
+      "fs/smb/server/smb2pdu.c"
+    ],
+    "diff": "diff --git a/fs/smb/server/smb2pdu.c b/fs/smb/server/smb2pdu.c\nindex fafa86273f12..63d17cea2e95 100644\n--- a/fs/smb/server/smb2pdu.c\n+++ b/fs/smb/server/smb2pdu.c\n@@ -8573,11 +8573,6 @@ static void smb20_oplock_break_ack(struct ksmbd_work *work)\n \t\tgoto err_out;\n \t}\n \n-\topinfo->op_state = OPLOCK_STATE_NONE;\n-\twake_up_interruptible_all(&opinfo->oplock_q);\n-\topinfo_put(opinfo);\n-\tksmbd_fd_put(work, fp);\n-\n \trsp->StructureSize = cpu_to_le16(24);\n \trsp->OplockLevel = rsp_oplevel;\n \trsp->Reserved = 0;\n@@ -8585,16 +8580,15 @@ static void smb20_oplock_break_ack(struct ksmbd_work *work)\n \trsp->VolatileFid = volatile_id;\n \trsp->PersistentFid = persistent_id;\n \tret = ksmbd_iov_pin_rsp(work, rsp, sizeof(struct smb2_oplock_break));\n-\tif (!ret)\n-\t\treturn;\n-\n+\tif (ret) {\n err_out:\n+\t\tsmb2_set_err_rsp(work);\n+\t}\n+\n \topinfo->op_state = OPLOCK_STATE_NONE;\n \twake_up_interruptible_all(&opinfo->oplock_q);\n-\n \topinfo_put(opinfo);\n \tksmbd_fd_put(work, fp);\n-\tsmb2_set_err_rsp(work);\n }\n \n static int check_lease_state(struct lease *lease, __le32 req_state)\n@@ -8724,11 +8718,6 @@ static void smb21_lease_break_ack(struct ksmbd_work *work)\n \t}\n \n \tlease_state = lease->state;\n-\topinfo->op_state = OPLOCK_STATE_NONE;\n-\twake_up_interruptible_all(&opinfo->oplock_q);\n-\tatomic_dec(&opinfo->breaking_cnt);\n-\twake_up_interruptible_all(&opinfo->oplock_brk);\n-\topinfo_put(opinfo);\n \n \trsp->StructureSize = cpu_to_le16(36);\n \trsp->Reserved = 0;\n@@ -8737,16 +8726,16 @@ static void smb21_lease_break_ack(struct ksmbd_work *work)\n \trsp->LeaseState = lease_state;\n \trsp->LeaseDuration = 0;\n \tret = ksmbd_iov_pin_rsp(work, rsp, sizeof(struct smb2_lease_ack));\n-\tif (!ret)\n-\t\treturn;\n-\n+\tif (ret) {\n err_out:\n+\t\tsmb2_set_err_rsp(work);\n+\t}\n+\n+\topinfo->op_state = OPLOCK_STATE_NONE;\n \twake_up_interruptible_all(&opinfo->oplock_q);\n \tatomic_dec(&opinfo->breaking_cnt);\n \twake_up_interruptible_all(&opinfo->oplock_brk);\n-\n \topinfo_put(opinfo);\n-\tsmb2_set_err_rsp(work);\n }\n \n /**",
+    "stats": {
+      "insertions": 9,
+      "deletions": 20,
+      "files": 1
+    }
+  },
+  {
+    "sha": "277627b431a0a6401635c416a21b2a0f77a77347",
+    "message": "ksmbd: fix a mount write count leak in ksmbd_vfs_kern_path_locked()\n\nIf the call of ksmbd_vfs_lock_parent() fails, we drop the parent_path\nreferences and return an error.  We need to drop the write access we\njust got on parent_path->mnt before we drop the mount reference - callers\nassume that ksmbd_vfs_kern_path_locked() returns with mount write\naccess grabbed if and only if it has returned 0.\n\nFixes: 864fb5d37163 (\"ksmbd: fix possible deadlock in smb2_open\")\nSigned-off-by: Al Viro <viro@zeniv.linux.org.uk>\nAcked-by: Namjae Jeon <linkinjeon@kernel.org>\nSigned-off-by: Steve French <stfrench@microsoft.com>",
+    "author": "Al Viro",
+    "date": "2025-07-08T11:25:44-05:00",
+    "files_changed": [
+      "fs/smb/server/vfs.c"
+    ],
+    "diff": "diff --git a/fs/smb/server/vfs.c b/fs/smb/server/vfs.c\nindex 0f3aad12e495..d3437f6644e3 100644\n--- a/fs/smb/server/vfs.c\n+++ b/fs/smb/server/vfs.c\n@@ -1282,6 +1282,7 @@ int ksmbd_vfs_kern_path_locked(struct ksmbd_work *work, char *name,\n \n \t\terr = ksmbd_vfs_lock_parent(parent_path->dentry, path->dentry);\n \t\tif (err) {\n+\t\t\tmnt_drop_write(parent_path->mnt);\n \t\t\tpath_put(path);\n \t\t\tpath_put(parent_path);\n \t\t}",
+    "stats": {
+      "insertions": 1,
+      "deletions": 0,
+      "files": 1
+    }
+  }
+]

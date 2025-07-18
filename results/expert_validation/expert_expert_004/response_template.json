@@ -1,0 +1,199 @@
+{
+  "response_metadata": {
+    "expert_id": "expert_004",
+    "session_id": "session_expert_004_464ddf35",
+    "completion_time": "",
+    "total_time_minutes": 0
+  },
+  "responses": [
+    {
+      "question_id": "relevance_ap_fallback_000_4e255404",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "relevance",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "accuracy_ap_fallback_000_402aa125",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "accuracy",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "severity_ap_fallback_000_0486dd78",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "severity",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "completeness_ap_fallback_000_5960bc1d",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "completeness",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "false_positive_ap_fallback_000_1b1ab15f",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "false_positive",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "utility_ap_fallback_000_b565f024",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "utility",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "feedback_ap_fallback_000_f184bca4",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "feedback",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "relevance_ap_fallback_000_cfb7df5e",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "relevance",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "accuracy_ap_fallback_000_38967f36",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "accuracy",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "severity_ap_fallback_000_472f38e4",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "severity",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "completeness_ap_fallback_000_498d75bb",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "completeness",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "false_positive_ap_fallback_000_57dea24f",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "false_positive",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "utility_ap_fallback_000_8f02c0a2",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "utility",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "feedback_ap_fallback_000_0f12e95d",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "feedback",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "relevance_ap_fallback_000_af3b0f8f",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "relevance",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "accuracy_ap_fallback_000_b2511270",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "accuracy",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "severity_ap_fallback_000_0568b820",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "severity",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "completeness_ap_fallback_000_881ab74b",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "completeness",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "false_positive_ap_fallback_000_ae4af5e6",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "false_positive",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "utility_ap_fallback_000_1d41f49e",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "utility",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    },
+    {
+      "question_id": "feedback_ap_fallback_000_9dc84e83",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "feedback",
+      "response_value": "",
+      "confidence": 0.8,
+      "reasoning": "",
+      "additional_comments": ""
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "sha": "7ac5b66acafcc9292fb935d7e03790f2b8b2dc0e",
+    "message": "ksmbd: fix null pointer dereference in destroy_previous_session\n\nIf client set ->PreviousSessionId on kerberos session setup stage,\nNULL pointer dereference error will happen. Since sess->user is not\nset yet, It can pass the user argument as NULL to destroy_previous_session.\nsess->user will be set in ksmbd_krb5_authenticate(). So this patch move\ncalling destroy_previous_session() after ksmbd_krb5_authenticate().\n\nCc: stable@vger.kernel.org\nReported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-27391\nSigned-off-by: Namjae Jeon <linkinjeon@kernel.org>\nSigned-off-by: Steve French <stfrench@microsoft.com>",
+    "author": "Namjae Jeon",
+    "date": "2025-06-17T16:27:15-05:00",
+    "files_changed": [
+      "fs/smb/server/smb2pdu.c"
+    ],
+    "diff": "diff --git a/fs/smb/server/smb2pdu.c b/fs/smb/server/smb2pdu.c\nindex 1a308171b599..6645d8fd772e 100644\n--- a/fs/smb/server/smb2pdu.c\n+++ b/fs/smb/server/smb2pdu.c\n@@ -1607,17 +1607,18 @@ static int krb5_authenticate(struct ksmbd_work *work,\n \tout_len = work->response_sz -\n \t\t(le16_to_cpu(rsp->SecurityBufferOffset) + 4);\n \n-\t/* Check previous session */\n-\tprev_sess_id = le64_to_cpu(req->PreviousSessionId);\n-\tif (prev_sess_id && prev_sess_id != sess->id)\n-\t\tdestroy_previous_session(conn, sess->user, prev_sess_id);\n-\n \tretval = ksmbd_krb5_authenticate(sess, in_blob, in_len,\n \t\t\t\t\t out_blob, &out_len);\n \tif (retval) {\n \t\tksmbd_debug(SMB, \"krb5 authentication failed\\n\");\n \t\treturn -EINVAL;\n \t}\n+\n+\t/* Check previous session */\n+\tprev_sess_id = le64_to_cpu(req->PreviousSessionId);\n+\tif (prev_sess_id && prev_sess_id != sess->id)\n+\t\tdestroy_previous_session(conn, sess->user, prev_sess_id);\n+\n \trsp->SecurityBufferLength = cpu_to_le16(out_len);\n \n \tif ((conn->sign || server_conf.enforced_signing) ||",
+    "stats": {
+      "insertions": 6,
+      "deletions": 5,
+      "files": 1
+    }
+  },
+  {
+    "sha": "a89f5fae998bdc4d0505306f93844c9ae059d50c",
+    "message": "ksmbd: add free_transport ops in ksmbd connection\n\nfree_transport function for tcp connection can be called from smbdirect.\nIt will cause kernel oops. This patch add free_transport ops in ksmbd\nconnection, and add each free_transports for tcp and smbdirect.\n\nFixes: 21a4e47578d4 (\"ksmbd: fix use-after-free in __smb2_lease_break_noti()\")\nReviewed-by: Stefan Metzmacher <metze@samba.org>\nSigned-off-by: Namjae Jeon <linkinjeon@kernel.org>\nSigned-off-by: Steve French <stfrench@microsoft.com>",
+    "author": "Namjae Jeon",
+    "date": "2025-06-17T16:26:44-05:00",
+    "files_changed": [
+      "fs/smb/server/connection.c",
+      "fs/smb/server/connection.h",
+      "fs/smb/server/transport_rdma.c",
+      "fs/smb/server/transport_tcp.c"
+    ],
+    "diff": "diff --git a/fs/smb/server/connection.c b/fs/smb/server/connection.c\nindex 83764c230e9d..3f04a2977ba8 100644\n--- a/fs/smb/server/connection.c\n+++ b/fs/smb/server/connection.c\n@@ -40,7 +40,7 @@ void ksmbd_conn_free(struct ksmbd_conn *conn)\n \tkvfree(conn->request_buf);\n \tkfree(conn->preauth_info);\n \tif (atomic_dec_and_test(&conn->refcnt)) {\n-\t\tksmbd_free_transport(conn->transport);\n+\t\tconn->transport->ops->free_transport(conn->transport);\n \t\tkfree(conn);\n \t}\n }\ndiff --git a/fs/smb/server/connection.h b/fs/smb/server/connection.h\nindex 6efed923bd68..dd3e0e3f7bf0 100644\n--- a/fs/smb/server/connection.h\n+++ b/fs/smb/server/connection.h\n@@ -133,6 +133,7 @@ struct ksmbd_transport_ops {\n \t\t\t  void *buf, unsigned int len,\n \t\t\t  struct smb2_buffer_desc_v1 *desc,\n \t\t\t  unsigned int desc_len);\n+\tvoid (*free_transport)(struct ksmbd_transport *kt);\n };\n \n struct ksmbd_transport {\ndiff --git a/fs/smb/server/transport_rdma.c b/fs/smb/server/transport_rdma.c\nindex 4998df04ab95..64a428a06ace 100644\n--- a/fs/smb/server/transport_rdma.c\n+++ b/fs/smb/server/transport_rdma.c\n@@ -159,7 +159,8 @@ struct smb_direct_transport {\n };\n \n #define KSMBD_TRANS(t) ((struct ksmbd_transport *)&((t)->transport))\n-\n+#define SMBD_TRANS(t)\t((struct smb_direct_transport *)container_of(t, \\\n+\t\t\t\tstruct smb_direct_transport, transport))\n enum {\n \tSMB_DIRECT_MSG_NEGOTIATE_REQ = 0,\n \tSMB_DIRECT_MSG_DATA_TRANSFER\n@@ -410,6 +411,11 @@ static struct smb_direct_transport *alloc_transport(struct rdma_cm_id *cm_id)\n \treturn NULL;\n }\n \n+static void smb_direct_free_transport(struct ksmbd_transport *kt)\n+{\n+\tkfree(SMBD_TRANS(kt));\n+}\n+\n static void free_transport(struct smb_direct_transport *t)\n {\n \tstruct smb_direct_recvmsg *recvmsg;\n@@ -455,7 +461,6 @@ static void free_transport(struct smb_direct_transport *t)\n \n \tsmb_direct_destroy_pools(t);\n \tksmbd_conn_free(KSMBD_TRANS(t)->conn);\n-\tkfree(t);\n }\n \n static struct smb_direct_sendmsg\n@@ -2281,4 +2286,5 @@ static const struct ksmbd_transport_ops ksmbd_smb_direct_transport_ops = {\n \t.read\t\t= smb_direct_read,\n \t.rdma_read\t= smb_direct_rdma_read,\n \t.rdma_write\t= smb_direct_rdma_write,\n+\t.free_transport = smb_direct_free_transport,\n };\ndiff --git a/fs/smb/server/transport_tcp.c b/fs/smb/server/transport_tcp.c\nindex abedf510899a..4e9f98db9ff4 100644\n--- a/fs/smb/server/transport_tcp.c\n+++ b/fs/smb/server/transport_tcp.c\n@@ -93,7 +93,7 @@ static struct tcp_transport *alloc_transport(struct socket *client_sk)\n \treturn t;\n }\n \n-void ksmbd_free_transport(struct ksmbd_transport *kt)\n+static void ksmbd_tcp_free_transport(struct ksmbd_transport *kt)\n {\n \tstruct tcp_transport *t = TCP_TRANS(kt);\n \n@@ -656,4 +656,5 @@ static const struct ksmbd_transport_ops ksmbd_tcp_transport_ops = {\n \t.read\t\t= ksmbd_tcp_read,\n \t.writev\t\t= ksmbd_tcp_writev,\n \t.disconnect\t= ksmbd_tcp_disconnect,\n+\t.free_transport = ksmbd_tcp_free_transport,\n };",
+    "stats": {
+      "insertions": 12,
+      "deletions": 4,
+      "files": 4
+    }
+  }
+]

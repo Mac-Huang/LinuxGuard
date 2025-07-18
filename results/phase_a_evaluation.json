@@ -1,0 +1,2088 @@
+{
+  "security_analysis": {
+    "keyword_stats": {
+      "locking": {
+        "deadlock": 18,
+        "lock": 84,
+        "rcu": 19,
+        "race condition": 17,
+        "unlock": 10,
+        "mutex": 15,
+        "spinlock": 3
+      },
+      "validation": {
+        "bounds": 8,
+        "check": 77,
+        "validate": 28,
+        "sanitize": 5,
+        "verify": 1
+      },
+      "error_handling": {
+        "fix": 267,
+        "prevent": 38,
+        "error": 106,
+        "fail": 82,
+        "crash": 33,
+        "avoid": 56
+      },
+      "memory_safety": {
+        "use-after-free": 23,
+        "uaf": 11,
+        "null pointer": 48,
+        "memory leak": 20,
+        "underflow": 9,
+        "overflow": 20,
+        "heap overflow": 1,
+        "double free": 2,
+        "buffer overflow": 1
+      },
+      "security_general": {
+        "security": 11,
+        "exploit": 1,
+        "cve": 2,
+        "vuln": 2,
+        "privilege": 2
+      }
+    },
+    "category_distribution": {
+      "locking": 106,
+      "error_handling": 273,
+      "validation": 106,
+      "memory_safety": 121,
+      "security_general": 17
+    },
+    "commits_by_category": {
+      "3f31a806a62e44f7498e2d17719c03f816553f11": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "3b428e1cfcc4c5f063bb8b367beb71ee06470d4b": [
+        "error_handling"
+      ],
+      "2632d81f5a02b65e6131cd57ba092bd321446e91": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "3c2fe27971c3c9cc27de6e369385f6428db6c0b5": [
+        "error_handling",
+        "validation"
+      ],
+      "5f02b80c21e1511c32a37f642497751041069076": [
+        "error_handling"
+      ],
+      "40f92e79b0aabbf3575e371f9054657a421a3e79": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "c7979c3917fa1326dae3607e1c6a04c12057b194": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "b74c2a2e9cc471e847abd87e50a2354c07e02040": [
+        "error_handling",
+        "validation"
+      ],
+      "e81750b4e3826fedce7362dad839cb40384d60ae": [
+        "error_handling",
+        "validation"
+      ],
+      "eb41a264a3a576dc040ee37c3d9d6b7e2d9be968": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "b7dc79a6332fe6f58f2e6b2a631bad101dc79107": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "711c80f7d8b163d3ecd463cd96f07230f488e750": [
+        "error_handling"
+      ],
+      "7ac5cc2616257cf80d32a8814e44474f07efed62": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "18cdb3d982da8976b28d57691eb256ec5688fad2": [
+        "error_handling",
+        "validation"
+      ],
+      "bc9ff192a6c940d9a26e21a0a82f2667067aaf5f": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "73d7cf07109e79b093d1a1fb57a88d4048cd9b4b": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "d7a54d02db41f72f0581a3c77c75b0993ed3f6e2": [
+        "memory_safety"
+      ],
+      "db6cc3f4ac2e6cdc898fc9cbc8b32ae1bf56bdad": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "82241a83cd15aaaf28200a40ad1a8b480012edaf": [
+        "locking",
+        "error_handling"
+      ],
+      "d9e01c62b7a0c258a7481c083f84c766a8f5597c": [
+        "error_handling"
+      ],
+      "6ee9b3d84775944fb8c8a447961cd01274ac671c": [
+        "locking",
+        "error_handling"
+      ],
+      "c39b87456411a7e4d97a0f6384ca31f2abb1a4b7": [
+        "error_handling"
+      ],
+      "69e4186773c6445b258fb45b6e1df18df831ec45": [
+        "error_handling"
+      ],
+      "22fc46cea91df3dce140a7dc6847c6fcf0354505": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "3aaea88f7dd1631301878231e6bf218d0124b9ca": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "62dba28275a9a3104d4e33595c7b3328d4032d8d": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "4578a747f3c7950be3feb93c2db32eb597a3e55b": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "8c2e52ebbe885c7eeaabd3b7ddcdc1246fc400d2": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "bd46cece51a36ef088f22ef0416ac13b0a46d5b0": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "72782127388d96e971f0186996a5bd44e64a1665": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "2dbae28a1d263902d647822937f9c42090c4adcc": [
+        "error_handling"
+      ],
+      "570db4b39f535a8bb722adb8be0280d09e34ca99": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "ca3881f6fd8e9b6eb2d51e8718d07d3b8029d886": [
+        "error_handling",
+        "validation"
+      ],
+      "50f930db22365738d9387c974416f38a06e8057e": [
+        "memory_safety",
+        "locking",
+        "security_general",
+        "error_handling"
+      ],
+      "277627b431a0a6401635c416a21b2a0f77a77347": [
+        "locking",
+        "error_handling"
+      ],
+      "3ef07434c7dbfba302df477bb6c70e082965f232": [
+        "error_handling"
+      ],
+      "d006330be3f782ff3fb7c3ed51e617e01f29a465": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "95a234f6affbf51f06338383537ab80d637bb785": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "d3a5f2871adc0c61c61869f37f3e697d97f03d8c": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "5383fc057a0ea18e8eb9a0472ea853c24b59ee5e": [
+        "locking",
+        "error_handling"
+      ],
+      "70b9c0c11e55167b9552ef395bc00f4920299177": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "705a412a367f383430fa34bada387af2e52eb043": [
+        "security_general",
+        "error_handling"
+      ],
+      "667eeab4999e981c96b447a4df5f20bdf5c26f13": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "4e2bba30b16935d18e59d137f607f8e10b6fda87": [
+        "error_handling"
+      ],
+      "4ab9ada765b7acb5cd02fe27632ec2586b7868ee": [
+        "error_handling"
+      ],
+      "aa9552438ebf015fc5f9f890dbfe39f0c53cf37e": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "03ee8f73801a8f46d83dfc2bf73fb9ffa5a21602": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "35ad47c0b3da04b00b19a8b9ed5632e2f2520472": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "3dd6f67c669c860b93ff533f790f23ee1cb36f25": [
+        "locking",
+        "error_handling"
+      ],
+      "28d519d0d493a8cf3f8ca01f10d962c56cec1825": [
+        "locking",
+        "error_handling"
+      ],
+      "c772cd726eea6fe8fb81d2aeeacb18cecff73a7b": [
+        "locking",
+        "error_handling"
+      ],
+      "d133036a0b23d3ef781d067ccdea6bbfb381e0cf": [
+        "error_handling",
+        "validation"
+      ],
+      "85e323bdbe28d4638aaefd8d9192763874efe9b0": [
+        "error_handling",
+        "validation"
+      ],
+      "737bb912ebbe4571195c56eba557c4d7315b26fb": [
+        "security_general",
+        "error_handling"
+      ],
+      "c5fd399a24c8e2865524361f7dc4d4a6899be4f4": [
+        "error_handling",
+        "validation"
+      ],
+      "772b78c2abd85586bb90b23adff89f7303c704c7": [
+        "locking",
+        "error_handling"
+      ],
+      "a1639ce5e590300af45bebedfbacf8fabc1777ed": [
+        "locking",
+        "security_general",
+        "error_handling"
+      ],
+      "1f988d0788f50d8464f957e793fab356e2937369": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "05df91921da664ebba2752a7e45b63e3dddb85de": [
+        "locking",
+        "error_handling"
+      ],
+      "fd860cd78146605eeeeee3ac264ca166cc9fa943": [
+        "error_handling",
+        "validation"
+      ],
+      "14dd95647ea533c7d7c528b9bb7e163e433b47b9": [
+        "error_handling",
+        "validation"
+      ],
+      "454706f1f8698eecc6cc00493c6dffbccdbbd416": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "ddb9680a7226d6081b42869d2875715a17ecb51d": [
+        "error_handling",
+        "validation"
+      ],
+      "63d6e9311999a3dd125ad3e0560a769e047fd7b1": [
+        "memory_safety"
+      ],
+      "b1bf2ef6259e6aedc3f952ebd9bc056605563b74": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "df46426745ac58618c822ce3f93d2bb25b9a5060": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "3c2bd251d2039ce2778c35ced5ef47b3a379f5df": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "42bb9b630c4c6c0964cddca98d9d30aa992826de": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "923d401238c590f39833a2015f6f9493f146d98f": [
+        "locking",
+        "error_handling"
+      ],
+      "1880df2cf44af6266b48a905596726c267bc2b04": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "482deed9dfa065cf3f68372dadac857541c7d504": [
+        "locking",
+        "error_handling"
+      ],
+      "2eb7f03acf4ac5db937974e99e75dac4c2c5a83d": [
+        "error_handling",
+        "validation"
+      ],
+      "d38376b3ee48d073c64e75e150510d7e6b4b04f7": [
+        "locking",
+        "error_handling"
+      ],
+      "ef8923e6c051a98164c2889db943df9695a39888": [
+        "error_handling",
+        "validation"
+      ],
+      "44306a684cd1699b8562a54945ddc43e2abc9eab": [
+        "error_handling",
+        "validation"
+      ],
+      "25b1b75bbaf96331750fb01302825069657b2ff8": [
+        "error_handling",
+        "validation"
+      ],
+      "30e0fd3c0273dc106320081793793a424f1f1950": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "043faef334a1f3d96ae88e1b7618bfa2b4946388": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "4cf65845fdd09d711fc7546d60c9abe010956922": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "da8d8e9001c6a3741e9bec26a6cdcfd75ecabc88": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "266b5d02e14f3a0e07414e11f239397de0577a1d": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "ac2ad73e75596189603995cd4283949863fd7e55": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "afd30ace71eecc3ba06815c9b554e801e85ab73a": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "b91e11ec5cd972dc39121496c3a0cf2ec2e9a393": [
+        "error_handling"
+      ],
+      "e79d0ba605d54dd47f3d8a487d00f264b896966c": [
+        "error_handling"
+      ],
+      "4c06e63b92038fadb566b652ec3ec04e228931e8": [
+        "error_handling"
+      ],
+      "025c1970da725b07701464990f747fe1c2bd797f": [
+        "error_handling",
+        "validation"
+      ],
+      "17bbde2e1716e2ee4b997d476b48ae85c5a47671": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "d32e907d15f7257f69d38b4c829f87a79ecf8b7f": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "75ef7b8d44c30a76cfbe42dde9413d43055a00a7": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "9a5d769c9084678c0f21c3f9cf83ca17466a16fb": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "45ebc7e6c125ce93d2ddf82cd5bea20121bb0258": [
+        "error_handling"
+      ],
+      "38224c472a038fa9ccd4085511dd9f3d6119dbf9": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "ba677dbe77af5ffe6204e0f3f547f3ba059c6302": [
+        "security_general",
+        "error_handling"
+      ],
+      "c80f2b047d5cc42fbd2dff9d1942d4ba7545100f": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "226862f50a7a88e4e4de9abbf36c64d19acd6fd0": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "c2a2ff6b4db55647575260bf2227b0e09d46addb": [
+        "error_handling",
+        "validation"
+      ],
+      "103406b38c600fec1fe375a77b27d87e314aea09": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "b4911fb0b060899e4eebca0151eb56deb86921ec": [
+        "locking",
+        "error_handling"
+      ],
+      "ba6a2f25d3d0c813bc5f70c4437002ecc90b85d5": [
+        "error_handling"
+      ],
+      "7e4a6b57dd7f55cce9ece0778c111905e73db7b1": [
+        "locking",
+        "error_handling"
+      ],
+      "34a500caf48c47d5171f4aa1f237da39b07c6157": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "bf906c988d77d9cdfb52a7d19ad9b183991271a3": [
+        "error_handling"
+      ],
+      "c6e8d51b37d2ca37dee63753fd240bcbc6402ad3": [
+        "locking",
+        "error_handling"
+      ],
+      "d5cb81ba929c1b0d02dadd4be27fc1440dd2e014": [
+        "locking",
+        "error_handling"
+      ],
+      "97d8e8e52cb8ab3d7675880a92626d9a4332f7a6": [
+        "error_handling"
+      ],
+      "8c44dac8add7503c345c0f6c7962e4863b88ba42": [
+        "locking",
+        "error_handling"
+      ],
+      "0d519bb0de3bf0ac9e6f401d4910fc119062d7be": [
+        "locking",
+        "error_handling"
+      ],
+      "009836b4fa52f92cba33618e773b1094affa8cd2": [
+        "locking",
+        "error_handling"
+      ],
+      "d6811074203b13f715ce2480ac64c5b1c773f2a5": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "a5aa7bc1fca78c7fa127d9e33aa94a0c9066c1d6": [
+        "error_handling"
+      ],
+      "e39ed71c7a26e8e94c637e222bc373b511ca127f": [
+        "security_general",
+        "error_handling"
+      ],
+      "f3e58d8e154dae5015c7400812c80789589fc36e": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "cf234231fcbc7d391e2135b9518613218cc5347f": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "3d30048958e0d43425f6d4e76565e6249fa71050": [
+        "error_handling",
+        "validation"
+      ],
+      "bdb32a0f6780660512d2335db2ebe32e6582cdc8": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "6729c134ccc0d37d865c342e466b90df29081f1a": [
+        "error_handling"
+      ],
+      "f172ffde18997aa401a74153cea4ae3bfdcb5124": [
+        "error_handling"
+      ],
+      "74b1ec9f5d627d2bdd5e5b6f3f81c23317657023": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "1fe44a86ff0ff483aa1f1332f2b08f431fa51ce8": [
+        "error_handling",
+        "validation"
+      ],
+      "97e000acf2e20a86a50a0ec8c2739f0846f37509": [
+        "locking",
+        "error_handling"
+      ],
+      "644bec18e705ca41d444053407419a21832fcb2f": [
+        "error_handling",
+        "validation"
+      ],
+      "7b4c5a37544ba22c6ebe72c0d4ea56c953459fa5": [
+        "locking",
+        "error_handling"
+      ],
+      "190f4c2c863af7cc5bb354b70e0805f06419c038": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "2e96d2d8c2a7a6c2cef45593c028d9c5ef180316": [
+        "error_handling"
+      ],
+      "7da6c155a67d42a0c1e4e22bd3f492fabcb14f2c": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "caa7c7a76b78ce41d347003f84975125383e6b59": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "fa60c094c19b97e103d653f528f8d9c178b6a5f5": [
+        "locking",
+        "error_handling"
+      ],
+      "d85d0380292a7e618915069c3579ae23c7c80339": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "eeca209124bb694650026216d3e59cae02d91686": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "ca46946a482238b0cdea459fb82fc837fb36260e": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "dc78f7e59169d3f0e6c3c95d23dc8e55e95741e2": [
+        "locking",
+        "error_handling"
+      ],
+      "b846350aa272de99bf6fecfa6b08e64ebfb13173": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "dfba48a70cb68888efb494c9642502efe73614ed": [
+        "locking",
+        "error_handling"
+      ],
+      "ded779017ad78fc9df3e9d9ae0e39d2e73865851": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "3a3de75a68ff8d52466980c4cfb2c16192d5e4e7": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "45537926dd2aaa9190ac0fac5a0fbeefcadfea95": [
+        "locking",
+        "error_handling"
+      ],
+      "aaf724ed69264719550ec4f194d3ab17b886af9a": [
+        "locking",
+        "error_handling"
+      ],
+      "0fd39af24e37a6866c479ca385301845f6029787": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "867b9987a30b7f68a6e9e89d3670730692222a4a": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "fa33adcaf8af147f4238c84d76a316a47e43e091": [
+        "error_handling"
+      ],
+      "7abdafd2343ab199367c8243d6a5f06a9aa6976b": [
+        "error_handling",
+        "validation"
+      ],
+      "26fd9f7b7ff3794c5de0e6ae538cead53118b4c3": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "2def09ead4ad5907988b655d1e1454003aaf8297": [
+        "error_handling"
+      ],
+      "6921d1e07cb5eddec830801087b419194fde0803": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "35e261cd95ddc741d8664f5ac897bbd0d384bbd0": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "5f61b961599acbd2bed028d3089105a1f7d224b8": [
+        "error_handling",
+        "validation"
+      ],
+      "6561a40ceced9082f50c374a22d5966cf9fc5f5c": [
+        "error_handling",
+        "validation"
+      ],
+      "e540341508ce2f6e27810106253d5de194b66750": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "0a47e02d8a283a99592876556b9d42e087525828": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "51df97f90002cb055e966189bd46d831af69e155": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "9c2f970518c900821acdac47bbd681b99a325e3d": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "d62016b1a2df24c8608fe83cd3ae8090412881b3": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "db6a2274162de615ff74b927d38942fe3134d298": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "09234a632be42573d9743ac5ff6773622d233ad0": [
+        "locking",
+        "validation"
+      ],
+      "5f6e3b720694ad771911f637a51930f511427ce1": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "cc8d5b209e09d3b52bca1ffe00045876842d96ae": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "48e29133ae880a8f30ff098a9843d22e012350e0": [
+        "locking",
+        "error_handling"
+      ],
+      "6f2a71a99ebd5dfaa7948a2e9c59eae94b741bd8": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "8a20830f2dd180064f25254d9c55beb243fe9223": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "e34a79b96ab9d49ed8b605fee11099cf3efbb428": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "711741f94ac3cf9f4e3aa73aa171e76d188c0819": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "d07143b507c51c04c091081627c5a130e9d3c517": [
+        "error_handling"
+      ],
+      "c007062188d8e402c294117db53a24b2bed2b83f": [
+        "locking",
+        "error_handling"
+      ],
+      "969127bf0783a4ac0c8a27e633a9e8ea1738583f": [
+        "memory_safety",
+        "validation"
+      ],
+      "080e8d2ecdfde588897aa8a87a8884061f4dbbbb": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "a0137c9048252ea965a0436895c77d1c917dfe2a": [
+        "error_handling",
+        "validation"
+      ],
+      "f46d273449ba65afd53f3dd8fe0182c9df877e08": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "0e02219f9cf4f0c0aa3dbf3c820e6612bf3f0c8c": [
+        "memory_safety",
+        "security_general",
+        "error_handling"
+      ],
+      "1476b218327b89bbb64c14619a2d34f0c320f2c3": [
+        "error_handling"
+      ],
+      "9a2b9416fd1d18d97ce1b737a11fcbc521140e5d": [
+        "error_handling"
+      ],
+      "e728e705802fec20f65d974a5d5eb91217ac618d": [
+        "locking",
+        "security_general",
+        "error_handling",
+        "validation"
+      ],
+      "ee88bddf7f2f5d1f1da87dd7bedc734048b70e88": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "7c942f87cc0be5699b1ce434d369eccd8b5321d4": [
+        "error_handling",
+        "validation"
+      ],
+      "4f489fe6afb395dbc79840efa3c05440b760d883": [
+        "error_handling"
+      ],
+      "f5769359c5b241978e6933672bb78b3adc36aa18": [
+        "error_handling"
+      ],
+      "df831e97739405ecbaddb85516bc7d4d1c933d6b": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "344ef45b03336e7f74658814f66483b5417c9cf1": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "666c23af755dccca8c25b5d5200ca28153c69a05": [
+        "error_handling"
+      ],
+      "fa6f092cc0a02d0fcee37e9e8172eda372a03d33": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "c4dce0c094a89b1bc8fde1163342bd6fe29c0370": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "92ca6c498a5e6e2083b520b82d318e7e525f3e7c": [
+        "error_handling"
+      ],
+      "010c40c1f50eecab3cdeaa895808294ad0c4f000": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "fa787ac07b3ceb56dd88a62d1866038498e96230": [
+        "error_handling",
+        "validation"
+      ],
+      "7cac633a42a7b3c8146eb1db76fb80dc652998de": [
+        "error_handling"
+      ],
+      "3f5f6321f129ad5a30aa03c99c196b4612be68a8": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "2ed25aa7f7711f508b6120e336f05cd9d49943c0": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "d02b2103a08b6d6908f1d3d8e8783d3f342555ac": [
+        "error_handling"
+      ],
+      "5e9571750c4e53d16727a04159455c693d7b31cb": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "524346e9d79f63a6e5aaa645140da3d1ec7a8a0f": [
+        "error_handling",
+        "validation"
+      ],
+      "4937e604ca24c41cae3296d069c871c2f3f519c8": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "8889676cd62161896f1d861ce294adc29c4f2cb5": [
+        "locking",
+        "security_general",
+        "error_handling",
+        "validation"
+      ],
+      "7595b66ae9de667bf35a8c99e8f1bfc4792e207e": [
+        "security_general",
+        "error_handling"
+      ],
+      "1f8aede70d491a1d5867f575ca44c86fe2e335ae": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "ecf371f8b02d5e31b9aa1da7f159f1b2107bdb01": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "b07f349d1864abe29436f45e3047da2bdd476462": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "6c038b58a2dc5a008c7e7a1297f5aaa4deaaaa7e": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "099cf1fbb8afc3771f408109f62bdec66f85160e": [
+        "locking",
+        "error_handling"
+      ],
+      "2831a81077f5162f104ba5a97a7d886eb371c21c": [
+        "error_handling"
+      ],
+      "0043ec26d827ddb1e85bd9786693152aa6f55d16": [
+        "security_general",
+        "error_handling"
+      ],
+      "ff21a6ec0f27c126db0a86d96751bd6e5d1d9874": [
+        "error_handling"
+      ],
+      "1fd26729e013d0c829eb0675d5b6ad77ff497ab3": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "b272f42547d85356b035e46273ddaf2aa4e161b8": [
+        "error_handling"
+      ],
+      "32ca245464e1479bfea8592b9db227fdc1641705": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "7a3750ff0f2e8fee338a9c168f429f6c37f0e820": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "7544f3f5b0b58c396f374d060898b5939da31709": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "78f4e737a53e1163ded2687a922fce138aee73f5": [
+        "error_handling",
+        "validation"
+      ],
+      "2b8be57fa0c88ac824a906f29c04d728f9f6047a": [
+        "error_handling"
+      ],
+      "5ca7fe213ba3113dde19c4cd46347c16d9e69f81": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "aa485e8789d56a4573f7c8d000a182b749eaa64d": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "7484e15dbb016d9d40f8c6e0475810212ae181db": [
+        "error_handling",
+        "validation"
+      ],
+      "00f452a1b084efbe8dcb60a29860527944a002a1": [
+        "error_handling"
+      ],
+      "e8d6f3ab59468e230f3253efe5cb63efa35289f7": [
+        "error_handling"
+      ],
+      "1d6123102e9fbedc8d25bf4731da6d513173e49e": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "95b6759a81833d0e8c7456430186c2f6d174764e": [
+        "error_handling",
+        "validation"
+      ],
+      "cbe4134ea4bc493239786220bd69cb8a13493190": [
+        "security_general",
+        "error_handling",
+        "validation"
+      ],
+      "b993ea46b3b601915ceaaf3c802adf11e7d6bac6": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "5c00eca95a9a20e662bd290c3ef3f2e07dfa9baa": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "17ef32ae66b1afc9fa6dbea40eb18a13edba9c31": [
+        "locking",
+        "error_handling"
+      ],
+      "73543bad766486c3cdbf6fa9d1faf7d0c4bcc7af": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "75f99f8cf445d577132ed97514032d9a3d3e2758": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "72c0d9cb0fc48b6d382c3b5b6f702108a612cfdb": [
+        "error_handling"
+      ],
+      "4eb11a34b72c86d559f437fdadc47e512bba41d2": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "a379a8a2a0032e12e7ef397197c9c2ad011588d6": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "26fef998eb4df8781c038ffa4be8287219a8df0a": [
+        "error_handling"
+      ],
+      "3f75bfff44be0646580fe4efda45d646f9c1693b": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "a765b9e6db4082eefe6e1581a9495518685e7abf": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "33b6a1f155d627f5bd80c7485c598ce45428f74f": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "11313e2f78128c948e9b4eb58b3dacfc30964700": [
+        "error_handling"
+      ],
+      "299f489f5bad3554531f67335d1762225448ff39": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "89a33de314945c866b155d369f224fa552af1722": [
+        "locking",
+        "error_handling"
+      ],
+      "a8905238c3bbe13db90065ed74682418f23830c3": [
+        "error_handling"
+      ],
+      "255da9b8d761c20dbdca3ff2c96635d50a9f1fb8": [
+        "error_handling",
+        "validation"
+      ],
+      "5f2b6c5f6b692c696a232d12c43b8e41c0d393b9": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "fba46a5d83ca8decb338722fb4899026d8d9ead2": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "48fd7ebe00c1cdc782b42576548b25185902f64c": [
+        "error_handling",
+        "validation"
+      ],
+      "517f496e1e61bd169d585dab4dd77e7147506322": [
+        "locking",
+        "error_handling"
+      ],
+      "85d6fbc47c3087c5d048e6734926b0c36af34fe9": [
+        "error_handling"
+      ],
+      "74f46a0524f8d2f01dc7ca95bb5fc463a8603e72": [
+        "error_handling"
+      ],
+      "a35b29bdedb4d2ae3160d4d6684a6f1ecd9ca7c2": [
+        "error_handling",
+        "validation"
+      ],
+      "97aadc161d623b4b86ee5deaeb8e9165422ecb9e": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "fde46f60f6c5138ee422087addbc5bf5b4968bf1": [
+        "security_general",
+        "error_handling"
+      ],
+      "5c8013ae2e86ec36b07500ba4cacb14ab4d6f728": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "6463cbe08b0cbf9bba8763306764f5fd643023e1": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "b2348fe6c81cc92c7d0bd8a7d9241f8de0fa72b7": [
+        "error_handling"
+      ],
+      "d03b79f459c7935cff830d98373474f440bd03ae": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "d13a3824bfd2b4774b671a75cf766a16637a0e67": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "a55bc4ffc06d8c965a7d6f0a01ed0ed41380df28": [
+        "security_general",
+        "error_handling",
+        "validation"
+      ],
+      "10876da918fa1aec0227fb4c67647513447f53a9": [
+        "locking",
+        "security_general",
+        "error_handling"
+      ],
+      "547e836661554dcfa15c212a3821664e85b4191a": [
+        "security_general",
+        "error_handling",
+        "validation"
+      ],
+      "2dcf838cf5c2f0f4501edaa1680fcad03618d760": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "dd276214e439db08f444fd3e07e9fe4c9e0ca210": [
+        "error_handling"
+      ],
+      "186b58bacd74d9b7892869f7c7d20cf865a3c237": [
+        "error_handling"
+      ],
+      "c529c3730bd09115684644e26bf01ecbd7e2c2c9": [
+        "locking",
+        "error_handling"
+      ],
+      "f6c7bc4a6823a0a959f40866a1efe99bd03c2c5b": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "5bd1bafd4474ee26f504b41aba11f3e2a1175b88": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "9b70c362a9d4ab93e0b582dad73acb2a953ef797": [
+        "error_handling",
+        "validation"
+      ],
+      "fb4d33ab452ea254e2c319bac5703d1b56d895bf": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "229f135e0680da3dd0bcce515c07be87858f1d12": [
+        "locking",
+        "error_handling"
+      ],
+      "28c0d7756fd9b69971073c946076e35851a7133b": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "37fb58a7273726e59f9429c89ade5116083a213d": [
+        "error_handling",
+        "validation"
+      ],
+      "6fcab2791543924d438e7fa49276d0998b0a069f": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "306cb65bb0cb243389fcbd0a66907d5bdea07d1e": [
+        "error_handling"
+      ],
+      "88efa0de3285be66969b71ec137d9dab1ee19e52": [
+        "memory_safety",
+        "error_handling",
+        "validation"
+      ],
+      "5a3b583f2050870e0403ffed650f06c94d7968a4": [
+        "locking",
+        "error_handling"
+      ],
+      "2aebf5ee43bf0ed225a09a30cf515d9f2813b759": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "e1c75831f682eef0f68b35723437146ed86070b1": [
+        "error_handling"
+      ],
+      "d5352b491a3a2628f1a798952a4ae76bde5d42e4": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "0aff00432cc755ad7713f8a2f305395d443cdd4c": [
+        "error_handling"
+      ],
+      "88bd771191f7f20d6295700d1746f576419e3d1f": [
+        "error_handling"
+      ],
+      "cb6075bc62dc6a9cd7ab3572758685fdf78e3e20": [
+        "error_handling",
+        "validation"
+      ],
+      "b160766e26d4e2e2d6fe2294e0b02f92baefcec5": [
+        "memory_safety",
+        "locking",
+        "error_handling"
+      ],
+      "5ab73b010cad294851e558f1d4714a85c6f206c7": [
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "1e9ac33fa271be0d2480fd732f9642d81542500b": [
+        "memory_safety",
+        "locking",
+        "error_handling",
+        "validation"
+      ],
+      "94a17f2dc90bc7eae36c0f478515d4bd1c23e877": [
+        "security_general",
+        "error_handling"
+      ],
+      "7ac5b66acafcc9292fb935d7e03790f2b8b2dc0e": [
+        "memory_safety",
+        "error_handling"
+      ],
+      "a89f5fae998bdc4d0505306f93844c9ae059d50c": [
+        "memory_safety",
+        "error_handling"
+      ]
+    },
+    "total_categorized_commits": 277,
+    "uncategorized_commits": 0
+  },
+  "commit_analysis": {
+    "numerical_stats": {
+      "insertions": {
+        "mean": 62.55956678700361,
+        "median": 10,
+        "std": 191.10227805568545,
+        "min": 1,
+        "max": 2091,
+        "q25": 3.0,
+        "q75": 38.0
+      },
+      "deletions": {
+        "mean": 33.761732851985556,
+        "median": 5,
+        "std": 119.98306454119468,
+        "min": 0,
+        "max": 1703,
+        "q25": 1.0,
+        "q75": 20.0
+      },
+      "files_changed": {
+        "mean": 4.996389891696751,
+        "median": 1,
+        "std": 9.808861046820853,
+        "min": 1,
+        "max": 72,
+        "q25": 1.0,
+        "q75": 4.0
+      },
+      "message_length": {
+        "mean": 1518.9711191335741,
+        "median": 1005,
+        "std": 1784.601426869894,
+        "min": 110,
+        "max": 22101,
+        "q25": 619.0,
+        "q75": 1847.0
+      }
+    },
+    "author_stats": {
+      "total_authors": 143,
+      "top_10_authors": [
+        [
+          "Linus Torvalds",
+          71
+        ],
+        [
+          "Jakub Kicinski",
+          8
+        ],
+        [
+          "Kent Overstreet",
+          8
+        ],
+        [
+          "Dave Airlie",
+          7
+        ],
+        [
+          "Kuniyuki Iwashima",
+          6
+        ],
+        [
+          "Alok Tiwari",
+          4
+        ],
+        [
+          "Eric Dumazet",
+          4
+        ],
+        [
+          "Namjae Jeon",
+          3
+        ],
+        [
+          "Lorenzo Bianconi",
+          3
+        ],
+        [
+          "Lachlan Hodges",
+          3
+        ]
+      ],
+      "author_distribution": {
+        "Linus Torvalds": 71,
+        "Shravya KN": 1,
+        "Alok Tiwari": 4,
+        "Carolina Jubran": 1,
+        "Simona Vetter": 2,
+        "Kito Xu": 1,
+        "Jakub Kicinski": 8,
+        "Eric Dumazet": 4,
+        "Miri Korenblit": 1,
+        "Chen Yu": 1,
+        "Baolin Wang": 1,
+        "Honggyu Kim": 1,
+        "Yeoreum Yun": 1,
+        "Vivek Kasireddy": 1,
+        "David Howells": 2,
+        "Yue Haibing": 1,
+        "Kuniyuki Iwashima": 6,
+        "Paolo Bonzini": 2,
+        "Sebastian Andrzej Siewior": 1,
+        "Petr Pavlu": 1,
+        "Namjae Jeon": 3,
+        "Al Viro": 2,
+        "Christophe JAILLET": 2,
+        "Haoxiang Li": 1,
+        "Jiayuan Chen": 1,
+        "Thomas Weißschuh": 1,
+        "Michal Wajdeczko": 1,
+        "Luo Jie": 1,
+        "Zheng Qixing": 1,
+        "Henry Martin": 1,
+        "Deren Wu": 1,
+        "Lorenzo Bianconi": 3,
+        "Ben Skeggs": 1,
+        "Baojun Xu": 1,
+        "Mathy Vanhoef": 1,
+        "Lachlan Hodges": 3,
+        "Kent Overstreet": 8,
+        "Jens Axboe": 2,
+        "Alessio Belle": 1,
+        "Breno Leitao": 1,
+        "Mikko Perttunen": 1,
+        "Lu Baolu": 1,
+        "Hugo Villeneuve": 1,
+        "Thorsten Blum": 1,
+        "Yunshui Jiang": 1,
+        "Dave Airlie": 7,
+        "Wang Zhaolong": 1,
+        "Arnd Bergmann": 3,
+        "Laurent Vivier": 1,
+        "Qasim Ijaz": 2,
+        "Peter Zijlstra": 2,
+        "Maíra Canal": 1,
+        "Antoine Tenart": 1,
+        "Lion Ackermann": 1,
+        "Kohei Enju": 1,
+        "Christian Brauner": 1,
+        "Nam Cao": 1,
+        "Yu Kuai": 3,
+        "Geliang Tang": 1,
+        "Janusz Krzysztofik": 1,
+        "Jiawen Wu": 1,
+        "Lin.Cao": 1,
+        "Philip Yang": 1,
+        "Michael J. Ruhl": 1,
+        "Geert Uytterhoeven": 1,
+        "Jisheng Zhang": 2,
+        "Daniil Dulov": 1,
+        "Christian König": 1,
+        "Luo Gengkun": 1,
+        "Dmitry Bogdanov": 1,
+        "Hans de Goede": 1,
+        "Dan Carpenter": 1,
+        "James Clark": 1,
+        "Gabor Juhos": 1,
+        "Shree Ramamoorthy": 1,
+        "Alessandro Carminati": 1,
+        "Arun Raghavan": 1,
+        "Kaustabh Chakraborty": 1,
+        "Niklas Schnelle": 1,
+        "Fushuai Wang": 1,
+        "Edward Adam Davis": 1,
+        "Filipe Manana": 3,
+        "Dave Chinner": 3,
+        "Yazen Ghannam": 1,
+        "Bibo Mao": 2,
+        "Wolfram Sang": 1,
+        "Paulo Alcantara": 1,
+        "Ronnie Sahlberg": 1,
+        "Kees Cook": 1,
+        "Christoph Hellwig": 2,
+        "Quentin Perret": 2,
+        "Leo Yan": 1,
+        "Mostafa Saleh": 1,
+        "Dev Jain": 1,
+        "SeongJae Park": 1,
+        "Hao Ge": 1,
+        "Ge Yang": 1,
+        "Adin Scannell": 1,
+        "Manuel Andreas": 1,
+        "Penglei Jiang": 2,
+        "Or Har-Toov": 2,
+        "Pei Xiao": 2,
+        "Ming Lei": 1,
+        "jackysliu": 1,
+        "Sean Christopherson": 1,
+        "Khairul Anuar Romli": 1,
+        "Tamura Dai": 1,
+        "Andrei Kuchynski": 1,
+        "Pawel Laszczak": 1,
+        "Srinivasan Shanmugam": 1,
+        "Jack Yu": 1,
+        "Paolo Abeni": 1,
+        "Harshit Mogalapalli": 1,
+        "Ido Schimmel": 1,
+        "Zhe Qiao": 1,
+        "Yuan Chen": 1,
+        "Thomas Fourier": 2,
+        "Shivank Garg": 1,
+        "Bharath SM": 2,
+        "Stefan Metzmacher": 1,
+        "Uladzislau Rezki (Sony)": 1,
+        "Kiran K": 1,
+        "Akira Inoue": 1,
+        "Liam R. Howlett": 1,
+        "Kuan-Wei Chiu": 1,
+        "David Hildenbrand": 1,
+        "Karan Tilak Kumar": 2,
+        "Stephen Smalley": 1,
+        "Pablo Martin-Gomez": 1,
+        "Nathan Chancellor": 1,
+        "Qu Wenruo": 1,
+        "Leo Martins": 1,
+        "Mark Rutland": 1,
+        "Kuen-Han Tsai": 2,
+        "Chen Ridong": 1,
+        "Rafael J. Wysocki": 1,
+        "Qiuxu Zhuo": 1,
+        "Masami Hiramatsu (Google)": 1,
+        "Rik van Riel": 1,
+        "Hyunwoo Kim": 1,
+        "Vladimir Oltean": 1,
+        "Kalesh AP": 1,
+        "Dave Hansen": 1
+      }
+    },
+    "commit_patterns": {
+      "merge_commits": 90,
+      "revert_commits": 10,
+      "fix_commits": 169,
+      "other_commits": 3,
+      "feature_commits": 5
+    }
+  },
+  "file_analysis": {
+    "file_extensions": {
+      "c": 1015,
+      "h": 260
+    },
+    "file_directories": {
+      "fs/": 211,
+      "include/": 64,
+      "kernel/": 28,
+      "lib/": 9,
+      "mm/": 21,
+      "samples/": 4,
+      "tools/": 23,
+      "drivers/": 657,
+      "net/": 95,
+      "arch/": 99,
+      "virt/": 2,
+      "sound/": 42,
+      "block/": 2,
+      "io_uring/": 13,
+      "security/": 2,
+      "rust/": 3
+    },
+    "subsystem_patterns": {
+      "File Systems": 211,
+      "Headers": 64,
+      "Core Kernel": 28,
+      "Memory Management": 21,
+      "Device Drivers": 657,
+      "Networking": 95,
+      "Architecture Specific": 99,
+      "Sound": 42,
+      "Block Layer": 2,
+      "Security": 2
+    },
+    "top_extensions": [
+      [
+        "c",
+        1015
+      ],
+      [
+        "h",
+        260
+      ]
+    ],
+    "top_directories": [
+      [
+        "drivers/",
+        657
+      ],
+      [
+        "fs/",
+        211
+      ],
+      [
+        "arch/",
+        99
+      ],
+      [
+        "net/",
+        95
+      ],
+      [
+        "include/",
+        64
+      ],
+      [
+        "sound/",
+        42
+      ],
+      [
+        "kernel/",
+        28
+      ],
+      [
+        "tools/",
+        23
+      ],
+      [
+        "mm/",
+        21
+      ],
+      [
+        "io_uring/",
+        13
+      ]
+    ],
+    "top_subsystems": [
+      [
+        "Device Drivers",
+        657
+      ],
+      [
+        "File Systems",
+        211
+      ],
+      [
+        "Architecture Specific",
+        99
+      ],
+      [
+        "Networking",
+        95
+      ],
+      [
+        "Headers",
+        64
+      ],
+      [
+        "Sound",
+        42
+      ],
+      [
+        "Core Kernel",
+        28
+      ],
+      [
+        "Memory Management",
+        21
+      ],
+      [
+        "Block Layer",
+        2
+      ],
+      [
+        "Security",
+        2
+      ]
+    ]
+  },
+  "validation_analysis": {
+    "true_positives": 14,
+    "false_positives": 11,
+    "uncertain": 25,
+    "validation_details": [
+      {
+        "sha": "099cf1fb",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "deadlock"
+        ],
+        "message_snippet": "usb: typec: displayport: Fix potential deadlock\n\nThe deadlock can occur due to a recursive lock acqu"
+      },
+      {
+        "sha": "95a234f6",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "null pointer"
+        ],
+        "message_snippet": "net: ethernet: rtsn: Fix a null pointer dereference in rtsn_probe()\n\nAdd check for the return value "
+      },
+      {
+        "sha": "9b70c362",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "fix.*bug"
+        ],
+        "message_snippet": "Merge branch 'net-fix-passive-tfo-socket-having-invalid-napi-id'\n\nDavid Wei says:\n\n================="
+      },
+      {
+        "sha": "3dd6f67c",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "fix.*issue"
+        ],
+        "message_snippet": "wifi: mt76: Move RCU section in mt7996_mcu_add_rate_ctrl()\n\nSince mt76_mcu_skb_send_msg() routine ca"
+      },
+      {
+        "sha": "2ed25aa7",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "deadlock",
+          "validate"
+        ],
+        "message_snippet": "IB/mlx5: Fix potential deadlock in MR deregistration\n\nThe issue arises when kzalloc() is invoked whi"
+      },
+      {
+        "sha": "d85d0380",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "null pointer"
+        ],
+        "message_snippet": "spi: spi-qpic-snand: reallocate BAM transactions\n\nUsing the mtd_nandbiterrs module for testing the d"
+      },
+      {
+        "sha": "f5769359",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "fix.*bug",
+          "fix.*issue"
+        ],
+        "message_snippet": "mm/alloc_tag: fix the kmemleak false positive issue in the allocation of the percpu variable tag->co"
+      },
+      {
+        "sha": "22fc46ce",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "null pointer"
+        ],
+        "message_snippet": "atm: clip: Fix NULL pointer dereference in vcc_sendmsg()\n\natmarpd_dev_ops does not implement the sen"
+      },
+      {
+        "sha": "0a47e02d",
+        "classification": "true_positive",
+        "security_score": 3,
+        "matched_indicators": [
+          "memory leak",
+          "fix.*bug",
+          "fix.*issue"
+        ],
+        "message_snippet": "Merge tag 'io_uring-6.16-20250626' of git://git.kernel.dk/linux\n\nPull io_uring fixes from Jens Axboe"
+      },
+      {
+        "sha": "6c038b58",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "memory leak",
+          "avoid.*leak"
+        ],
+        "message_snippet": "ASoC: SOF: Intel: hda: Use devm_kstrdup() to avoid memleak.\n\nsof_pdata->tplg_filename can have addre"
+      },
+      {
+        "sha": "c5fd399a",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "validate"
+        ],
+        "message_snippet": "wifi: mac80211: correctly identify S1G short beacon\n\nmac80211 identifies a short beacon by the prese"
+      },
+      {
+        "sha": "f6c7bc4a",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "null pointer",
+          "race condition"
+        ],
+        "message_snippet": "Revert \"usb: gadget: u_serial: Add null pointer check in gs_start_io\"\n\nThis reverts commit ffd603f21"
+      },
+      {
+        "sha": "3ef07434",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "net: airoha: Fix an error handling path in airoha_probe()\n\nIf an error occurs after a successful air"
+      },
+      {
+        "sha": "5f2b6c5f",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "uaf",
+          "null pointer"
+        ],
+        "message_snippet": "Merge tag 'drm-fixes-2025-06-20' of https://gitlab.freedesktop.org/drm/kernel\n\nPull drm fixes from D"
+      },
+      {
+        "sha": "3d300489",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "fix.*issue"
+        ],
+        "message_snippet": "i2c/designware: Fix an initialization issue\n\nThe i2c_dw_xfer_init() function requires msgs and msg_w"
+      },
+      {
+        "sha": "a379a8a2",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "overflow"
+        ],
+        "message_snippet": "smb: client: fix max_sge overflow in smb_extract_folioq_to_rdma()\n\nThis fixes the following problem:"
+      },
+      {
+        "sha": "74b1ec9f",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "null pointer",
+          "check.*null"
+        ],
+        "message_snippet": "wifi: zd1211rw: Fix potential NULL pointer dereference in zd_mac_tx_to_dev()\n\nThere is a potential N"
+      },
+      {
+        "sha": "8a20830f",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "memory leak",
+          "race condition"
+        ],
+        "message_snippet": "Merge tag 'hid-for-linus-2025062701' of git://git.kernel.org/pub/scm/linux/kernel/git/hid/hid\n\nPull "
+      },
+      {
+        "sha": "e81750b4",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "validate"
+        ],
+        "message_snippet": "net: ll_temac: Fix missing tx_pending check in ethtools_set_ringparam()\n\nThe function ll_temac_ethto"
+      },
+      {
+        "sha": "7595b66a",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "security"
+        ],
+        "message_snippet": "Merge tag 'selinux-pr-20250624' of git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux\n\nPu"
+      },
+      {
+        "sha": "b2348fe6",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "bcachefs: Fix *__bch2_trans_subbuf_alloc() error path\n\nDon't change buf->size on error - this would "
+      },
+      {
+        "sha": "2aebf5ee",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "overflow"
+        ],
+        "message_snippet": "x86/alternatives: Fix int3 handling failure from broken text_poke array\n\nSince smp_text_poke_single("
+      },
+      {
+        "sha": "28d519d0",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "fix.*issue"
+        ],
+        "message_snippet": "wifi: mt76: Move RCU section in mt7996_mcu_add_rate_ctrl_fixed()\n\nSince mt7996_mcu_set_fixed_field()"
+      },
+      {
+        "sha": "8c2e52eb",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "use-after-free"
+        ],
+        "message_snippet": "eventpoll: don't decrement ep refcount while still holding the ep mutex\n\nJann Horn points out that e"
+      },
+      {
+        "sha": "4c06e63b",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "Merge tag 'for-6.16-rc4-tag' of git://git.kernel.org/pub/scm/linux/kernel/git/kdave/linux\n\nPull btrf"
+      },
+      {
+        "sha": "c6e8d51b",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "deadlock"
+        ],
+        "message_snippet": "bcachefs: Work around deadlock to btree node rewrites in journal replay\n\nDon't mark btree nodes for "
+      },
+      {
+        "sha": "b272f425",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "ALSA: qc_audio_offload: Fix missing error code in prepare_qmi_response()\n\nWhen snd_soc_usb_find_priv"
+      },
+      {
+        "sha": "6463cbe0",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "memory leak"
+        ],
+        "message_snippet": "mtd: spinand: fix memory leak of ECC engine conf\n\nMemory allocated for the ECC engine conf is not re"
+      },
+      {
+        "sha": "454706f1",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "uaf"
+        ],
+        "message_snippet": "Merge tag 'md-6.16-20250705' of gitolite.kernel.org:pub/scm/linux/kernel/git/mdraid/linux into block"
+      },
+      {
+        "sha": "fa6f092c",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "use-after-free",
+          "validate"
+        ],
+        "message_snippet": "libbpf: Fix possible use-after-free for externs\n\nThe `name` field in `obj->externs` points into the "
+      },
+      {
+        "sha": "3f31a806",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "deadlock",
+          "fix.*issue"
+        ],
+        "message_snippet": "Merge tag 'mm-hotfixes-stable-2025-07-11-16-16' of git://git.kernel.org/pub/scm/linux/kernel/git/akp"
+      },
+      {
+        "sha": "b07f349d",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "underflow"
+        ],
+        "message_snippet": "spi: spi-cadence-quadspi: Fix pm runtime unbalance\n\nHaving PM put sync in remove function is causing"
+      },
+      {
+        "sha": "dc78f7e5",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "injection",
+          "fix.*issue"
+        ],
+        "message_snippet": "ASoC: fsl_sai: Force a software reset when starting in consumer mode\n\nOn an imx8mm platform with an "
+      },
+      {
+        "sha": "7abdafd2",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "Merge tag 'drm-fixes-2025-06-28' of https://gitlab.freedesktop.org/drm/kernel\n\nPull drm fixes from D"
+      },
+      {
+        "sha": "5f61b961",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "btrfs: fix inode lookup error handling during log replay\n\nWhen replaying log trees we use read_one_i"
+      },
+      {
+        "sha": "10876da9",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "security",
+          "fix.*bug"
+        ],
+        "message_snippet": "calipso: Fix null-ptr-deref in calipso_req_{set,del}attr().\n\nsyzkaller reported a null-ptr-deref in "
+      },
+      {
+        "sha": "923d4012",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "race condition"
+        ],
+        "message_snippet": "Merge tag 'iommu-fixes-v6.16-rc4' of git://git.kernel.org/pub/scm/linux/kernel/git/iommu/linux\n\nPull"
+      },
+      {
+        "sha": "2dbae28a",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "Merge tag 'bitmap-for-6.16-rc6' of https://github.com/norov/linux\n\nPull bitops UAPI fix from Yury No"
+      },
+      {
+        "sha": "78f4e737",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "Merge tag 'for-6.16/dm-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/device-mapper/linux-d"
+      },
+      {
+        "sha": "c2a2ff6b",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "validate"
+        ],
+        "message_snippet": "net: ipv4: fix stat increase when udp early demux drops the packet\n\nudp_v4_early_demux now returns d"
+      },
+      {
+        "sha": "c0070621",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "block: fix false warning in bdev_count_inflight_rw()\n\nWhile bdev_count_inflight is interating all cp"
+      },
+      {
+        "sha": "e728e705",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "security",
+          "fix.*bug"
+        ],
+        "message_snippet": "KVM: arm64: Adjust range correctly during host stage-2 faults\n\nhost_stage2_adjust_range() tries to f"
+      },
+      {
+        "sha": "7ac5cc26",
+        "classification": "true_positive",
+        "security_score": 2,
+        "matched_indicators": [
+          "null pointer",
+          "avoid.*leak"
+        ],
+        "message_snippet": "Merge tag 'wireless-2025-07-10' of https://git.kernel.org/pub/scm/linux/kernel/git/wireless/wireless"
+      },
+      {
+        "sha": "73543bad",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "null pointer"
+        ],
+        "message_snippet": "Merge tag 'edac_urgent_for_v6.16_rc3' of git://git.kernel.org/pub/scm/linux/kernel/git/ras/ras\n\nPull"
+      },
+      {
+        "sha": "6729c134",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "fix.*issue"
+        ],
+        "message_snippet": "regulator: mp886x: Fix ID table driver_data\n\nCurrently, the driver_data of the i2c ID table is wrong"
+      },
+      {
+        "sha": "7b4c5a37",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "perf/core: Fix the WARN_ON_ONCE is out of lock protected region\n\ncommit 3172fb986666 (\"perf/core: Fi"
+      },
+      {
+        "sha": "17bbde2e",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "fix.*issue"
+        ],
+        "message_snippet": "Merge tag 'net-6.16-rc5' of git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net\n\nPull networkin"
+      },
+      {
+        "sha": "8c44dac8",
+        "classification": "false_positive",
+        "security_score": 0,
+        "matched_indicators": [],
+        "message_snippet": "eventpoll: Fix priority inversion problem\n\nThe ready event list of an epoll object is protected by r"
+      },
+      {
+        "sha": "1f8aede7",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "underflow"
+        ],
+        "message_snippet": "bcachefs: fix bch2_journal_keys_peek_prev_min() underflow\n\nSigned-off-by: Kent Overstreet <kent.over"
+      },
+      {
+        "sha": "306cb65b",
+        "classification": "uncertain",
+        "security_score": 1,
+        "matched_indicators": [
+          "fix.*issue"
+        ],
+        "message_snippet": "smb: fix secondary channel creation issue with kerberos by populating hostname when adding channels\n"
+      }
+    ],
+    "total_validated": 50,
+    "estimated_precision": 0.53,
+    "confidence_interval": [
+      0.39165676308543307,
+      0.668343236914567
+    ]
+  },
+  "bias_analysis": {
+    "temporal_bias": {
+      "total_days_span": 26,
+      "commits_per_day_avg": 10.653846153846153,
+      "note": "Full temporal analysis requires datetime parsing"
+    },
+    "author_bias": {
+      "author_concentration": {
+        "top_1_author_percentage": 25.63176895306859,
+        "top_5_authors_percentage": 36.101083032490976,
+        "total_authors": 143
+      }
+    },
+    "subsystem_bias": {
+      "subsystem_distribution": {
+        "memory_management": 21,
+        "security": 2
+      },
+      "memory_management_percentage": 1.647058823529412
+    },
+    "size_bias": {
+      "size_distribution": {
+        "mean_size": 96.32129963898917,
+        "median_size": 15,
+        "large_commits_percentage": 16.967509025270758,
+        "small_commits_percentage": 37.545126353790614
+      }
+    }
+  }
+}

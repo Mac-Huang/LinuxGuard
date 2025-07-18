@@ -1,0 +1,96 @@
+[
+  {
+    "expert_id": "expert_001",
+    "name": "Dr. Sarah Chen",
+    "email": "sarah.chen@university.edu",
+    "affiliation": "MIT Computer Science",
+    "expertise_areas": [
+      "Linux kernel security",
+      "Static analysis",
+      "Memory safety"
+    ],
+    "years_experience": 12,
+    "publications": [
+      "USENIX Security",
+      "IEEE S&P",
+      "ACM CCS"
+    ],
+    "kernel_contributions": true,
+    "preferred_contact": "email"
+  },
+  {
+    "expert_id": "expert_002",
+    "name": "Prof. Michael Rodriguez",
+    "email": "m.rodriguez@tech.edu",
+    "affiliation": "Stanford Security Lab",
+    "expertise_areas": [
+      "Vulnerability analysis",
+      "Code auditing",
+      "Security tools"
+    ],
+    "years_experience": 15,
+    "publications": [
+      "NDSS",
+      "USENIX Security",
+      "S&P"
+    ],
+    "kernel_contributions": true,
+    "preferred_contact": "email"
+  },
+  {
+    "expert_id": "expert_003",
+    "name": "Dr. Elena Petrov",
+    "email": "elena.petrov@company.com",
+    "affiliation": "Google Security Team",
+    "expertise_areas": [
+      "Linux security",
+      "Static analysis",
+      "Kernel development"
+    ],
+    "years_experience": 8,
+    "publications": [
+      "Industry reports",
+      "LKML contributions"
+    ],
+    "kernel_contributions": true,
+    "preferred_contact": "survey_platform"
+  },
+  {
+    "expert_id": "expert_004",
+    "name": "Dr. James Wilson",
+    "email": "j.wilson@research.org",
+    "affiliation": "Carnegie Mellon CyLab",
+    "expertise_areas": [
+      "Software security",
+      "Program analysis",
+      "Vulnerability research"
+    ],
+    "years_experience": 10,
+    "publications": [
+      "FSE",
+      "ICSE",
+      "ASE"
+    ],
+    "kernel_contributions": false,
+    "preferred_contact": "email"
+  },
+  {
+    "expert_id": "expert_005",
+    "name": "Dr. Yuki Tanaka",
+    "email": "tanaka@security.ac.jp",
+    "affiliation": "Tokyo Institute of Technology",
+    "expertise_areas": [
+      "System security",
+      "Linux internals",
+      "Security patterns"
+    ],
+    "years_experience": 14,
+    "publications": [
+      "ACSAC",
+      "RAID",
+      "ESORICS"
+    ],
+    "kernel_contributions": true,
+    "preferred_contact": "email"
+  }
+]

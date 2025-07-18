@@ -1,0 +1,33 @@
+name: linuxguard
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - git
+  - pip:
+    - GitPython==3.1.40
+    - google-generativeai==0.3.2
+    - anthropic==0.7.8
+    - chromadb==0.4.18
+    - langchain==0.1.0
+    - langchain-community==0.0.10
+    - sentence-transformers==2.2.2
+    - loguru==0.7.2
+    - tqdm==4.66.1
+    - pandas==2.1.4
+    - numpy==1.24.3
+    - matplotlib==3.7.2
+    - seaborn==0.12.2
+    - tree-sitter==0.20.4
+    - tree-sitter-cpp==0.20.0
+    - pyyaml==6.0.1
+    - python-dotenv==1.0.0
+    - tiktoken==0.5.2
+    - datasets==2.14.7
+    - transformers==4.36.2
+    - torch==2.1.2
+    - scikit-learn==1.3.2
+    - jupyter==1.0.0
+    - notebook==7.0.6

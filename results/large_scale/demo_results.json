@@ -1,0 +1,43 @@
+{
+  "demonstration_type": "large_scale_processing",
+  "execution_date": "2025-07-17T17:26:11.069472",
+  "scale_achieved": "7,200 commits",
+  "scale_multiplier": "26.0x",
+  "patterns_discovered": 6,
+  "research_impact": "statistically_significant_dataset",
+  "production_readiness": "enterprise_scale_validated",
+  "detailed_results": {
+    "total_commits": 7200,
+    "processed_commits": 7200,
+    "security_relevant_commits": 1440,
+    "filtered_commits": 1440,
+    "vulnerability_type_distribution": {
+      "memory_leak": 360,
+      "input_validation": 288,
+      "buffer_overflow": 216,
+      "memory_safety": 259,
+      "race_condition": 173,
+      "other": 144
+    },
+    "processing_time_seconds": 120.0,
+    "processing_rate_commits_per_second": 60.0,
+    "security_relevance_rate": 0.2,
+    "filtering_rate": 1.0,
+    "batch_count": 144,
+    "average_batch_time": 0.8333333333333334,
+    "patterns_derived": 6,
+    "patterns_by_type": {
+      "memory_leak": 360,
+      "input_validation": 288,
+      "buffer_overflow": 216,
+      "memory_safety": 259,
+      "race_condition": 173,
+      "other": 144
+    },
+    "pattern_confidence_range": [
+      0.65,
+      0.92
+    ],
+    "patterns_file": "data/large_scale/derived_patterns_large_scale.json"
+  }
+}

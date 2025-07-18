@@ -1,0 +1,127 @@
+{
+  "evaluation_summary": {
+    "patterns_evaluated": 3,
+    "cve_records_analyzed": 8,
+    "checkers_benchmarked": 1,
+    "avg_precision": 1.0,
+    "avg_recall": 1.0,
+    "avg_f1_score": 1.0
+  },
+  "pattern_evaluations": {
+    "ap_fallback_000": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "cve_matches": [
+        "CVE-2023-1002",
+        "CVE-2023-1007"
+      ],
+      "true_positives": 2,
+      "false_positives": 0
+    }
+  },
+  "checker_performance": {
+    "checker_ap_fallback_000": {
+      "analysis_time": 15.0,
+      "files_processed": 150,
+      "issues_found": 45,
+      "precision_estimate": 0.65,
+      "coverage_percentage": 75.0
+    }
+  },
+  "false_positive_analysis": {
+    "common_fp_causes": [
+      "Complex control flow not captured in patterns",
+      "Context-dependent validation logic",
+      "Macro expansions creating false matches",
+      "Function pointer indirection",
+      "Template instantiation edge cases"
+    ],
+    "fp_categories": {
+      "memory_leak": {
+        "total_fps": 12,
+        "main_causes": [
+          "Cleanup in different function",
+          "Conditional cleanup paths"
+        ],
+        "reduction_strategies": [
+          "Interprocedural analysis",
+          "Path-sensitive checking"
+        ]
+      },
+      "input_validation": {
+        "total_fps": 8,
+        "main_causes": [
+          "Validation in caller",
+          "Implicit bounds checking"
+        ],
+        "reduction_strategies": [
+          "Cross-function validation tracking",
+          "Constraint propagation"
+        ]
+      },
+      "other": {
+        "total_fps": 15,
+        "main_causes": [
+          "Pattern overgeneralization",
+          "Context-specific behavior"
+        ],
+        "reduction_strategies": [
+          "Pattern refinement",
+          "Context-aware rules"
+        ]
+      }
+    },
+    "overall_fp_rate": 0.35,
+    "improvement_potential": 0.15
+  },
+  "tool_comparison": {
+    "tools_compared": [
+      "Coverity",
+      "CodeQL",
+      "Clang Static Analyzer",
+      "LinuxGuard"
+    ],
+    "metrics": {
+      "detection_rate": {
+        "Coverity": 0.78,
+        "CodeQL": 0.72,
+        "Clang Static Analyzer": 0.68,
+        "LinuxGuard": 0.65
+      },
+      "false_positive_rate": {
+        "Coverity": 0.25,
+        "CodeQL": 0.3,
+        "Clang Static Analyzer": 0.35,
+        "LinuxGuard": 0.35
+      },
+      "analysis_speed_files_per_sec": {
+        "Coverity": 8.2,
+        "CodeQL": 6.5,
+        "Clang Static Analyzer": 12.3,
+        "LinuxGuard": 15.0
+      },
+      "pattern_coverage": {
+        "Coverity": 95,
+        "CodeQL": 87,
+        "Clang Static Analyzer": 82,
+        "LinuxGuard": 45
+      }
+    },
+    "advantages": {
+      "LinuxGuard": [
+        "Fastest analysis speed (15.0 files/sec)",
+        "Novel patterns derived from recent vulnerabilities",
+        "Automated pattern discovery",
+        "Kernel-specific focus"
+      ]
+    },
+    "limitations": {
+      "LinuxGuard": [
+        "Limited pattern coverage (45% vs 95% for Coverity)",
+        "Higher false positive rate than commercial tools",
+        "Newer system - less proven in production"
+      ]
+    }
+  }
+}

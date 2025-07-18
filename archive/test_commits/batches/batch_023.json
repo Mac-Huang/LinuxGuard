@@ -1,0 +1,77 @@
+[
+  {
+    "sha": "bdb32a0f6780660512d2335db2ebe32e6582cdc8",
+    "message": "PCI: host-generic: Set driver_data before calling gen_pci_init()\n\nOn MicroChip MPFS Icicle:\n\n  microchip-pcie 2000000000.pcie: host bridge /soc/pcie@2000000000 ranges:\n  microchip-pcie 2000000000.pcie: Parsing ranges property...\n  microchip-pcie 2000000000.pcie:      MEM 0x2008000000..0x2087ffffff -> 0x0008000000\n  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000368\n  Current swapper/0 pgtable: 4K pagesize, 39-bit VAs, pgdp=0x00000000814f1000\n  [0000000000000368] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000\n  Oops [#1]\n  Modules linked in:\n  CPU: 0 UID: 0 PID: 1 Comm: swapper/0 Not tainted 6.15.0-rc1-icicle-00003-gafc0a570bb61 #232 NONE\n  Hardware name: Microchip PolarFire-SoC Icicle Kit (DT)\n  [...]\n  [<ffffffff803fb8a4>] plda_pcie_setup_iomems+0xe/0x78\n  [<ffffffff803fc246>] mc_platform_init+0x80/0x1d2\n  [<ffffffff803f9c88>] pci_ecam_create+0x104/0x1e2\n  [<ffffffff8000adbe>] pci_host_common_init+0x120/0x228\n  [<ffffffff8000af42>] pci_host_common_probe+0x7c/0x8a\n\nThe initialization of driver_data was moved after the call to\ngen_pci_init(), while the pci_ecam_ops.init() callback\nmc_platform_init() expects it has already been initialized.\n\nFix this by moving the initialization of driver_data up.\n\nFixes: afc0a570bb613871 (\"PCI: host-generic: Extract an ECAM bridge creation helper from pci_host_common_probe()\")\nSigned-off-by: Geert Uytterhoeven <geert+renesas@glider.be>\nSigned-off-by: Marc Zyngier <maz@kernel.org>\nSigned-off-by: Bjorn Helgaas <bhelgaas@google.com>\nLink: https://lore.kernel.org/r/774290708a6f0f683711914fda110742c18a7fb2.1750787223.git.geert+renesas@glider.be\nLink: https://patch.msgid.link/20250625111806.4153773-2-maz@kernel.org",
+    "author": "Geert Uytterhoeven",
+    "date": "2025-06-30T12:30:03-05:00",
+    "files_changed": [
+      "drivers/pci/controller/pci-host-common.c"
+    ],
+    "diff": "diff --git a/drivers/pci/controller/pci-host-common.c b/drivers/pci/controller/pci-host-common.c\nindex b0992325dd65..b37052863847 100644\n--- a/drivers/pci/controller/pci-host-common.c\n+++ b/drivers/pci/controller/pci-host-common.c\n@@ -64,13 +64,13 @@ int pci_host_common_init(struct platform_device *pdev,\n \n \tof_pci_check_probe_only();\n \n+\tplatform_set_drvdata(pdev, bridge);\n+\n \t/* Parse and map our Configuration Space windows */\n \tcfg = gen_pci_init(dev, bridge, ops);\n \tif (IS_ERR(cfg))\n \t\treturn PTR_ERR(cfg);\n \n-\tplatform_set_drvdata(pdev, bridge);\n-\n \tbridge->sysdata = cfg;\n \tbridge->ops = (struct pci_ops *)&ops->pci_ops;\n \tbridge->enable_device = ops->enable_device;",
+    "stats": {
+      "insertions": 2,
+      "deletions": 2,
+      "files": 1
+    }
+  },
+  {
+    "sha": "6729c134ccc0d37d865c342e466b90df29081f1a",
+    "message": "regulator: mp886x: Fix ID table driver_data\n\nCurrently, the driver_data of the i2c ID table is wrong, so it won't\nwork if any mp886x user makes use of the ID table. Fortunately, there's\nno such user in upstream source code, we can fix the issue by using\ndifferent ID table entry for mp8867 and mp8869.\n\nSigned-off-by: Jisheng Zhang <jszhang@kernel.org>\nLink: https://patch.msgid.link/20250629095918.912-1-jszhang@kernel.org\nSigned-off-by: Mark Brown <broonie@kernel.org>",
+    "author": "Jisheng Zhang",
+    "date": "2025-06-30T16:06:40+01:00",
+    "files_changed": [
+      "drivers/regulator/mp886x.c"
+    ],
+    "diff": "diff --git a/drivers/regulator/mp886x.c b/drivers/regulator/mp886x.c\nindex 48dcee5287f3..9ad16b04c913 100644\n--- a/drivers/regulator/mp886x.c\n+++ b/drivers/regulator/mp886x.c\n@@ -348,7 +348,8 @@ static const struct of_device_id mp886x_dt_ids[] = {\n MODULE_DEVICE_TABLE(of, mp886x_dt_ids);\n \n static const struct i2c_device_id mp886x_id[] = {\n-\t{ \"mp886x\", (kernel_ulong_t)&mp8869_ci },\n+\t{ \"mp8867\", (kernel_ulong_t)&mp8867_ci },\n+\t{ \"mp8869\", (kernel_ulong_t)&mp8869_ci },\n \t{ },\n };\n MODULE_DEVICE_TABLE(i2c, mp886x_id);",
+    "stats": {
+      "insertions": 2,
+      "deletions": 1,
+      "files": 1
+    }
+  },
+  {
+    "sha": "f172ffde18997aa401a74153cea4ae3bfdcb5124",
+    "message": "regulator: sy8824x: Fix ID table driver_data\n\nCurrently, the driver_data of the i2c ID table is wrong, so it won't\nwork if any sy8824x user makes use of the ID table. Fortunately, there's\nno such user in upstream source code, we can fix the issue by using\ndifferent ID table entry for sy8824c, sy8824e, sy20276 and sy20278.\n\nSigned-off-by: Jisheng Zhang <jszhang@kernel.org>\nLink: https://patch.msgid.link/20250629095905.898-1-jszhang@kernel.org\nSigned-off-by: Mark Brown <broonie@kernel.org>",
+    "author": "Jisheng Zhang",
+    "date": "2025-06-30T16:06:39+01:00",
+    "files_changed": [
+      "drivers/regulator/sy8824x.c"
+    ],
+    "diff": "diff --git a/drivers/regulator/sy8824x.c b/drivers/regulator/sy8824x.c\nindex c05b67e26ac8..5bec84db25f1 100644\n--- a/drivers/regulator/sy8824x.c\n+++ b/drivers/regulator/sy8824x.c\n@@ -213,7 +213,10 @@ static const struct of_device_id sy8824_dt_ids[] = {\n MODULE_DEVICE_TABLE(of, sy8824_dt_ids);\n \n static const struct i2c_device_id sy8824_id[] = {\n-\t{ \"sy8824\", (kernel_ulong_t)&sy8824c_cfg },\n+\t{ \"sy8824c\", (kernel_ulong_t)&sy8824c_cfg },\n+\t{ \"sy8824e\", (kernel_ulong_t)&sy8824e_cfg },\n+\t{ \"sy20276\", (kernel_ulong_t)&sy20276_cfg },\n+\t{ \"sy20278\", (kernel_ulong_t)&sy20278_cfg },\n \t{ }\n };\n MODULE_DEVICE_TABLE(i2c, sy8824_id);",
+    "stats": {
+      "insertions": 4,
+      "deletions": 1,
+      "files": 1
+    }
+  },
+  {
+    "sha": "74b1ec9f5d627d2bdd5e5b6f3f81c23317657023",
+    "message": "wifi: zd1211rw: Fix potential NULL pointer dereference in zd_mac_tx_to_dev()\n\nThere is a potential NULL pointer dereference in zd_mac_tx_to_dev(). For\nexample, the following is possible:\n\n    \tT0\t\t\t    \t\tT1\nzd_mac_tx_to_dev()\n  /* len == skb_queue_len(q) */\n  while (len > ZD_MAC_MAX_ACK_WAITERS) {\n\n\t\t\t\t\t  filter_ack()\n\t\t\t\t\t    spin_lock_irqsave(&q->lock, flags);\n\t\t\t\t\t    /* position == skb_queue_len(q) */\n\t\t\t\t\t    for (i=1; i<position; i++)\n\t\t\t\t    \t      skb = __skb_dequeue(q)\n\n\t\t\t\t\t    if (mac->type == NL80211_IFTYPE_AP)\n\t\t\t\t\t      skb = __skb_dequeue(q);\n\t\t\t\t\t    spin_unlock_irqrestore(&q->lock, flags);\n\n    skb_dequeue() -> NULL\n\nSince there is a small gap between checking skb queue length and skb being\nunconditionally dequeued in zd_mac_tx_to_dev(), skb_dequeue() can return NULL.\nThen the pointer is passed to zd_mac_tx_status() where it is dereferenced.\n\nIn order to avoid potential NULL pointer dereference due to situations like\nabove, check if skb is not NULL before passing it to zd_mac_tx_status().\n\nFound by Linux Verification Center (linuxtesting.org) with SVACE.\n\nFixes: 459c51ad6e1f (\"zd1211rw: port to mac80211\")\nSigned-off-by: Daniil Dulov <d.dulov@aladdin.ru>\nLink: https://patch.msgid.link/20250626114619.172631-1-d.dulov@aladdin.ru\nSigned-off-by: Johannes Berg <johannes.berg@intel.com>",
+    "author": "Daniil Dulov",
+    "date": "2025-06-30T15:34:43+02:00",
+    "files_changed": [
+      "drivers/net/wireless/zydas/zd1211rw/zd_mac.c"
+    ],
+    "diff": "diff --git a/drivers/net/wireless/zydas/zd1211rw/zd_mac.c b/drivers/net/wireless/zydas/zd1211rw/zd_mac.c\nindex 9653dbaac3c0..781510a3ec6d 100644\n--- a/drivers/net/wireless/zydas/zd1211rw/zd_mac.c\n+++ b/drivers/net/wireless/zydas/zd1211rw/zd_mac.c\n@@ -583,7 +583,11 @@ void zd_mac_tx_to_dev(struct sk_buff *skb, int error)\n \n \t\tskb_queue_tail(q, skb);\n \t\twhile (skb_queue_len(q) > ZD_MAC_MAX_ACK_WAITERS) {\n-\t\t\tzd_mac_tx_status(hw, skb_dequeue(q),\n+\t\t\tskb = skb_dequeue(q);\n+\t\t\tif (!skb)\n+\t\t\t\tbreak;\n+\n+\t\t\tzd_mac_tx_status(hw, skb,\n \t\t\t\t\t mac->ack_pending ? mac->ack_signal : 0,\n \t\t\t\t\t NULL);\n \t\t\tmac->ack_pending = 0;",
+    "stats": {
+      "insertions": 5,
+      "deletions": 1,
+      "files": 1
+    }
+  },
+  {
+    "sha": "1fe44a86ff0ff483aa1f1332f2b08f431fa51ce8",
+    "message": "wifi: cfg80211: fix S1G beacon head validation in nl80211\n\nS1G beacons contain fixed length optional fields that precede the\nvariable length elements, ensure we take this into account when\nvalidating the beacon. This particular case was missed in\n1e1f706fc2ce (\"wifi: cfg80211/mac80211: correctly parse S1G\nbeacon optional elements\").\n\nFixes: 1d47f1198d58 (\"nl80211: correctly validate S1G beacon head\")\nSigned-off-by: Lachlan Hodges <lachlan.hodges@morsemicro.com>\nLink: https://patch.msgid.link/20250626115118.68660-1-lachlan.hodges@morsemicro.com\n[shorten/reword subject]\nSigned-off-by: Johannes Berg <johannes.berg@intel.com>",
+    "author": "Lachlan Hodges",
+    "date": "2025-06-30T15:33:46+02:00",
+    "files_changed": [
+      "net/wireless/nl80211.c"
+    ],
+    "diff": "diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c\nindex 85f139016da2..50202d170f3a 100644\n--- a/net/wireless/nl80211.c\n+++ b/net/wireless/nl80211.c\n@@ -229,6 +229,7 @@ static int validate_beacon_head(const struct nlattr *attr,\n \tunsigned int len = nla_len(attr);\n \tconst struct element *elem;\n \tconst struct ieee80211_mgmt *mgmt = (void *)data;\n+\tconst struct ieee80211_ext *ext;\n \tunsigned int fixedlen, hdrlen;\n \tbool s1g_bcn;\n \n@@ -237,8 +238,10 @@ static int validate_beacon_head(const struct nlattr *attr,\n \n \ts1g_bcn = ieee80211_is_s1g_beacon(mgmt->frame_control);\n \tif (s1g_bcn) {\n-\t\tfixedlen = offsetof(struct ieee80211_ext,\n-\t\t\t\t    u.s1g_beacon.variable);\n+\t\text = (struct ieee80211_ext *)mgmt;\n+\t\tfixedlen =\n+\t\t\toffsetof(struct ieee80211_ext, u.s1g_beacon.variable) +\n+\t\t\tieee80211_s1g_optional_len(ext->frame_control);\n \t\thdrlen = offsetof(struct ieee80211_ext, u.s1g_beacon);\n \t} else {\n \t\tfixedlen = offsetof(struct ieee80211_mgmt,",
+    "stats": {
+      "insertions": 5,
+      "deletions": 2,
+      "files": 1
+    }
+  }
+]

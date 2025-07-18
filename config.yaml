@@ -1,0 +1,23 @@
+# LinuxGuard Configuration File
+
+llm:
+  provider: "google"  # google or anthropic
+  model_name: "gemini-2.0-flash-exp"
+  api_key: ""  # Set via GOOGLE_API_KEY environment variable
+  max_tokens: 8192
+  temperature: 0.1
+  rate_limit_delay: 2.0
+
+processing:
+  repo_path: "../KNighter/linux"
+  days_back: 730  # 2 years
+  batch_size: 20
+  max_workers: 3
+  confidence_threshold: 0.6
+
+rag:
+  vector_db_path: "data/vector_db"
+  embedding_model: "all-MiniLM-L6-v2"
+  chunk_size: 1000
+  chunk_overlap: 100
+  context_results: 5

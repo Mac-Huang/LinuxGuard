@@ -1,0 +1,77 @@
+[
+  {
+    "sha": "97e000acf2e20a86a50a0ec8c2739f0846f37509",
+    "message": "drm/ttm: fix error handling in ttm_buffer_object_transfer\n\nUnlocking the resv object was missing in the error path, additionally to\nthat we should move over the resource only after the fence slot was\nreserved.\n\nSigned-off-by: Christian König <christian.koenig@amd.com>\nReviewed-by: Matthew Brost <matthew.brost@intel.com>\nFixes: c8d4c18bfbc4a (\"dma-buf/drivers: make reserving a shared slot mandatory v4\")\nCc: <stable@vger.kernel.org>\nLink: https://lore.kernel.org/r/20250616130726.22863-3-christian.koenig@amd.com",
+    "author": "Christian König",
+    "date": "2025-06-30T13:26:28+02:00",
+    "files_changed": [
+      "drivers/gpu/drm/ttm/ttm_bo_util.c"
+    ],
+    "diff": "diff --git a/drivers/gpu/drm/ttm/ttm_bo_util.c b/drivers/gpu/drm/ttm/ttm_bo_util.c\nindex 15cab9bda17f..bd90404ea609 100644\n--- a/drivers/gpu/drm/ttm/ttm_bo_util.c\n+++ b/drivers/gpu/drm/ttm/ttm_bo_util.c\n@@ -254,6 +254,13 @@ static int ttm_buffer_object_transfer(struct ttm_buffer_object *bo,\n \tret = dma_resv_trylock(&fbo->base.base._resv);\n \tWARN_ON(!ret);\n \n+\tret = dma_resv_reserve_fences(&fbo->base.base._resv, 1);\n+\tif (ret) {\n+\t\tdma_resv_unlock(&fbo->base.base._resv);\n+\t\tkfree(fbo);\n+\t\treturn ret;\n+\t}\n+\n \tif (fbo->base.resource) {\n \t\tttm_resource_set_bo(fbo->base.resource, &fbo->base);\n \t\tbo->resource = NULL;\n@@ -262,12 +269,6 @@ static int ttm_buffer_object_transfer(struct ttm_buffer_object *bo,\n \t\tfbo->base.bulk_move = NULL;\n \t}\n \n-\tret = dma_resv_reserve_fences(&fbo->base.base._resv, 1);\n-\tif (ret) {\n-\t\tkfree(fbo);\n-\t\treturn ret;\n-\t}\n-\n \tttm_bo_get(bo);\n \tfbo->bo = bo;\n ",
+    "stats": {
+      "insertions": 7,
+      "deletions": 6,
+      "files": 1
+    }
+  },
+  {
+    "sha": "644bec18e705ca41d444053407419a21832fcb2f",
+    "message": "platform/mellanox: mlxreg-lc: Fix logic error in power state check\n\nFixes a logic issue in mlxreg_lc_completion_notify() where the\nintention was to check if MLXREG_LC_POWERED flag is not set before\npowering on the device.\n\nThe original code used \"state & ~MLXREG_LC_POWERED\" to check for the\nabsence of the POWERED bit. However this condition evaluates to true\neven when other bits are set, leading to potentially incorrect\nbehavior.\n\nCorrected the logic to explicitly check for the absence of\nMLXREG_LC_POWERED using !(state & MLXREG_LC_POWERED).\n\nFixes: 62f9529b8d5c (\"platform/mellanox: mlxreg-lc: Add initial support for Nvidia line card devices\")\nSuggested-by: Vadim Pasternak <vadimp@nvidia.com>\nSigned-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>\nLink: https://lore.kernel.org/r/20250630105812.601014-1-alok.a.tiwari@oracle.com\nReviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>\nSigned-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>",
+    "author": "Alok Tiwari",
+    "date": "2025-06-30T14:06:55+03:00",
+    "files_changed": [
+      "drivers/platform/mellanox/mlxreg-lc.c"
+    ],
+    "diff": "diff --git a/drivers/platform/mellanox/mlxreg-lc.c b/drivers/platform/mellanox/mlxreg-lc.c\nindex 8eef3d990d1a..d1518598dfed 100644\n--- a/drivers/platform/mellanox/mlxreg-lc.c\n+++ b/drivers/platform/mellanox/mlxreg-lc.c\n@@ -688,7 +688,7 @@ static int mlxreg_lc_completion_notify(void *handle, struct i2c_adapter *parent,\n \tif (regval & mlxreg_lc->data->mask) {\n \t\tmlxreg_lc->state |= MLXREG_LC_SYNCED;\n \t\tmlxreg_lc_state_update_locked(mlxreg_lc, MLXREG_LC_SYNCED, 1);\n-\t\tif (mlxreg_lc->state & ~MLXREG_LC_POWERED) {\n+\t\tif (!(mlxreg_lc->state & MLXREG_LC_POWERED)) {\n \t\t\terr = mlxreg_lc_power_on_off(mlxreg_lc, 1);\n \t\t\tif (err)\n \t\t\t\tgoto mlxreg_lc_regmap_power_on_off_fail;",
+    "stats": {
+      "insertions": 1,
+      "deletions": 1,
+      "files": 1
+    }
+  },
+  {
+    "sha": "7b4c5a37544ba22c6ebe72c0d4ea56c953459fa5",
+    "message": "perf/core: Fix the WARN_ON_ONCE is out of lock protected region\n\ncommit 3172fb986666 (\"perf/core: Fix WARN in perf_cgroup_switch()\") try to\nfix a concurrency problem between perf_cgroup_switch and\nperf_cgroup_event_disable. But it does not to move the WARN_ON_ONCE into\nlock-protected region, so the warning is still be triggered.\n\nFixes: 3172fb986666 (\"perf/core: Fix WARN in perf_cgroup_switch()\")\nSigned-off-by: Luo Gengkun <luogengkun@huaweicloud.com>\nSigned-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>\nLink: https://lkml.kernel.org/r/20250626135403.2454105-1-luogengkun@huaweicloud.com",
+    "author": "Luo Gengkun",
+    "date": "2025-06-30T09:32:49+02:00",
+    "files_changed": [
+      "kernel/events/core.c"
+    ],
+    "diff": "diff --git a/kernel/events/core.c b/kernel/events/core.c\nindex 7281230044d0..bf2118c22126 100644\n--- a/kernel/events/core.c\n+++ b/kernel/events/core.c\n@@ -951,8 +951,6 @@ static void perf_cgroup_switch(struct task_struct *task)\n \tif (READ_ONCE(cpuctx->cgrp) == NULL)\n \t\treturn;\n \n-\tWARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);\n-\n \tcgrp = perf_cgroup_from_task(task, NULL);\n \tif (READ_ONCE(cpuctx->cgrp) == cgrp)\n \t\treturn;\n@@ -964,6 +962,8 @@ static void perf_cgroup_switch(struct task_struct *task)\n \tif (READ_ONCE(cpuctx->cgrp) == NULL)\n \t\treturn;\n \n+\tWARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);\n+\n \tperf_ctx_disable(&cpuctx->ctx, true);\n \n \tctx_sched_out(&cpuctx->ctx, NULL, EVENT_ALL|EVENT_CGROUP);",
+    "stats": {
+      "insertions": 2,
+      "deletions": 2,
+      "files": 1
+    }
+  },
+  {
+    "sha": "190f4c2c863af7cc5bb354b70e0805f06419c038",
+    "message": "nvmet: fix memory leak of bio integrity\n\nIf nvmet receives commands with metadata there is a continuous memory\nleak of kmalloc-128 slab or more precisely bio->bi_integrity.\n\nSince commit bf4c89fc8797 (\"block: don't call bio_uninit from bio_endio\")\neach user of bio_init has to use bio_uninit as well. Otherwise the bio\nintegrity is not getting free. Nvmet uses bio_init for inline bios.\n\nUninit the inline bio to complete deallocation of integrity in bio.\n\nFixes: bf4c89fc8797 (\"block: don't call bio_uninit from bio_endio\")\nSigned-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>\nSigned-off-by: Christoph Hellwig <hch@lst.de>",
+    "author": "Dmitry Bogdanov",
+    "date": "2025-06-30T08:32:16+02:00",
+    "files_changed": [
+      "drivers/nvme/target/nvmet.h"
+    ],
+    "diff": "diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h\nindex df69a9dee71c..51df72f5e89b 100644\n--- a/drivers/nvme/target/nvmet.h\n+++ b/drivers/nvme/target/nvmet.h\n@@ -867,6 +867,8 @@ static inline void nvmet_req_bio_put(struct nvmet_req *req, struct bio *bio)\n {\n \tif (bio != &req->b.inline_bio)\n \t\tbio_put(bio);\n+\telse\n+\t\tbio_uninit(bio);\n }\n \n #ifdef CONFIG_NVME_TARGET_TCP_TLS",
+    "stats": {
+      "insertions": 2,
+      "deletions": 0,
+      "files": 1
+    }
+  },
+  {
+    "sha": "2e96d2d8c2a7a6c2cef45593c028d9c5ef180316",
+    "message": "nvme: Fix incorrect cdw15 value in passthru error logging\n\nFix an error in nvme_log_err_passthru() where cdw14 was incorrectly\nprinted twice instead of cdw15. This fix ensures accurate logging of\nthe full passthrough command payload.\n\nFixes: 9f079dda1433 (\"nvme: allow passthru cmd error logging\")\nSigned-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>\nReviewed-by: Martin K. Petersen <martin.petersen@oracle.com>\nSigned-off-by: Christoph Hellwig <hch@lst.de>",
+    "author": "Alok Tiwari",
+    "date": "2025-06-30T08:31:45+02:00",
+    "files_changed": [
+      "drivers/nvme/host/core.c"
+    ],
+    "diff": "diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c\nindex e533d791955d..2ae36bce615e 100644\n--- a/drivers/nvme/host/core.c\n+++ b/drivers/nvme/host/core.c\n@@ -386,7 +386,7 @@ static void nvme_log_err_passthru(struct request *req)\n \t\tnr->cmd->common.cdw12,\n \t\tnr->cmd->common.cdw13,\n \t\tnr->cmd->common.cdw14,\n-\t\tnr->cmd->common.cdw14);\n+\t\tnr->cmd->common.cdw15);\n }\n \n enum nvme_disposition {",
+    "stats": {
+      "insertions": 1,
+      "deletions": 1,
+      "files": 1
+    }
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "setup_completed": true,
+  "total_patterns": 3,
+  "total_experts": 5,
+  "total_sessions": 3,
+  "total_questions": 63,
+  "validation_packages": {
+    "expert_002": {
+      "expert_name": "Prof. Michael Rodriguez",
+      "package_path": "data\\expert_validation\\expert_expert_002",
+      "patterns_assigned": 3,
+      "email": "m.rodriguez@tech.edu"
+    },
+    "expert_004": {
+      "expert_name": "Dr. James Wilson",
+      "package_path": "data\\expert_validation\\expert_expert_004",
+      "patterns_assigned": 3,
+      "email": "j.wilson@research.org"
+    },
+    "expert_005": {
+      "expert_name": "Dr. Yuki Tanaka",
+      "package_path": "data\\expert_validation\\expert_expert_005",
+      "patterns_assigned": 3,
+      "email": "tanaka@security.ac.jp"
+    }
+  },
+  "framework_statistics": {
+    "questions_per_pattern": 21.0,
+    "patterns_per_expert": 1.8,
+    "estimated_total_time": 189
+  }
+}

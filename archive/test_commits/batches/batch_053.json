@@ -1,0 +1,80 @@
+[
+  {
+    "sha": "2aebf5ee43bf0ed225a09a30cf515d9f2813b759",
+    "message": "x86/alternatives: Fix int3 handling failure from broken text_poke array\n\nSince smp_text_poke_single() does not expect there is another\ntext_poke request is queued, it can make text_poke_array not\nsorted or cause a buffer overflow on the text_poke_array.vec[].\nThis will cause an Oops in int3 because of bsearch failing;\n\n   CPU 0                        CPU 1                      CPU 2\n   -----                        -----                      -----\n\n smp_text_poke_batch_add()\n\n\t\t\t    smp_text_poke_single() <<-- Adds out of order\n\n\t\t\t\t\t\t\t<int3>\n                                                \t[Fails o find address\n                                                        in text_poke_array ]\n                                                        OOPS!\n\nOr unhandled page fault because of a buffer overflow;\n\n   CPU 0                        CPU 1\n   -----                        -----\n\n smp_text_poke_batch_add() <<+\n ...                         |\n smp_text_poke_batch_add() <<-- Adds TEXT_POKE_ARRAY_MAX times.\n\n\t\t\t     smp_text_poke_single() {\n\t\t\t     \t__smp_text_poke_batch_add() <<-- Adds entry at\n\t\t\t\t\t\t\t\tTEXT_POKE_ARRAY_MAX + 1\n\n                \t\tsmp_text_poke_batch_finish()\n                        \t  [Unhandled page fault because\n\t\t\t\t   text_poke_array.nr_entries is\n\t\t\t\t   overwritten]\n\t\t\t\t   BUG!\n\t\t\t     }\n\nUse smp_text_poke_batch_add() instead of __smp_text_poke_batch_add()\nso that it correctly flush the queue if needed.\n\nCloses: https://lore.kernel.org/all/CA+G9fYsLu0roY3DV=tKyqP7FEKbOEETRvTDhnpPxJGbA=Cg+4w@mail.gmail.com/\nFixes: c8976ade0c1b (\"x86/alternatives: Simplify smp_text_poke_single() by using tp_vec and existing APIs\")\nReported-by: Linux Kernel Functional Testing <lkft@linaro.org>\nSigned-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>\nSigned-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>\nReviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>\nTested-by: Linux Kernel Functional Testing <lkft@linaro.org>\nLink: https://lkml.kernel.org/r/\\ 175020512308.3582717.13631440385506146631.stgit@mhiramat.tok.corp.google.com",
+    "author": "Masami Hiramatsu (Google)",
+    "date": "2025-06-18T13:59:56+02:00",
+    "files_changed": [
+      "arch/x86/kernel/alternative.c"
+    ],
+    "diff": "diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c\nindex 9ae80fa904a2..ea1d984166cd 100644\n--- a/arch/x86/kernel/alternative.c\n+++ b/arch/x86/kernel/alternative.c\n@@ -3138,6 +3138,6 @@ void __ref smp_text_poke_batch_add(void *addr, const void *opcode, size_t len, c\n  */\n void __ref smp_text_poke_single(void *addr, const void *opcode, size_t len, const void *emulate)\n {\n-\t__smp_text_poke_batch_add(addr, opcode, len, emulate);\n+\tsmp_text_poke_batch_add(addr, opcode, len, emulate);\n \tsmp_text_poke_batch_finish();\n }",
+    "stats": {
+      "insertions": 1,
+      "deletions": 1,
+      "files": 1
+    }
+  },
+  {
+    "sha": "e1c75831f682eef0f68b35723437146ed86070b1",
+    "message": "io_uring: fix potential page leak in io_sqe_buffer_register()\n\nIf allocation of the 'imu' fails, then the existing pages aren't\nunpinned in the error path. This is mostly a theoretical issue,\nrequiring fault injection to hit.\n\nMove unpin_user_pages() to unified error handling to fix the page leak\nissue.\n\nFixes: d8c2237d0aa9 (\"io_uring: add io_pin_pages() helper\")\nSigned-off-by: Penglei Jiang <superman.xpt@gmail.com>\nLink: https://lore.kernel.org/r/20250617165644.79165-1-superman.xpt@gmail.com\nSigned-off-by: Jens Axboe <axboe@kernel.dk>",
+    "author": "Penglei Jiang",
+    "date": "2025-06-18T05:09:46-06:00",
+    "files_changed": [
+      "io_uring/rsrc.c"
+    ],
+    "diff": "diff --git a/io_uring/rsrc.c b/io_uring/rsrc.c\nindex 94a9db030e0e..d724602697e7 100644\n--- a/io_uring/rsrc.c\n+++ b/io_uring/rsrc.c\n@@ -809,10 +809,8 @@ static struct io_rsrc_node *io_sqe_buffer_register(struct io_ring_ctx *ctx,\n \n \timu->nr_bvecs = nr_pages;\n \tret = io_buffer_account_pin(ctx, pages, nr_pages, imu, last_hpage);\n-\tif (ret) {\n-\t\tunpin_user_pages(pages, nr_pages);\n+\tif (ret)\n \t\tgoto done;\n-\t}\n \n \tsize = iov->iov_len;\n \t/* store original address for later verification */\n@@ -842,6 +840,8 @@ static struct io_rsrc_node *io_sqe_buffer_register(struct io_ring_ctx *ctx,\n \tif (ret) {\n \t\tif (imu)\n \t\t\tio_free_imu(ctx, imu);\n+\t\tif (pages)\n+\t\t\tunpin_user_pages(pages, nr_pages);\n \t\tio_cache_free(&ctx->node_cache, node);\n \t\tnode = ERR_PTR(ret);\n \t}",
+    "stats": {
+      "insertions": 3,
+      "deletions": 3,
+      "files": 1
+    }
+  },
+  {
+    "sha": "d5352b491a3a2628f1a798952a4ae76bde5d42e4",
+    "message": "wifi: iwlwifi: cfg: Limit cb_size to valid range\n\non arm64 defconfig build failed with gcc-8:\n\ndrivers/net/wireless/intel/iwlwifi/pcie/ctxt-info.c:208:3:\ninclude/linux/bitfield.h:195:3: error: call to '__field_overflow'\ndeclared with attribute error: value doesn't fit into mask\n   __field_overflow();     \\\n   ^~~~~~~~~~~~~~~~~~\ninclude/linux/bitfield.h:215:2: note: in expansion of macro '____MAKE_OP'\n  ____MAKE_OP(u##size,u##size,,)\n  ^~~~~~~~~~~\ninclude/linux/bitfield.h:218:1: note: in expansion of macro '__MAKE_OP'\n __MAKE_OP(32)\n\nLimit cb_size to valid range to fix it.\n\nSigned-off-by: Pei Xiao <xiaopei01@kylinos.cn>\nLink: https://patch.msgid.link/7b373a4426070d50b5afb3269fd116c18ce3aea8.1748332709.git.xiaopei01@kylinos.cn\nSigned-off-by: Miri Korenblit <miriam.rachel.korenblit@intel.com>",
+    "author": "Pei Xiao",
+    "date": "2025-06-18T10:40:52+03:00",
+    "files_changed": [
+      "drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info.c"
+    ],
+    "diff": "diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info.c\nindex cb36baac14da..4f2be0c1bd97 100644\n--- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info.c\n+++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info.c\n@@ -166,7 +166,7 @@ int iwl_pcie_ctxt_info_init(struct iwl_trans *trans,\n \tstruct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);\n \tstruct iwl_context_info *ctxt_info;\n \tstruct iwl_context_info_rbd_cfg *rx_cfg;\n-\tu32 control_flags = 0, rb_size;\n+\tu32 control_flags = 0, rb_size, cb_size;\n \tdma_addr_t phys;\n \tint ret;\n \n@@ -202,11 +202,12 @@ int iwl_pcie_ctxt_info_init(struct iwl_trans *trans,\n \t\trb_size = IWL_CTXT_INFO_RB_SIZE_4K;\n \t}\n \n-\tWARN_ON(RX_QUEUE_CB_SIZE(iwl_trans_get_num_rbds(trans)) > 12);\n+\tcb_size = RX_QUEUE_CB_SIZE(iwl_trans_get_num_rbds(trans));\n+\tif (WARN_ON(cb_size > 12))\n+\t\tcb_size = 12;\n+\n \tcontrol_flags = IWL_CTXT_INFO_TFD_FORMAT_LONG;\n-\tcontrol_flags |=\n-\t\tu32_encode_bits(RX_QUEUE_CB_SIZE(iwl_trans_get_num_rbds(trans)),\n-\t\t\t\tIWL_CTXT_INFO_RB_CB_SIZE);\n+\tcontrol_flags |= u32_encode_bits(cb_size, IWL_CTXT_INFO_RB_CB_SIZE);\n \tcontrol_flags |= u32_encode_bits(rb_size, IWL_CTXT_INFO_RB_SIZE);\n \tctxt_info->control.control_flags = cpu_to_le32(control_flags);\n ",
+    "stats": {
+      "insertions": 6,
+      "deletions": 5,
+      "files": 1
+    }
+  },
+  {
+    "sha": "0aff00432cc755ad7713f8a2f305395d443cdd4c",
+    "message": "Merge branch 'atm-fix-uninit-and-mem-accounting-leak-in-vcc_sendmsg'\n\nKuniyuki Iwashima says:\n\n====================\natm: Fix uninit and mem accounting leak in vcc_sendmsg().\n\nPatch 1 fixes uninit issue reported by KMSAN, and patch 2 fixes\nanother issue found by Simon Horman during review for v1 patch.\n\nv1: https://lore.kernel.org/20250613055700.415596-1-kuni1840@gmail.com\n====================\n\nLink: https://patch.msgid.link/20250616182147.963333-1-kuni1840@gmail.com\nSigned-off-by: Jakub Kicinski <kuba@kernel.org>",
+    "author": "Jakub Kicinski",
+    "date": "2025-06-17T18:42:49-07:00",
+    "files_changed": [
+      "drivers/atm/atmtcp.c",
+      "include/linux/atmdev.h",
+      "net/atm/common.c",
+      "net/atm/raw.c"
+    ],
+    "diff": "diff --git a/drivers/atm/atmtcp.c b/drivers/atm/atmtcp.c\nindex d4aa0f353b6c..eeae160c898d 100644\n--- a/drivers/atm/atmtcp.c\n+++ b/drivers/atm/atmtcp.c\n@@ -288,7 +288,9 @@ static int atmtcp_c_send(struct atm_vcc *vcc,struct sk_buff *skb)\n \tstruct sk_buff *new_skb;\n \tint result = 0;\n \n-\tif (!skb->len) return 0;\n+\tif (skb->len < sizeof(struct atmtcp_hdr))\n+\t\tgoto done;\n+\n \tdev = vcc->dev_data;\n \thdr = (struct atmtcp_hdr *) skb->data;\n \tif (hdr->length == ATMTCP_HDR_MAGIC) {\ndiff --git a/include/linux/atmdev.h b/include/linux/atmdev.h\nindex 9b02961d65ee..45f2f278b50a 100644\n--- a/include/linux/atmdev.h\n+++ b/include/linux/atmdev.h\n@@ -249,6 +249,12 @@ static inline void atm_account_tx(struct atm_vcc *vcc, struct sk_buff *skb)\n \tATM_SKB(skb)->atm_options = vcc->atm_options;\n }\n \n+static inline void atm_return_tx(struct atm_vcc *vcc, struct sk_buff *skb)\n+{\n+\tWARN_ON_ONCE(refcount_sub_and_test(ATM_SKB(skb)->acct_truesize,\n+\t\t\t\t\t   &sk_atm(vcc)->sk_wmem_alloc));\n+}\n+\n static inline void atm_force_charge(struct atm_vcc *vcc,int truesize)\n {\n \tatomic_add(truesize, &sk_atm(vcc)->sk_rmem_alloc);\ndiff --git a/net/atm/common.c b/net/atm/common.c\nindex 9b75699992ff..d7f7976ea13a 100644\n--- a/net/atm/common.c\n+++ b/net/atm/common.c\n@@ -635,6 +635,7 @@ int vcc_sendmsg(struct socket *sock, struct msghdr *m, size_t size)\n \n \tskb->dev = NULL; /* for paths shared with net_device interfaces */\n \tif (!copy_from_iter_full(skb_put(skb, size), size, &m->msg_iter)) {\n+\t\tatm_return_tx(vcc, skb);\n \t\tkfree_skb(skb);\n \t\terror = -EFAULT;\n \t\tgoto out;\ndiff --git a/net/atm/raw.c b/net/atm/raw.c\nindex 2b5f78a7ec3e..1e6511ec842c 100644\n--- a/net/atm/raw.c\n+++ b/net/atm/raw.c\n@@ -36,7 +36,7 @@ static void atm_pop_raw(struct atm_vcc *vcc, struct sk_buff *skb)\n \n \tpr_debug(\"(%d) %d -= %d\\n\",\n \t\t vcc->vci, sk_wmem_alloc_get(sk), ATM_SKB(skb)->acct_truesize);\n-\tWARN_ON(refcount_sub_and_test(ATM_SKB(skb)->acct_truesize, &sk->sk_wmem_alloc));\n+\tatm_return_tx(vcc, skb);\n \tdev_kfree_skb_any(skb);\n \tsk->sk_write_space(sk);\n }",
+    "stats": {
+      "insertions": 11,
+      "deletions": 2,
+      "files": 4
+    }
+  },
+  {
+    "sha": "88bd771191f7f20d6295700d1746f576419e3d1f",
+    "message": "bcachefs: fix spurious error in read_btree_roots()\n\nSigned-off-by: Kent Overstreet <kent.overstreet@linux.dev>",
+    "author": "Kent Overstreet",
+    "date": "2025-06-17T20:45:26-04:00",
+    "files_changed": [
+      "fs/bcachefs/recovery.c"
+    ],
+    "diff": "diff --git a/fs/bcachefs/recovery.c b/fs/bcachefs/recovery.c\nindex fa5d1ef5bea6..e0d824471bff 100644\n--- a/fs/bcachefs/recovery.c\n+++ b/fs/bcachefs/recovery.c\n@@ -607,6 +607,7 @@ static int read_btree_roots(struct bch_fs *c)\n \t\t\t\t\tbuf.buf, bch2_err_str(ret))) {\n \t\t\tif (btree_id_is_alloc(i))\n \t\t\t\tr->error = 0;\n+\t\t\tret = 0;\n \t\t}\n \t}\n ",
+    "stats": {
+      "insertions": 1,
+      "deletions": 0,
+      "files": 1
+    }
+  }
+]

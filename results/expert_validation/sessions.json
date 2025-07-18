@@ -1,0 +1,110 @@
+[
+  {
+    "session_id": "session_expert_004_464ddf35",
+    "expert_id": "expert_004",
+    "patterns_assigned": [
+      "ap_fallback_000",
+      "ap_fallback_000",
+      "ap_fallback_000"
+    ],
+    "questions_generated": [
+      "relevance_ap_fallback_000_4e255404",
+      "accuracy_ap_fallback_000_402aa125",
+      "severity_ap_fallback_000_0486dd78",
+      "completeness_ap_fallback_000_5960bc1d",
+      "false_positive_ap_fallback_000_1b1ab15f",
+      "utility_ap_fallback_000_b565f024",
+      "feedback_ap_fallback_000_f184bca4",
+      "relevance_ap_fallback_000_cfb7df5e",
+      "accuracy_ap_fallback_000_38967f36",
+      "severity_ap_fallback_000_472f38e4",
+      "completeness_ap_fallback_000_498d75bb",
+      "false_positive_ap_fallback_000_57dea24f",
+      "utility_ap_fallback_000_8f02c0a2",
+      "feedback_ap_fallback_000_0f12e95d",
+      "relevance_ap_fallback_000_af3b0f8f",
+      "accuracy_ap_fallback_000_b2511270",
+      "severity_ap_fallback_000_0568b820",
+      "completeness_ap_fallback_000_881ab74b",
+      "false_positive_ap_fallback_000_ae4af5e6",
+      "utility_ap_fallback_000_1d41f49e",
+      "feedback_ap_fallback_000_9dc84e83"
+    ],
+    "start_time": "2025-07-17T17:09:43.509646",
+    "completion_time": null,
+    "status": "invited",
+    "reminder_count": 0
+  },
+  {
+    "session_id": "session_expert_005_44c74617",
+    "expert_id": "expert_005",
+    "patterns_assigned": [
+      "ap_fallback_000",
+      "ap_fallback_000",
+      "ap_fallback_000"
+    ],
+    "questions_generated": [
+      "relevance_ap_fallback_000_381ccdab",
+      "accuracy_ap_fallback_000_c552dd89",
+      "severity_ap_fallback_000_ca5671ab",
+      "completeness_ap_fallback_000_f4d021cc",
+      "false_positive_ap_fallback_000_5e38dc87",
+      "utility_ap_fallback_000_81fff152",
+      "feedback_ap_fallback_000_3436b2a6",
+      "relevance_ap_fallback_000_9d002ba4",
+      "accuracy_ap_fallback_000_72eceead",
+      "severity_ap_fallback_000_0653c2f4",
+      "completeness_ap_fallback_000_d43d788a",
+      "false_positive_ap_fallback_000_723afae0",
+      "utility_ap_fallback_000_70f1b8d1",
+      "feedback_ap_fallback_000_80d1d5d7",
+      "relevance_ap_fallback_000_54b84714",
+      "accuracy_ap_fallback_000_9d444e55",
+      "severity_ap_fallback_000_716d874c",
+      "completeness_ap_fallback_000_0cd38a2d",
+      "false_positive_ap_fallback_000_86113738",
+      "utility_ap_fallback_000_91097d1b",
+      "feedback_ap_fallback_000_e1982be9"
+    ],
+    "start_time": "2025-07-17T17:09:43.509646",
+    "completion_time": null,
+    "status": "invited",
+    "reminder_count": 0
+  },
+  {
+    "session_id": "session_expert_002_eb0b1c5b",
+    "expert_id": "expert_002",
+    "patterns_assigned": [
+      "ap_fallback_000",
+      "ap_fallback_000",
+      "ap_fallback_000"
+    ],
+    "questions_generated": [
+      "relevance_ap_fallback_000_5b2f42c0",
+      "accuracy_ap_fallback_000_b1bcafe0",
+      "severity_ap_fallback_000_fea6e20e",
+      "completeness_ap_fallback_000_b97484a0",
+      "false_positive_ap_fallback_000_012bfd64",
+      "utility_ap_fallback_000_a970cf49",
+      "feedback_ap_fallback_000_44157080",
+      "relevance_ap_fallback_000_8ded3bca",
+      "accuracy_ap_fallback_000_7d48fb8f",
+      "severity_ap_fallback_000_b3fea302",
+      "completeness_ap_fallback_000_265fb4cc",
+      "false_positive_ap_fallback_000_47217f74",
+      "utility_ap_fallback_000_950cf068",
+      "feedback_ap_fallback_000_f0b8b535",
+      "relevance_ap_fallback_000_3b764765",
+      "accuracy_ap_fallback_000_98aaa961",
+      "severity_ap_fallback_000_95b10b4f",
+      "completeness_ap_fallback_000_e4451026",
+      "false_positive_ap_fallback_000_1ebcdef9",
+      "utility_ap_fallback_000_c66e8fad",
+      "feedback_ap_fallback_000_8cc1dd46"
+    ],
+    "start_time": "2025-07-17T17:09:43.509646",
+    "completion_time": null,
+    "status": "invited",
+    "reminder_count": 0
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "pattern_id": "ap_fallback_000",
+    "name": "Fallback Other Pattern",
+    "category": "other",
+    "description": "Fallback pattern for other vulnerabilities",
+    "vulnerability_type": "other",
+    "code_characteristics": [
+      "fallback_characteristic"
+    ],
+    "detection_rules": [
+      "Check for other indicators"
+    ],
+    "example_commits": [
+      "3b428e1c",
+      "3c2fe279",
+      "5f02b80c"
+    ],
+    "confidence_score": 0.3,
+    "affected_functions": [
+      "unknown"
+    ],
+    "clang_ast_patterns": [
+      "unknown"
+    ]
+  },
+  {
+    "pattern_id": "ap_fallback_000",
+    "name": "Fallback Memory Leak Pattern",
+    "category": "other",
+    "description": "Fallback pattern for memory_leak vulnerabilities",
+    "vulnerability_type": "memory_leak",
+    "code_characteristics": [
+      "fallback_characteristic"
+    ],
+    "detection_rules": [
+      "Check for memory_leak indicators"
+    ],
+    "example_commits": [
+      "2632d81f",
+      "40f92e79",
+      "b7dc79a6"
+    ],
+    "confidence_score": 0.3,
+    "affected_functions": [
+      "unknown"
+    ],
+    "clang_ast_patterns": [
+      "unknown"
+    ]
+  },
+  {
+    "pattern_id": "ap_fallback_000",
+    "name": "Fallback Input Validation Pattern",
+    "category": "other",
+    "description": "Fallback pattern for input_validation vulnerabilities",
+    "vulnerability_type": "input_validation",
+    "code_characteristics": [
+      "fallback_characteristic"
+    ],
+    "detection_rules": [
+      "Check for input_validation indicators"
+    ],
+    "example_commits": [
+      "c7979c39",
+      "b74c2a2e",
+      "e81750b4"
+    ],
+    "confidence_score": 0.3,
+    "affected_functions": [
+      "unknown"
+    ],
+    "clang_ast_patterns": [
+      "unknown"
+    ]
+  }
+]

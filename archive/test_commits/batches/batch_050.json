@@ -1,0 +1,77 @@
+[
+  {
+    "sha": "2dcf838cf5c2f0f4501edaa1680fcad03618d760",
+    "message": "btrfs: fix invalid inode pointer dereferences during log replay\n\nIn a few places where we call read_one_inode(), if we get a NULL pointer\nwe end up jumping into an error path, or fallthrough in case of\n__add_inode_ref(), where we then do something like this:\n\n   iput(&inode->vfs_inode);\n\nwhich results in an invalid inode pointer that triggers an invalid memory\naccess, resulting in a crash.\n\nFix this by making sure we don't do such dereferences.\n\nFixes: b4c50cbb01a1 (\"btrfs: return a btrfs_inode from read_one_inode()\")\nCC: stable@vger.kernel.org # 6.15+\nSigned-off-by: Filipe Manana <fdmanana@suse.com>\nReviewed-by: David Sterba <dsterba@suse.com>\nSigned-off-by: David Sterba <dsterba@suse.com>",
+    "author": "Filipe Manana",
+    "date": "2025-06-19T15:20:42+02:00",
+    "files_changed": [
+      "fs/btrfs/tree-log.c"
+    ],
+    "diff": "diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c\nindex 97e933113b82..21d2f3dded51 100644\n--- a/fs/btrfs/tree-log.c\n+++ b/fs/btrfs/tree-log.c\n@@ -668,15 +668,12 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,\n \t\textent_end = ALIGN(start + size,\n \t\t\t\t   fs_info->sectorsize);\n \t} else {\n-\t\tret = 0;\n-\t\tgoto out;\n+\t\treturn 0;\n \t}\n \n \tinode = read_one_inode(root, key->objectid);\n-\tif (!inode) {\n-\t\tret = -EIO;\n-\t\tgoto out;\n-\t}\n+\tif (!inode)\n+\t\treturn -EIO;\n \n \t/*\n \t * first check to see if we already have this extent in the\n@@ -961,7 +958,8 @@ static noinline int drop_one_dir_item(struct btrfs_trans_handle *trans,\n \tret = unlink_inode_for_log_replay(trans, dir, inode, &name);\n out:\n \tkfree(name.name);\n-\tiput(&inode->vfs_inode);\n+\tif (inode)\n+\t\tiput(&inode->vfs_inode);\n \treturn ret;\n }\n \n@@ -1176,8 +1174,8 @@ static inline int __add_inode_ref(struct btrfs_trans_handle *trans,\n \t\t\t\t\tret = unlink_inode_for_log_replay(trans,\n \t\t\t\t\t\t\tvictim_parent,\n \t\t\t\t\t\t\tinode, &victim_name);\n+\t\t\t\t\tiput(&victim_parent->vfs_inode);\n \t\t\t\t}\n-\t\t\t\tiput(&victim_parent->vfs_inode);\n \t\t\t\tkfree(victim_name.name);\n \t\t\t\tif (ret)\n \t\t\t\t\treturn ret;",
+    "stats": {
+      "insertions": 6,
+      "deletions": 8,
+      "files": 1
+    }
+  },
+  {
+    "sha": "dd276214e439db08f444fd3e07e9fe4c9e0ca210",
+    "message": "btrfs: fix delayed ref refcount leak in debug assertion\n\nIf the delayed_root is not empty we are increasing the number of\nreferences to a delayed_node without decreasing it, causing a leak.  Fix\nby decrementing the delayed_node reference count.\n\nReviewed-by: Filipe Manana <fdmanana@suse.com>\nSigned-off-by: Leo Martins <loemra.dev@gmail.com>\nReviewed-by: Qu Wenruo <wqu@suse.com>\n[ Remove the changelog from the commit message. ]\nSigned-off-by: Qu Wenruo <wqu@suse.com>\nSigned-off-by: David Sterba <dsterba@suse.com>",
+    "author": "Leo Martins",
+    "date": "2025-06-19T15:18:35+02:00",
+    "files_changed": [
+      "fs/btrfs/delayed-inode.c"
+    ],
+    "diff": "diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c\nindex c7cc24a5dd5e..8c597fa60523 100644\n--- a/fs/btrfs/delayed-inode.c\n+++ b/fs/btrfs/delayed-inode.c\n@@ -1377,7 +1377,10 @@ static int btrfs_wq_run_delayed_node(struct btrfs_delayed_root *delayed_root,\n \n void btrfs_assert_delayed_root_empty(struct btrfs_fs_info *fs_info)\n {\n-\tWARN_ON(btrfs_first_delayed_node(fs_info->delayed_root));\n+\tstruct btrfs_delayed_node *node = btrfs_first_delayed_node(fs_info->delayed_root);\n+\n+\tif (WARN_ON(node))\n+\t\trefcount_dec(&node->refs);\n }\n \n static bool could_end_wait(struct btrfs_delayed_root *delayed_root, int seq)",
+    "stats": {
+      "insertions": 4,
+      "deletions": 1,
+      "files": 1
+    }
+  },
+  {
+    "sha": "186b58bacd74d9b7892869f7c7d20cf865a3c237",
+    "message": "KVM: arm64: Remove ad-hoc CPTR manipulation from kvm_hyp_handle_fpsimd()\n\nThe hyp code FPSIMD/SVE/SME trap handling logic has some rather messy\nopen-coded manipulation of CPTR/CPACR. This is benign for non-nested\nguests, but broken for nested guests, as the guest hypervisor's CPTR\nconfiguration is not taken into account.\n\nConsider the case where L0 provides FPSIMD+SVE to an L1 guest\nhypervisor, and the L1 guest hypervisor only provides FPSIMD to an L2\nguest (with L1 configuring CPTR/CPACR to trap SVE usage from L2). If the\nL2 guest triggers an FPSIMD trap to the L0 hypervisor,\nkvm_hyp_handle_fpsimd() will see that the vCPU supports FPSIMD+SVE, and\nwill configure CPTR/CPACR to NOT trap FPSIMD+SVE before returning to the\nL2 guest. Consequently the L2 guest would be able to manipulate SVE\nstate even though the L1 hypervisor had configured CPTR/CPACR to forbid\nthis.\n\nClean this up, and fix the nested virt issue by always using\n__deactivate_cptr_traps() and __activate_cptr_traps() to manage the CPTR\ntraps. This removes the need for the ad-hoc fixup in\nkvm_hyp_save_fpsimd_host(), and ensures that any guest hypervisor\nconfiguration of CPTR/CPACR is taken into account.\n\nSigned-off-by: Mark Rutland <mark.rutland@arm.com>\nCc: Catalin Marinas <catalin.marinas@arm.com>\nCc: Fuad Tabba <tabba@google.com>\nCc: Marc Zyngier <maz@kernel.org>\nCc: Mark Brown <broonie@kernel.org>\nCc: Oliver Upton <oliver.upton@linux.dev>\nCc: Will Deacon <will@kernel.org>\nLink: https://lore.kernel.org/r/20250617133718.4014181-6-mark.rutland@arm.com\nSigned-off-by: Marc Zyngier <maz@kernel.org>",
+    "author": "Mark Rutland",
+    "date": "2025-06-19T13:06:20+01:00",
+    "files_changed": [
+      "arch/arm64/kvm/hyp/include/hyp/switch.h"
+    ],
+    "diff": "diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h\nindex 8a77fcccbcf6..2ad57b117385 100644\n--- a/arch/arm64/kvm/hyp/include/hyp/switch.h\n+++ b/arch/arm64/kvm/hyp/include/hyp/switch.h\n@@ -616,11 +616,6 @@ static void kvm_hyp_save_fpsimd_host(struct kvm_vcpu *vcpu)\n \t */\n \tif (system_supports_sve()) {\n \t\t__hyp_sve_save_host();\n-\n-\t\t/* Re-enable SVE traps if not supported for the guest vcpu. */\n-\t\tif (!vcpu_has_sve(vcpu))\n-\t\t\tcpacr_clear_set(CPACR_EL1_ZEN, 0);\n-\n \t} else {\n \t\t__fpsimd_save_state(host_data_ptr(host_ctxt.fp_regs));\n \t}\n@@ -671,10 +666,7 @@ static inline bool kvm_hyp_handle_fpsimd(struct kvm_vcpu *vcpu, u64 *exit_code)\n \t/* Valid trap.  Switch the context: */\n \n \t/* First disable enough traps to allow us to update the registers */\n-\tif (sve_guest || (is_protected_kvm_enabled() && system_supports_sve()))\n-\t\tcpacr_clear_set(0, CPACR_EL1_FPEN | CPACR_EL1_ZEN);\n-\telse\n-\t\tcpacr_clear_set(0, CPACR_EL1_FPEN);\n+\t__deactivate_cptr_traps(vcpu);\n \tisb();\n \n \t/* Write out the host state if it's in the registers */\n@@ -696,6 +688,13 @@ static inline bool kvm_hyp_handle_fpsimd(struct kvm_vcpu *vcpu, u64 *exit_code)\n \n \t*host_data_ptr(fp_owner) = FP_STATE_GUEST_OWNED;\n \n+\t/*\n+\t * Re-enable traps necessary for the current state of the guest, e.g.\n+\t * those enabled by a guest hypervisor. The ERET to the guest will\n+\t * provide the necessary context synchronization.\n+\t */\n+\t__activate_cptr_traps(vcpu);\n+\n \treturn true;\n }\n ",
+    "stats": {
+      "insertions": 8,
+      "deletions": 9,
+      "files": 1
+    }
+  },
+  {
+    "sha": "c529c3730bd09115684644e26bf01ecbd7e2c2c9",
+    "message": "usb: gadget: u_serial: Fix race condition in TTY wakeup\n\nA race condition occurs when gs_start_io() calls either gs_start_rx() or\ngs_start_tx(), as those functions briefly drop the port_lock for\nusb_ep_queue(). This allows gs_close() and gserial_disconnect() to clear\nport.tty and port_usb, respectively.\n\nUse the null-safe TTY Port helper function to wake up TTY.\n\nExample\n  CPU1:\t\t\t      CPU2:\n  gserial_connect() // lock\n  \t\t\t      gs_close() // await lock\n  gs_start_rx()     // unlock\n  usb_ep_queue()\n  \t\t\t      gs_close() // lock, reset port.tty and unlock\n  gs_start_rx()     // lock\n  tty_wakeup()      // NPE\n\nFixes: 35f95fd7f234 (\"TTY: usb/u_serial, use tty from tty_port\")\nCc: stable <stable@kernel.org>\nSigned-off-by: Kuen-Han Tsai <khtsai@google.com>\nReviewed-by: Prashanth K <prashanth.k@oss.qualcomm.com>\nLink: https://lore.kernel.org/linux-usb/20240116141801.396398-1-khtsai@google.com/\nLink: https://lore.kernel.org/r/20250617050844.1848232-2-khtsai@google.com\nSigned-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>",
+    "author": "Kuen-Han Tsai",
+    "date": "2025-06-19T12:41:13+02:00",
+    "files_changed": [
+      "drivers/usb/gadget/function/u_serial.c"
+    ],
+    "diff": "diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c\nindex c043bdc30d8a..540dc5ab96fc 100644\n--- a/drivers/usb/gadget/function/u_serial.c\n+++ b/drivers/usb/gadget/function/u_serial.c\n@@ -295,8 +295,8 @@ __acquires(&port->port_lock)\n \t\t\tbreak;\n \t}\n \n-\tif (do_tty_wake && port->port.tty)\n-\t\ttty_wakeup(port->port.tty);\n+\tif (do_tty_wake)\n+\t\ttty_port_tty_wakeup(&port->port);\n \treturn status;\n }\n \n@@ -574,7 +574,7 @@ static int gs_start_io(struct gs_port *port)\n \t\tgs_start_tx(port);\n \t\t/* Unblock any pending writes into our circular buffer, in case\n \t\t * we didn't in gs_start_tx() */\n-\t\ttty_wakeup(port->port.tty);\n+\t\ttty_port_tty_wakeup(&port->port);\n \t} else {\n \t\t/* Free reqs only if we are still connected */\n \t\tif (port->port_usb) {",
+    "stats": {
+      "insertions": 3,
+      "deletions": 3,
+      "files": 1
+    }
+  },
+  {
+    "sha": "f6c7bc4a6823a0a959f40866a1efe99bd03c2c5b",
+    "message": "Revert \"usb: gadget: u_serial: Add null pointer check in gs_start_io\"\n\nThis reverts commit ffd603f214237e250271162a5b325c6199a65382.\n\nCommit ffd603f21423 (\"usb: gadget: u_serial: Add null pointer check in\ngs_start_io\") adds null pointer checks at the beginning of the\ngs_start_io() function to prevent a null pointer dereference. However,\nthese checks are redundant because the function's comment already\nrequires callers to hold the port_lock and ensure port.tty and port_usb\nare not null. All existing callers already follow these rules.\n\nThe true cause of the null pointer dereference is a race condition. When\ngs_start_io() calls either gs_start_rx() or gs_start_tx(), the port_lock\nis temporarily released for usb_ep_queue(). This allows port.tty and\nport_usb to be cleared.\n\nFixes: ffd603f21423 (\"usb: gadget: u_serial: Add null pointer check in gs_start_io\")\nCc: stable <stable@kernel.org>\nSigned-off-by: Kuen-Han Tsai <khtsai@google.com>\nReviewed-by: Prashanth K <prashanth.k@oss.qualcomm.com>\nLink: https://lore.kernel.org/r/20250617050844.1848232-1-khtsai@google.com\nSigned-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>",
+    "author": "Kuen-Han Tsai",
+    "date": "2025-06-19T12:41:09+02:00",
+    "files_changed": [
+      "drivers/usb/gadget/function/u_serial.c"
+    ],
+    "diff": "diff --git a/drivers/usb/gadget/function/u_serial.c b/drivers/usb/gadget/function/u_serial.c\nindex ab544f6824be..c043bdc30d8a 100644\n--- a/drivers/usb/gadget/function/u_serial.c\n+++ b/drivers/usb/gadget/function/u_serial.c\n@@ -544,20 +544,16 @@ static int gs_alloc_requests(struct usb_ep *ep, struct list_head *head,\n static int gs_start_io(struct gs_port *port)\n {\n \tstruct list_head\t*head = &port->read_pool;\n-\tstruct usb_ep\t\t*ep;\n+\tstruct usb_ep\t\t*ep = port->port_usb->out;\n \tint\t\t\tstatus;\n \tunsigned\t\tstarted;\n \n-\tif (!port->port_usb || !port->port.tty)\n-\t\treturn -EIO;\n-\n \t/* Allocate RX and TX I/O buffers.  We can't easily do this much\n \t * earlier (with GFP_KERNEL) because the requests are coupled to\n \t * endpoints, as are the packet sizes we'll be using.  Different\n \t * configurations may use different endpoints with a given port;\n \t * and high speed vs full speed changes packet sizes too.\n \t */\n-\tep = port->port_usb->out;\n \tstatus = gs_alloc_requests(ep, head, gs_read_complete,\n \t\t&port->read_allocated);\n \tif (status)",
+    "stats": {
+      "insertions": 1,
+      "deletions": 5,
+      "files": 1
+    }
+  }
+]

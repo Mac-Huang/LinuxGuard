@@ -1,0 +1,80 @@
+[
+  {
+    "sha": "b07f349d1864abe29436f45e3047da2bdd476462",
+    "message": "spi: spi-cadence-quadspi: Fix pm runtime unbalance\n\nHaving PM put sync in remove function is causing PM underflow during\nremove operation. This is caused by the function, runtime_pm_get_sync,\nnot being called anywhere during the op. Ensure that calls to\npm_runtime_enable()/pm_runtime_disable() and\npm_runtime_get_sync()/pm_runtime_put_sync() match.\n\necho 108d2000.spi > /sys/bus/platform/drivers/cadence-qspi/unbind\n[   49.644256] Deleting MTD partitions on \"108d2000.spi.0\":\n[   49.649575] Deleting u-boot MTD partition\n[   49.684087] Deleting root MTD partition\n[   49.724188] cadence-qspi 108d2000.spi: Runtime PM usage count underflow!\n\nContinuous bind/unbind will result in an \"Unbalanced pm_runtime_enable\" error.\nSubsequent unbind attempts will return a \"No such device\" error, while bind\nattempts will return a \"Resource temporarily unavailable\" error.\n\n[   47.592434] cadence-qspi 108d2000.spi: Runtime PM usage count underflow!\n[   49.592233] cadence-qspi 108d2000.spi: detected FIFO depth (1024) different from config (128)\n[   53.232309] cadence-qspi 108d2000.spi: Runtime PM usage count underflow!\n[   55.828550] cadence-qspi 108d2000.spi: detected FIFO depth (1024) different from config (128)\n[   57.940627] cadence-qspi 108d2000.spi: Runtime PM usage count underflow!\n[   59.912490] cadence-qspi 108d2000.spi: detected FIFO depth (1024) different from config (128)\n[   61.876243] cadence-qspi 108d2000.spi: Runtime PM usage count underflow!\n[   61.883000] platform 108d2000.spi: Unbalanced pm_runtime_enable!\n[  532.012270] cadence-qspi 108d2000.spi: probe with driver cadence-qspi failed1\n\nAlso, change clk_disable_unprepare() to clk_disable() since continuous\nbind and unbind operations will trigger a warning indicating that the clock is\nalready unprepared.\n\nFixes: 4892b374c9b7 (\"mtd: spi-nor: cadence-quadspi: Add runtime PM support\")\ncc: stable@vger.kernel.org # 6.6+\nSigned-off-by: Khairul Anuar Romli <khairul.anuar.romli@altera.com>\nReviewed-by: Matthew Gerlach <matthew.gerlach@altera.com>\nLink: https://patch.msgid.link/4e7a4b8aba300e629b45a04f90bddf665fbdb335.1749601877.git.khairul.anuar.romli@altera.com\nSigned-off-by: Mark Brown <broonie@kernel.org>",
+    "author": "Khairul Anuar Romli",
+    "date": "2025-06-24T16:40:31+01:00",
+    "files_changed": [
+      "drivers/spi/spi-cadence-quadspi.c"
+    ],
+    "diff": "diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c\nindex fe0f122f07b0..aa1932ba17cb 100644\n--- a/drivers/spi/spi-cadence-quadspi.c\n+++ b/drivers/spi/spi-cadence-quadspi.c\n@@ -1958,10 +1958,10 @@ static int cqspi_probe(struct platform_device *pdev)\n \t\t\tgoto probe_setup_failed;\n \t}\n \n-\tret = devm_pm_runtime_enable(dev);\n-\tif (ret) {\n-\t\tif (cqspi->rx_chan)\n-\t\t\tdma_release_channel(cqspi->rx_chan);\n+\tpm_runtime_enable(dev);\n+\n+\tif (cqspi->rx_chan) {\n+\t\tdma_release_channel(cqspi->rx_chan);\n \t\tgoto probe_setup_failed;\n \t}\n \n@@ -1981,6 +1981,7 @@ static int cqspi_probe(struct platform_device *pdev)\n \treturn 0;\n probe_setup_failed:\n \tcqspi_controller_enable(cqspi, 0);\n+\tpm_runtime_disable(dev);\n probe_reset_failed:\n \tif (cqspi->is_jh7110)\n \t\tcqspi_jh7110_disable_clk(pdev, cqspi);\n@@ -1999,7 +2000,8 @@ static void cqspi_remove(struct platform_device *pdev)\n \tif (cqspi->rx_chan)\n \t\tdma_release_channel(cqspi->rx_chan);\n \n-\tclk_disable_unprepare(cqspi->clk);\n+\tif (pm_runtime_get_sync(&pdev->dev) >= 0)\n+\t\tclk_disable(cqspi->clk);\n \n \tif (cqspi->is_jh7110)\n \t\tcqspi_jh7110_disable_clk(pdev, cqspi);",
+    "stats": {
+      "insertions": 7,
+      "deletions": 5,
+      "files": 1
+    }
+  },
+  {
+    "sha": "6c038b58a2dc5a008c7e7a1297f5aaa4deaaaa7e",
+    "message": "ASoC: SOF: Intel: hda: Use devm_kstrdup() to avoid memleak.\n\nsof_pdata->tplg_filename can have address allocated by kstrdup()\nand can be overwritten. Memory leak was detected with kmemleak:\n\nunreferenced object 0xffff88812391ff60 (size 16):\n  comm \"kworker/4:1\", pid 161, jiffies 4294802931\n  hex dump (first 16 bytes):\n    73 6f 66 2d 68 64 61 2d 67 65 6e 65 72 69 63 00  sof-hda-generic.\n  backtrace (crc 4bf1675c):\n    __kmalloc_node_track_caller_noprof+0x49c/0x6b0\n    kstrdup+0x46/0xc0\n    hda_machine_select.cold+0x1de/0x12cf [snd_sof_intel_hda_generic]\n    sof_init_environment+0x16f/0xb50 [snd_sof]\n    sof_probe_continue+0x45/0x7c0 [snd_sof]\n    sof_probe_work+0x1e/0x40 [snd_sof]\n    process_one_work+0x894/0x14b0\n    worker_thread+0x5e5/0xfb0\n    kthread+0x39d/0x760\n    ret_from_fork+0x31/0x70\n    ret_from_fork_asm+0x1a/0x30\n\nSigned-off-by: Tamura Dai <kirinode0@gmail.com>\nLink: https://patch.msgid.link/20250615235548.8591-1-kirinode0@gmail.com\nSigned-off-by: Mark Brown <broonie@kernel.org>",
+    "author": "Tamura Dai",
+    "date": "2025-06-24T16:39:42+01:00",
+    "files_changed": [
+      "sound/soc/sof/intel/hda.c"
+    ],
+    "diff": "diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c\nindex bdfe388da198..3b47191ea7a5 100644\n--- a/sound/soc/sof/intel/hda.c\n+++ b/sound/soc/sof/intel/hda.c\n@@ -1257,11 +1257,11 @@ static int check_tplg_quirk_mask(struct snd_soc_acpi_mach *mach)\n \treturn 0;\n }\n \n-static char *remove_file_ext(const char *tplg_filename)\n+static char *remove_file_ext(struct device *dev, const char *tplg_filename)\n {\n \tchar *filename, *tmp;\n \n-\tfilename = kstrdup(tplg_filename, GFP_KERNEL);\n+\tfilename = devm_kstrdup(dev, tplg_filename, GFP_KERNEL);\n \tif (!filename)\n \t\treturn NULL;\n \n@@ -1345,7 +1345,7 @@ struct snd_soc_acpi_mach *hda_machine_select(struct snd_sof_dev *sdev)\n \t\t */\n \t\tif (!sof_pdata->tplg_filename) {\n \t\t\t/* remove file extension if it exists */\n-\t\t\ttplg_filename = remove_file_ext(mach->sof_tplg_filename);\n+\t\t\ttplg_filename = remove_file_ext(sdev->dev, mach->sof_tplg_filename);\n \t\t\tif (!tplg_filename)\n \t\t\t\treturn NULL;\n ",
+    "stats": {
+      "insertions": 3,
+      "deletions": 3,
+      "files": 1
+    }
+  },
+  {
+    "sha": "099cf1fbb8afc3771f408109f62bdec66f85160e",
+    "message": "usb: typec: displayport: Fix potential deadlock\n\nThe deadlock can occur due to a recursive lock acquisition of\n`cros_typec_altmode_data::mutex`.\nThe call chain is as follows:\n1. cros_typec_altmode_work() acquires the mutex\n2. typec_altmode_vdm() -> dp_altmode_vdm() ->\n3. typec_altmode_exit() -> cros_typec_altmode_exit()\n4. cros_typec_altmode_exit() attempts to acquire the mutex again\n\nTo prevent this, defer the `typec_altmode_exit()` call by scheduling\nit rather than calling it directly from within the mutex-protected\ncontext.\n\nCc: stable <stable@kernel.org>\nFixes: b4b38ffb38c9 (\"usb: typec: displayport: Receive DP Status Update NAK request exit dp altmode\")\nSigned-off-by: Andrei Kuchynski <akuchynski@chromium.org>\nReviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>\nLink: https://lore.kernel.org/r/20250624133246.3936737-1-akuchynski@chromium.org\nSigned-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>",
+    "author": "Andrei Kuchynski",
+    "date": "2025-06-24T15:43:15+01:00",
+    "files_changed": [
+      "drivers/usb/typec/altmodes/displayport.c"
+    ],
+    "diff": "diff --git a/drivers/usb/typec/altmodes/displayport.c b/drivers/usb/typec/altmodes/displayport.c\nindex 773786129dfb..d8b906ec4d1c 100644\n--- a/drivers/usb/typec/altmodes/displayport.c\n+++ b/drivers/usb/typec/altmodes/displayport.c\n@@ -394,8 +394,7 @@ static int dp_altmode_vdm(struct typec_altmode *alt,\n \tcase CMDT_RSP_NAK:\n \t\tswitch (cmd) {\n \t\tcase DP_CMD_STATUS_UPDATE:\n-\t\t\tif (typec_altmode_exit(alt))\n-\t\t\t\tdev_err(&dp->alt->dev, \"Exit Mode Failed!\\n\");\n+\t\t\tdp->state = DP_STATE_EXIT;\n \t\t\tbreak;\n \t\tcase DP_CMD_CONFIGURE:\n \t\t\tdp->data.conf = 0;",
+    "stats": {
+      "insertions": 1,
+      "deletions": 2,
+      "files": 1
+    }
+  },
+  {
+    "sha": "2831a81077f5162f104ba5a97a7d886eb371c21c",
+    "message": "usb: cdnsp: Fix issue with CV Bad Descriptor test\n\nThe SSP2 controller has extra endpoint state preserve bit (ESP) which\nsetting causes that endpoint state will be preserved during\nHalt Endpoint command. It is used only for EP0.\nWithout this bit the Command Verifier \"TD 9.10 Bad Descriptor Test\"\nfailed.\nSetting this bit doesn't have any impact for SSP controller.\n\nFixes: 3d82904559f4 (\"usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver\")\nCc: stable <stable@kernel.org>\nSigned-off-by: Pawel Laszczak <pawell@cadence.com>\nAcked-by: Peter Chen <peter.chen@kernel.org>\nLink: https://lore.kernel.org/r/PH7PR07MB95382CCD50549DABAEFD6156DD7CA@PH7PR07MB9538.namprd07.prod.outlook.com\nSigned-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>",
+    "author": "Pawel Laszczak",
+    "date": "2025-06-24T15:42:39+01:00",
+    "files_changed": [
+      "drivers/usb/cdns3/cdnsp-debug.h",
+      "drivers/usb/cdns3/cdnsp-ep0.c",
+      "drivers/usb/cdns3/cdnsp-gadget.h",
+      "drivers/usb/cdns3/cdnsp-ring.c"
+    ],
+    "diff": "diff --git a/drivers/usb/cdns3/cdnsp-debug.h b/drivers/usb/cdns3/cdnsp-debug.h\nindex cd138acdcce1..86860686d836 100644\n--- a/drivers/usb/cdns3/cdnsp-debug.h\n+++ b/drivers/usb/cdns3/cdnsp-debug.h\n@@ -327,12 +327,13 @@ static inline const char *cdnsp_decode_trb(char *str, size_t size, u32 field0,\n \tcase TRB_RESET_EP:\n \tcase TRB_HALT_ENDPOINT:\n \t\tret = scnprintf(str, size,\n-\t\t\t\t\"%s: ep%d%s(%d) ctx %08x%08x slot %ld flags %c\",\n+\t\t\t\t\"%s: ep%d%s(%d) ctx %08x%08x slot %ld flags %c %c\",\n \t\t\t\tcdnsp_trb_type_string(type),\n \t\t\t\tep_num, ep_id % 2 ? \"out\" : \"in\",\n \t\t\t\tTRB_TO_EP_INDEX(field3), field1, field0,\n \t\t\t\tTRB_TO_SLOT_ID(field3),\n-\t\t\t\tfield3 & TRB_CYCLE ? 'C' : 'c');\n+\t\t\t\tfield3 & TRB_CYCLE ? 'C' : 'c',\n+\t\t\t\tfield3 & TRB_ESP ? 'P' : 'p');\n \t\tbreak;\n \tcase TRB_STOP_RING:\n \t\tret = scnprintf(str, size,\ndiff --git a/drivers/usb/cdns3/cdnsp-ep0.c b/drivers/usb/cdns3/cdnsp-ep0.c\nindex f317d3c84781..5cd9b898ce97 100644\n--- a/drivers/usb/cdns3/cdnsp-ep0.c\n+++ b/drivers/usb/cdns3/cdnsp-ep0.c\n@@ -414,6 +414,7 @@ static int cdnsp_ep0_std_request(struct cdnsp_device *pdev,\n void cdnsp_setup_analyze(struct cdnsp_device *pdev)\n {\n \tstruct usb_ctrlrequest *ctrl = &pdev->setup;\n+\tstruct cdnsp_ep *pep;\n \tint ret = -EINVAL;\n \tu16 len;\n \n@@ -427,10 +428,21 @@ void cdnsp_setup_analyze(struct cdnsp_device *pdev)\n \t\tgoto out;\n \t}\n \n+\tpep = &pdev->eps[0];\n+\n \t/* Restore the ep0 to Stopped/Running state. */\n-\tif (pdev->eps[0].ep_state & EP_HALTED) {\n-\t\ttrace_cdnsp_ep0_halted(\"Restore to normal state\");\n-\t\tcdnsp_halt_endpoint(pdev, &pdev->eps[0], 0);\n+\tif (pep->ep_state & EP_HALTED) {\n+\t\tif (GET_EP_CTX_STATE(pep->out_ctx) == EP_STATE_HALTED)\n+\t\t\tcdnsp_halt_endpoint(pdev, pep, 0);\n+\n+\t\t/*\n+\t\t * Halt Endpoint Command for SSP2 for ep0 preserve current\n+\t\t * endpoint state and driver has to synchronize the\n+\t\t * software endpoint state with endpoint output context\n+\t\t * state.\n+\t\t */\n+\t\tpep->ep_state &= ~EP_HALTED;\n+\t\tpep->ep_state |= EP_STOPPED;\n \t}\n \n \t/*\ndiff --git a/drivers/usb/cdns3/cdnsp-gadget.h b/drivers/usb/cdns3/cdnsp-gadget.h\nindex 2afa3e558f85..a91cca509db0 100644\n--- a/drivers/usb/cdns3/cdnsp-gadget.h\n+++ b/drivers/usb/cdns3/cdnsp-gadget.h\n@@ -987,6 +987,12 @@ enum cdnsp_setup_dev {\n #define STREAM_ID_FOR_TRB(p)\t\t((((p)) << 16) & GENMASK(31, 16))\n #define SCT_FOR_TRB(p)\t\t\t(((p) << 1) & 0x7)\n \n+/*\n+ * Halt Endpoint Command TRB field.\n+ * The ESP bit only exists in the SSP2 controller.\n+ */\n+#define TRB_ESP\t\t\t\tBIT(9)\n+\n /* Link TRB specific fields. */\n #define TRB_TC\t\t\t\tBIT(1)\n \ndiff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c\nindex 757fdd918286..0758f171f73e 100644\n--- a/drivers/usb/cdns3/cdnsp-ring.c\n+++ b/drivers/usb/cdns3/cdnsp-ring.c\n@@ -2485,7 +2485,8 @@ void cdnsp_queue_halt_endpoint(struct cdnsp_device *pdev, unsigned int ep_index)\n {\n \tcdnsp_queue_command(pdev, 0, 0, 0, TRB_TYPE(TRB_HALT_ENDPOINT) |\n \t\t\t    SLOT_ID_FOR_TRB(pdev->slot_id) |\n-\t\t\t    EP_ID_FOR_TRB(ep_index));\n+\t\t\t    EP_ID_FOR_TRB(ep_index) |\n+\t\t\t    (!ep_index ? TRB_ESP : 0));\n }\n \n void cdnsp_force_header_wakeup(struct cdnsp_device *pdev, int intf_num)",
+    "stats": {
+      "insertions": 26,
+      "deletions": 6,
+      "files": 4
+    }
+  },
+  {
+    "sha": "0043ec26d827ddb1e85bd9786693152aa6f55d16",
+    "message": "drm/amdgpu/gfx9: Add Cleaner Shader Support for GFX9.x GPUs\n\nEnable the cleaner shader for other GFX9.x series of GPUs to provide\ndata isolation between GPU workloads. The cleaner shader is responsible\nfor clearing the Local Data Store (LDS), Vector General Purpose\nRegisters (VGPRs), and Scalar General Purpose Registers (SGPRs), which\nhelps prevent data leakage and ensures accurate computation results.\n\nThis update extends cleaner shader support to GFX9.x GPUs, previously\navailable for GFX9.4.2. It enhances security by clearing GPU memory\nbetween processes and maintains a consistent GPU state across KGD and\nKFD workloads.\n\nCc: Manu Rastogi <manu.rastogi@amd.com>\nCc: Christian König <christian.koenig@amd.com>\nCc: Alex Deucher <alexander.deucher@amd.com>\nSigned-off-by: Srinivasan Shanmugam <srinivasan.shanmugam@amd.com>\nAcked-by: Alex Deucher <alexander.deucher@amd.com>\nSigned-off-by: Alex Deucher <alexander.deucher@amd.com>\n(cherry picked from commit 99808926d0ea6234a89e35240a7cb088368de9e1)",
+    "author": "Srinivasan Shanmugam",
+    "date": "2025-06-24T10:34:44-04:00",
+    "files_changed": [
+      "drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c"
+    ],
+    "diff": "diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c\nindex d377a7c57d5e..ad9be3656653 100644\n--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c\n+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c\n@@ -2235,6 +2235,25 @@ static int gfx_v9_0_sw_init(struct amdgpu_ip_block *ip_block)\n \t}\n \n \tswitch (amdgpu_ip_version(adev, GC_HWIP, 0)) {\n+\tcase IP_VERSION(9, 0, 1):\n+\tcase IP_VERSION(9, 2, 1):\n+\tcase IP_VERSION(9, 4, 0):\n+\tcase IP_VERSION(9, 2, 2):\n+\tcase IP_VERSION(9, 1, 0):\n+\tcase IP_VERSION(9, 3, 0):\n+\t\tadev->gfx.cleaner_shader_ptr = gfx_9_4_2_cleaner_shader_hex;\n+\t\tadev->gfx.cleaner_shader_size = sizeof(gfx_9_4_2_cleaner_shader_hex);\n+\t\tif (adev->gfx.me_fw_version  >= 167 &&\n+\t\t    adev->gfx.pfp_fw_version >= 196 &&\n+\t\t    adev->gfx.mec_fw_version >= 474) {\n+\t\t\tadev->gfx.enable_cleaner_shader = true;\n+\t\t\tr = amdgpu_gfx_cleaner_shader_sw_init(adev, adev->gfx.cleaner_shader_size);\n+\t\t\tif (r) {\n+\t\t\t\tadev->gfx.enable_cleaner_shader = false;\n+\t\t\t\tdev_err(adev->dev, \"Failed to initialize cleaner shader\\n\");\n+\t\t\t}\n+\t\t}\n+\t\tbreak;\n \tcase IP_VERSION(9, 4, 2):\n \t\tadev->gfx.cleaner_shader_ptr = gfx_9_4_2_cleaner_shader_hex;\n \t\tadev->gfx.cleaner_shader_size = sizeof(gfx_9_4_2_cleaner_shader_hex);",
+    "stats": {
+      "insertions": 19,
+      "deletions": 0,
+      "files": 1
+    }
+  }
+]

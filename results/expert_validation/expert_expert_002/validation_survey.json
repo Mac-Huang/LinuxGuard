@@ -1,0 +1,506 @@
+{
+  "survey_metadata": {
+    "expert_id": "expert_002",
+    "expert_name": "Prof. Michael Rodriguez",
+    "session_id": "session_expert_002_eb0b1c5b",
+    "patterns_count": 3,
+    "questions_count": 21,
+    "estimated_time_minutes": 63,
+    "deadline": "2025-07-31T17:09:43.509646"
+  },
+  "instructions": {
+    "overview": "Please evaluate the following anti-patterns derived from Linux kernel vulnerability commits.",
+    "purpose": "Your expertise will help validate the accuracy and utility of these patterns for automated security analysis.",
+    "time_estimate": "Estimated completion time: 63 minutes",
+    "confidentiality": "Your responses will be kept confidential and used only for research purposes."
+  },
+  "patterns": [
+    {
+      "pattern_id": "ap_fallback_000",
+      "description": "Fallback pattern for other vulnerabilities",
+      "bug_type": "",
+      "confidence": 0,
+      "detection_rules": [
+        "Check for other indicators"
+      ],
+      "examples": []
+    },
+    {
+      "pattern_id": "ap_fallback_000",
+      "description": "Fallback pattern for other vulnerabilities",
+      "bug_type": "",
+      "confidence": 0,
+      "detection_rules": [
+        "Check for other indicators"
+      ],
+      "examples": []
+    },
+    {
+      "pattern_id": "ap_fallback_000",
+      "description": "Fallback pattern for other vulnerabilities",
+      "bug_type": "",
+      "confidence": 0,
+      "detection_rules": [
+        "Check for other indicators"
+      ],
+      "examples": []
+    }
+  ],
+  "questions": [
+    {
+      "section_type": "pattern_header",
+      "pattern_id": "ap_fallback_000",
+      "content": "Questions for Pattern: ap_fallback_000"
+    },
+    {
+      "question_id": "relevance_ap_fallback_000_5b2f42c0",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "relevance",
+      "question_text": "How relevant is this anti-pattern to Linux kernel security?",
+      "scale_type": "likert_5",
+      "options": [
+        "Not relevant",
+        "Slightly relevant",
+        "Moderately relevant",
+        "Very relevant",
+        "Extremely relevant"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "bug_type": "",
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "accuracy_ap_fallback_000_b1bcafe0",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "accuracy",
+      "question_text": "How accurately does this pattern represent a real security vulnerability class?",
+      "scale_type": "likert_5",
+      "options": [
+        "Completely inaccurate",
+        "Mostly inaccurate",
+        "Somewhat accurate",
+        "Mostly accurate",
+        "Completely accurate"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "examples": []
+      }
+    },
+    {
+      "question_id": "severity_ap_fallback_000_fea6e20e",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "severity",
+      "question_text": "What is the potential security impact of vulnerabilities matching this pattern?",
+      "scale_type": "multiple_choice",
+      "options": [
+        "Low (minor issues)",
+        "Medium (moderate impact)",
+        "High (significant vulnerabilities)",
+        "Critical (severe security flaws)"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "bug_type": ""
+      }
+    },
+    {
+      "question_id": "completeness_ap_fallback_000_b97484a0",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "completeness",
+      "question_text": "How complete are the detection rules for identifying this anti-pattern?",
+      "scale_type": "likert_5",
+      "options": [
+        "Very incomplete",
+        "Incomplete",
+        "Adequate",
+        "Complete",
+        "Very complete"
+      ],
+      "context": {
+        "detection_rules": [
+          "Check for other indicators"
+        ],
+        "rule_count": 1
+      }
+    },
+    {
+      "question_id": "false_positive_ap_fallback_000_012bfd64",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "false_positive",
+      "question_text": "How likely are these detection rules to produce false positives?",
+      "scale_type": "likert_5",
+      "options": [
+        "Very unlikely",
+        "Unlikely",
+        "Moderate likelihood",
+        "Likely",
+        "Very likely"
+      ],
+      "context": {
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "utility_ap_fallback_000_a970cf49",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "utility",
+      "question_text": "How useful would a static analyzer for this pattern be in practice?",
+      "scale_type": "likert_5",
+      "options": [
+        "Not useful",
+        "Slightly useful",
+        "Moderately useful",
+        "Very useful",
+        "Extremely useful"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "feedback_ap_fallback_000_44157080",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "feedback",
+      "question_text": "Please provide any additional comments, suggestions for improvement, or examples of related vulnerabilities.",
+      "scale_type": "text",
+      "options": null,
+      "context": {
+        "pattern_full": {
+          "pattern_id": "ap_fallback_000",
+          "name": "Fallback Other Pattern",
+          "category": "other",
+          "description": "Fallback pattern for other vulnerabilities",
+          "vulnerability_type": "other",
+          "code_characteristics": [
+            "fallback_characteristic"
+          ],
+          "detection_rules": [
+            "Check for other indicators"
+          ],
+          "example_commits": [
+            "3b428e1c",
+            "3c2fe279",
+            "5f02b80c"
+          ],
+          "confidence_score": 0.3,
+          "affected_functions": [
+            "unknown"
+          ],
+          "clang_ast_patterns": [
+            "unknown"
+          ]
+        }
+      }
+    },
+    {
+      "question_id": "relevance_ap_fallback_000_8ded3bca",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "relevance",
+      "question_text": "How relevant is this anti-pattern to Linux kernel security?",
+      "scale_type": "likert_5",
+      "options": [
+        "Not relevant",
+        "Slightly relevant",
+        "Moderately relevant",
+        "Very relevant",
+        "Extremely relevant"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "bug_type": "",
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "accuracy_ap_fallback_000_7d48fb8f",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "accuracy",
+      "question_text": "How accurately does this pattern represent a real security vulnerability class?",
+      "scale_type": "likert_5",
+      "options": [
+        "Completely inaccurate",
+        "Mostly inaccurate",
+        "Somewhat accurate",
+        "Mostly accurate",
+        "Completely accurate"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "examples": []
+      }
+    },
+    {
+      "question_id": "severity_ap_fallback_000_b3fea302",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "severity",
+      "question_text": "What is the potential security impact of vulnerabilities matching this pattern?",
+      "scale_type": "multiple_choice",
+      "options": [
+        "Low (minor issues)",
+        "Medium (moderate impact)",
+        "High (significant vulnerabilities)",
+        "Critical (severe security flaws)"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "bug_type": ""
+      }
+    },
+    {
+      "question_id": "completeness_ap_fallback_000_265fb4cc",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "completeness",
+      "question_text": "How complete are the detection rules for identifying this anti-pattern?",
+      "scale_type": "likert_5",
+      "options": [
+        "Very incomplete",
+        "Incomplete",
+        "Adequate",
+        "Complete",
+        "Very complete"
+      ],
+      "context": {
+        "detection_rules": [
+          "Check for other indicators"
+        ],
+        "rule_count": 1
+      }
+    },
+    {
+      "question_id": "false_positive_ap_fallback_000_47217f74",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "false_positive",
+      "question_text": "How likely are these detection rules to produce false positives?",
+      "scale_type": "likert_5",
+      "options": [
+        "Very unlikely",
+        "Unlikely",
+        "Moderate likelihood",
+        "Likely",
+        "Very likely"
+      ],
+      "context": {
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "utility_ap_fallback_000_950cf068",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "utility",
+      "question_text": "How useful would a static analyzer for this pattern be in practice?",
+      "scale_type": "likert_5",
+      "options": [
+        "Not useful",
+        "Slightly useful",
+        "Moderately useful",
+        "Very useful",
+        "Extremely useful"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "feedback_ap_fallback_000_f0b8b535",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "feedback",
+      "question_text": "Please provide any additional comments, suggestions for improvement, or examples of related vulnerabilities.",
+      "scale_type": "text",
+      "options": null,
+      "context": {
+        "pattern_full": {
+          "pattern_id": "ap_fallback_000",
+          "name": "Fallback Other Pattern",
+          "category": "other",
+          "description": "Fallback pattern for other vulnerabilities",
+          "vulnerability_type": "other",
+          "code_characteristics": [
+            "fallback_characteristic"
+          ],
+          "detection_rules": [
+            "Check for other indicators"
+          ],
+          "example_commits": [
+            "3b428e1c",
+            "3c2fe279",
+            "5f02b80c"
+          ],
+          "confidence_score": 0.3,
+          "affected_functions": [
+            "unknown"
+          ],
+          "clang_ast_patterns": [
+            "unknown"
+          ]
+        }
+      }
+    },
+    {
+      "question_id": "relevance_ap_fallback_000_3b764765",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "relevance",
+      "question_text": "How relevant is this anti-pattern to Linux kernel security?",
+      "scale_type": "likert_5",
+      "options": [
+        "Not relevant",
+        "Slightly relevant",
+        "Moderately relevant",
+        "Very relevant",
+        "Extremely relevant"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "bug_type": "",
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "accuracy_ap_fallback_000_98aaa961",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "accuracy",
+      "question_text": "How accurately does this pattern represent a real security vulnerability class?",
+      "scale_type": "likert_5",
+      "options": [
+        "Completely inaccurate",
+        "Mostly inaccurate",
+        "Somewhat accurate",
+        "Mostly accurate",
+        "Completely accurate"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "examples": []
+      }
+    },
+    {
+      "question_id": "severity_ap_fallback_000_95b10b4f",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "severity",
+      "question_text": "What is the potential security impact of vulnerabilities matching this pattern?",
+      "scale_type": "multiple_choice",
+      "options": [
+        "Low (minor issues)",
+        "Medium (moderate impact)",
+        "High (significant vulnerabilities)",
+        "Critical (severe security flaws)"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "bug_type": ""
+      }
+    },
+    {
+      "question_id": "completeness_ap_fallback_000_e4451026",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "completeness",
+      "question_text": "How complete are the detection rules for identifying this anti-pattern?",
+      "scale_type": "likert_5",
+      "options": [
+        "Very incomplete",
+        "Incomplete",
+        "Adequate",
+        "Complete",
+        "Very complete"
+      ],
+      "context": {
+        "detection_rules": [
+          "Check for other indicators"
+        ],
+        "rule_count": 1
+      }
+    },
+    {
+      "question_id": "false_positive_ap_fallback_000_1ebcdef9",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "false_positive",
+      "question_text": "How likely are these detection rules to produce false positives?",
+      "scale_type": "likert_5",
+      "options": [
+        "Very unlikely",
+        "Unlikely",
+        "Moderate likelihood",
+        "Likely",
+        "Very likely"
+      ],
+      "context": {
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "utility_ap_fallback_000_c66e8fad",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "utility",
+      "question_text": "How useful would a static analyzer for this pattern be in practice?",
+      "scale_type": "likert_5",
+      "options": [
+        "Not useful",
+        "Slightly useful",
+        "Moderately useful",
+        "Very useful",
+        "Extremely useful"
+      ],
+      "context": {
+        "pattern_description": "Fallback pattern for other vulnerabilities",
+        "detection_rules": [
+          "Check for other indicators"
+        ]
+      }
+    },
+    {
+      "question_id": "feedback_ap_fallback_000_8cc1dd46",
+      "pattern_id": "ap_fallback_000",
+      "question_type": "feedback",
+      "question_text": "Please provide any additional comments, suggestions for improvement, or examples of related vulnerabilities.",
+      "scale_type": "text",
+      "options": null,
+      "context": {
+        "pattern_full": {
+          "pattern_id": "ap_fallback_000",
+          "name": "Fallback Other Pattern",
+          "category": "other",
+          "description": "Fallback pattern for other vulnerabilities",
+          "vulnerability_type": "other",
+          "code_characteristics": [
+            "fallback_characteristic"
+          ],
+          "detection_rules": [
+            "Check for other indicators"
+          ],
+          "example_commits": [
+            "3b428e1c",
+            "3c2fe279",
+            "5f02b80c"
+          ],
+          "confidence_score": 0.3,
+          "affected_functions": [
+            "unknown"
+          ],
+          "clang_ast_patterns": [
+            "unknown"
+          ]
+        }
+      }
+    }
+  ]
+}

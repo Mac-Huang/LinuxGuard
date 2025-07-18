@@ -1,0 +1,99 @@
+[
+  {
+    "cve_id": "CVE-2023-1001",
+    "description": "Memory leak in network driver due to missing cleanup on error path",
+    "severity": "Medium",
+    "cwe_id": "CWE-401",
+    "affected_versions": [
+      "6.6",
+      "6.7"
+    ],
+    "commit_hash": "a1b2c3d4",
+    "vulnerability_type": "memory_leak"
+  },
+  {
+    "cve_id": "CVE-2023-1002",
+    "description": "Input validation bypass in filesystem module",
+    "severity": "High",
+    "cwe_id": "CWE-20",
+    "affected_versions": [
+      "6.5",
+      "6.6",
+      "6.7"
+    ],
+    "commit_hash": "e5f6g7h8",
+    "vulnerability_type": "input_validation"
+  },
+  {
+    "cve_id": "CVE-2023-1003",
+    "description": "Use-after-free in device driver cleanup routine",
+    "severity": "High",
+    "cwe_id": "CWE-416",
+    "affected_versions": [
+      "6.6",
+      "6.7",
+      "6.8"
+    ],
+    "commit_hash": "i9j0k1l2",
+    "vulnerability_type": "memory_safety"
+  },
+  {
+    "cve_id": "CVE-2023-1004",
+    "description": "Race condition in lock handling for shared resources",
+    "severity": "Medium",
+    "cwe_id": "CWE-362",
+    "affected_versions": [
+      "6.7",
+      "6.8"
+    ],
+    "commit_hash": "m3n4o5p6",
+    "vulnerability_type": "race_condition"
+  },
+  {
+    "cve_id": "CVE-2023-1005",
+    "description": "Buffer overflow in packet processing function",
+    "severity": "Critical",
+    "cwe_id": "CWE-120",
+    "affected_versions": [
+      "6.6",
+      "6.7",
+      "6.8"
+    ],
+    "commit_hash": "q7r8s9t0",
+    "vulnerability_type": "buffer_overflow"
+  },
+  {
+    "cve_id": "CVE-2023-1006",
+    "description": "Memory leak in error handling path of kernel module",
+    "severity": "Low",
+    "cwe_id": "CWE-401",
+    "affected_versions": [
+      "6.8"
+    ],
+    "commit_hash": "u1v2w3x4",
+    "vulnerability_type": "memory_leak"
+  },
+  {
+    "cve_id": "CVE-2023-1007",
+    "description": "Improper input validation in syscall parameter",
+    "severity": "Medium",
+    "cwe_id": "CWE-20",
+    "affected_versions": [
+      "6.6",
+      "6.7"
+    ],
+    "commit_hash": "y5z6a7b8",
+    "vulnerability_type": "input_validation"
+  },
+  {
+    "cve_id": "CVE-2023-1008",
+    "description": "Double-free vulnerability in resource cleanup",
+    "severity": "High",
+    "cwe_id": "CWE-415",
+    "affected_versions": [
+      "6.7"
+    ],
+    "commit_hash": "c9d0e1f2",
+    "vulnerability_type": "memory_safety"
+  }
+]

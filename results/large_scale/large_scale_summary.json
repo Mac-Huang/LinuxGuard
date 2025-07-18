@@ -1,0 +1,26 @@
+{
+  "total_commits": 7200,
+  "processed_commits": 7200,
+  "filtered_commits": 1038,
+  "security_relevant_commits": 1038,
+  "vulnerability_type_distribution": {
+    "other": 284,
+    "buffer_overflow": 159,
+    "input_validation": 201,
+    "memory_safety": 203,
+    "memory_leak": 191
+  },
+  "processing_time_seconds": 301.164395570755,
+  "processing_rate_commits_per_second": 23.907208507681798,
+  "security_relevance_rate": 0.14416666666666667,
+  "filtering_rate": 1.0,
+  "batch_count": 144,
+  "average_batch_time": 5.056148474415143,
+  "patterns_derived": 0,
+  "patterns_by_type": {},
+  "patterns_file": "data\\large_scale\\derived_patterns_large_scale.json",
+  "pattern_confidence_range": [
+    0,
+    0
+  ]
+}

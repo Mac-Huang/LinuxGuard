@@ -1,0 +1,74 @@
+[
+  {
+    "checker_id": "checker_ap_fallback_000",
+    "name": "Fallback Other Pattern",
+    "pattern_id": "ap_fallback_000",
+    "bug_type": "other",
+    "description": "Fallback pattern for other vulnerabilities",
+    "header_includes": [
+      "#include \"clang/StaticAnalyzer/Checkers/BuiltinCheckerRegistration.h\"",
+      "#include \"clang/StaticAnalyzer/Core/BugReporter/BugType.h\"",
+      "#include \"clang/StaticAnalyzer/Core/Checker.h\"",
+      "#include \"clang/StaticAnalyzer/Core/CheckerManager.h\"",
+      "#include \"clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h\"",
+      "#include \"clang/AST/DeclCXX.h\"",
+      "#include \"clang/AST/StmtVisitor.h\"",
+      "#include \"clang/AST/ParentMapContext.h\"",
+      "#include <iostream>"
+    ],
+    "check_functions": [
+      "checkPreCall"
+    ],
+    "ast_matchers": [
+      "unknown"
+    ]
+  },
+  {
+    "checker_id": "checker_ap_fallback_000",
+    "name": "Fallback Memory Leak Pattern",
+    "pattern_id": "ap_fallback_000",
+    "bug_type": "memory_leak",
+    "description": "Fallback pattern for memory_leak vulnerabilities",
+    "header_includes": [
+      "#include \"clang/StaticAnalyzer/Checkers/BuiltinCheckerRegistration.h\"",
+      "#include \"clang/StaticAnalyzer/Core/BugReporter/BugType.h\"",
+      "#include \"clang/StaticAnalyzer/Core/Checker.h\"",
+      "#include \"clang/StaticAnalyzer/Core/CheckerManager.h\"",
+      "#include \"clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h\"",
+      "#include \"clang/AST/DeclCXX.h\"",
+      "#include \"clang/AST/StmtVisitor.h\"",
+      "#include \"clang/AST/ParentMapContext.h\""
+    ],
+    "check_functions": [
+      "checkPreCall",
+      "checkEndFunction"
+    ],
+    "ast_matchers": [
+      "unknown"
+    ]
+  },
+  {
+    "checker_id": "checker_ap_fallback_000",
+    "name": "Fallback Input Validation Pattern",
+    "pattern_id": "ap_fallback_000",
+    "bug_type": "input_validation",
+    "description": "Fallback pattern for input_validation vulnerabilities",
+    "header_includes": [
+      "#include \"clang/StaticAnalyzer/Checkers/BuiltinCheckerRegistration.h\"",
+      "#include \"clang/StaticAnalyzer/Core/BugReporter/BugType.h\"",
+      "#include \"clang/StaticAnalyzer/Core/Checker.h\"",
+      "#include \"clang/StaticAnalyzer/Core/CheckerManager.h\"",
+      "#include \"clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h\"",
+      "#include \"clang/AST/DeclCXX.h\"",
+      "#include \"clang/AST/StmtVisitor.h\"",
+      "#include \"clang/AST/ParentMapContext.h\""
+    ],
+    "check_functions": [
+      "checkPreCall",
+      "checkPostCall"
+    ],
+    "ast_matchers": [
+      "unknown"
+    ]
+  }
+]
