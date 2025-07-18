@@ -28,10 +28,10 @@
 │               INPUT: Git Repository (7,200+ commits)               │
 │                                ↓                                   │
 │  ┌─────────────────────────────────────────────────────────────┐   │
-│  │                    PHASE A                                  │   │
+│  │                          PHASE A                            │   │
 │  │               Anti-Pattern Dataset Creation                 │   │
 │  │                                                             │   │
-│  │  [Git Collection] → [RAG Enhancement] → [LLM Filtering]     │   │
+│  │  [Git Collection] → [RAG Enhancement]  →  [LLM Filtering]   │   │
 │  │         ↓                    ↓                    ↓         │   │
 │  │    730 days            Documentation        1,440 Security  │   │
 │  │    Analysis              Context               Commits      │   │
