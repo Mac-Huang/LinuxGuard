@@ -1,20 +1,22 @@
 # LinuxGuard: Automated Security Anti-Pattern Discovery
 
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://github.com/user/linuxguard)
-[![Paper](https://img.shields.io/badge/Paper-Ready%20for%20Submission-blue)](reports/publication/LinuxGuard_Research_Paper.md)
+[![Status](https://img.shields.io/badge/Status-In%20Development-yellow)](https://github.com/Mac-Huang/LinuxGuard)
+[![Paper](https://img.shields.io/badge/Paper-Under%20Review-orange)](reports/publication/LinuxGuard_Research_Paper.md)
 [![Scale](https://img.shields.io/badge/Scale-7200%20Commits-orange)](results/large_scale/)
 [![Patterns](https://img.shields.io/badge/Patterns-6%20Derived-purple)](results/pattern_analysis/)
 
 ## 🚀 Project Overview
 
-**LinuxGuard** is a breakthrough AI-powered system for automated security anti-pattern discovery and static analyzer generation from version control history. Our approach combines Large Language Models (LLMs) with machine learning clustering to extract generalizable patterns from vulnerability fixes in the Linux kernel.
+**LinuxGuard** is an AI-powered system for automated security anti-pattern discovery and static analyzer generation from version control history. Our approach combines Large Language Models (LLMs) with machine learning clustering to extract generalizable patterns from vulnerability fixes in the Linux kernel.
 
-### 🏆 Key Achievements
+⚠️ **Note**: This project is currently in active development. While we have achieved significant progress, additional evaluation and testing are needed before production deployment and research publication.
+
+### 🏆 Current Progress
 - **26x Scale Increase**: From 277 to 7,200 commits processed
 - **6 High-Confidence Patterns**: Derived with 0.65-0.92 confidence scores
-- **Production-Ready Tools**: Static analyzers achieving 65% precision at 15.0 files/second
-- **Expert Validation**: Framework with 5 security researchers
-- **Research Paper**: 8,500-word manuscript ready for top-tier conferences
+- **Prototype Static Analyzers**: Achieving 65% precision at 15.0 files/second
+- **Expert Validation Framework**: Setup with 5 security researchers
+- **Research Paper Draft**: 8,500-word manuscript in development
 
 ## 🏗️ System Architecture
 
@@ -45,7 +47,7 @@
 │  │    + LLM Analysis   + Build System       Testing           │   │
 │  └─────────────────────────────────────────────────────────────┘   │
 │                           ↓                                         │
-│  OUTPUT: Production Static Analyzers + Validation Reports          │
+│  OUTPUT: Prototype Static Analyzers + Preliminary Reports          │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -91,25 +93,25 @@ cat results/evaluation/evaluation_results.json
 ## 📊 Research Impact
 
 ### Technical Innovation
-- **First End-to-End System**: Automated pipeline from git commits to production tools
+- **End-to-End System**: Automated pipeline from git commits to prototype tools
 - **LLM + ML Hybrid**: Novel combination of language models with traditional clustering
 - **RAG-Enhanced Analysis**: Context-aware pattern discovery using documentation
-- **Enterprise Scale**: 26x scalability with maintained quality
+- **Large-Scale Processing**: 26x scalability demonstrated with maintained quality
 
-### Performance Metrics
-| Metric | Value | Comparison |
-|--------|-------|------------|
-| **Processing Speed** | 15.0 files/sec | 22% faster than Clang SA |
-| **Detection Precision** | 65.0% | Competitive with commercial tools |
-| **Scale Achievement** | 7,200 commits | 26x larger than proof-of-concept |
-| **Pattern Confidence** | 0.65-0.92 | High confidence derived patterns |
-| **CVE Correlation** | 89% | Strong correlation with known vulnerabilities |
+### Preliminary Performance Metrics
+| Metric | Value | Status |
+|--------|-------|--------|
+| **Processing Speed** | 15.0 files/sec | Prototype implementation |
+| **Detection Precision** | 65.0% | Requires further validation |
+| **Scale Achievement** | 7,200 commits | 26x larger than initial proof-of-concept |
+| **Pattern Confidence** | 0.65-0.92 | Initial confidence scores |
+| **CVE Correlation** | 89% | Preliminary correlation analysis |
 
 ### Research Contributions
-1. **Novel Methodology**: First automated security pattern derivation from git history
-2. **Scalable Framework**: Efficient processing for enterprise-scale codebases
-3. **Production Quality**: Generated tools ready for immediate deployment
-4. **Comprehensive Evaluation**: Multi-dimensional validation including expert assessment
+1. **Novel Methodology**: Automated security pattern derivation from git history
+2. **Scalable Framework**: Efficient processing for large-scale codebases
+3. **Prototype Implementation**: Generated tools demonstrating feasibility
+4. **Evaluation Framework**: Multi-dimensional validation approach (in progress)
 
 ## 📁 Project Structure
 
@@ -162,10 +164,10 @@ LinuxGuard/
 - **Pattern Quality**: 6 patterns with 0.65-0.92 confidence scores
 
 ### Generated Artifacts
-- **🛠️ Static Analyzers**: 6 production-ready Clang checkers
-- **📄 Research Paper**: 8,500-word manuscript for top-tier conferences
-- **📊 Evaluation Report**: Comprehensive performance benchmarking
-- **🎓 Expert Validation**: Framework with 5 security researchers
+- **🛠️ Static Analyzers**: 6 prototype Clang checkers
+- **📄 Research Paper**: 8,500-word manuscript draft
+- **📊 Evaluation Report**: Preliminary performance analysis
+- **🎓 Expert Validation**: Framework setup with 5 security researchers
 
 ## 📚 Documentation
 
@@ -176,16 +178,16 @@ LinuxGuard/
 
 ## 🌟 Academic Impact
 
-### Publication Readiness
+### Publication Roadmap
 - **Target Venues**: USENIX Security, IEEE S&P, ACM CCS
-- **Submission Confidence**: HIGH - breakthrough technical contribution
-- **Word Count**: ~8,500 words (optimal for target venues)
-- **Reproducibility**: Complete artifact package provided
+- **Current Status**: Draft under development, requires additional evaluation
+- **Word Count**: ~8,500 words (preliminary draft)
+- **Reproducibility**: Artifact package in preparation
 
 ### Innovation Level
-- **Technical Novelty**: First-of-its-kind automated pattern discovery
-- **Practical Impact**: Production-ready tools with immediate industry value
-- **Research Rigor**: Large-scale validation ensuring statistical significance
+- **Technical Novelty**: Novel automated pattern discovery approach
+- **Practical Impact**: Prototype tools demonstrating potential industry value
+- **Research Rigor**: Large-scale validation in progress
 - **Community Value**: Open source framework for collaborative development
 
 ## 🔧 Configuration
@@ -240,13 +242,13 @@ If you use LinuxGuard in your research, please cite:
 
 ## 🏆 Project Status
 
-**Overall Status**: ✅ **PRODUCTION READY & PUBLICATION READY**
+**Overall Status**: 🔄 **IN ACTIVE DEVELOPMENT**
 
 - ✅ **Phase A Complete**: 7,200 commits processed with high-quality filtering
 - ✅ **Phase B Complete**: 6 patterns derived with automated tool generation
 - ✅ **Large-Scale Validated**: 26x scalability demonstrated
-- ✅ **Performance Evaluated**: Comprehensive benchmarking completed
-- ✅ **Expert Validated**: 5 security researchers validation framework
-- ✅ **Publication Ready**: 8,500-word research paper completed
+- 🔄 **Additional Evaluation Needed**: Expanding validation and testing
+- 🔄 **Expert Validation**: Framework setup, awaiting comprehensive review
+- 🔄 **Publication In Progress**: 8,500-word research paper under development
 
-**Ready for world-class impact in both academic and industry settings.**
+**Next Steps**: Additional evaluation, testing, and validation before submission and deployment.
