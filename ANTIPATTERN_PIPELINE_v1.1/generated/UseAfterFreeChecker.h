@@ -12,11 +12,10 @@ public:
   void checkPostStmt(const Stmt *S, AnalysisManager& mgr,
                      BugReporter &BR) override;
 
-  void checkDeadStores(constento::MemRegion *R,
-                      const Stmt *S, AnalysisManager& mgr,
-                      BugReporter &BR) override;
+  void reportBug(ExplodedNode *N, const MemRegion *R, const std::string &Msg,
+                 BugReporter &BR);
 
-  static void registerChecker(CheckerManager &mgr);
+  static void registerChecker(CheckerRegistry &Registry);
 };
 
 } // namespace ento

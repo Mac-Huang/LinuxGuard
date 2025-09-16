@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
 """
 Gemini API analyzer for commit vulnerability patterns
+NOTE: API key will be removed before publication
 """
 
 import json
-import sys
-import os
 import requests
-
-# Add parent directory to path for config import
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import get_api_key
-
 from data.commit_data import *
 
+GEMINI_API_KEY = "AIzaSyDhZ9-yVw8SZzDgVgzaaGYI-d-16iVL9Ys"
 GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 def analyze_commit_with_gemini():
@@ -76,14 +71,7 @@ Please provide a comprehensive analysis that could be used to build an automated
         }
     }
     
-    # Get API key from secure configuration
-    try:
-        api_key = get_api_key()
-    except ValueError as e:
-        print(f"[ERROR] {e}")
-        return None
-    
-    url = f"{GEMINI_ENDPOINT}?key={api_key}"
+    url = f"{GEMINI_ENDPOINT}?key={GEMINI_API_KEY}"
     
     try:
         print("Sending commit analysis request to Gemini API...")

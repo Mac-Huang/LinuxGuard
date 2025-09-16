@@ -7,70 +7,78 @@
 #include "clang/StaticAnalyzer/Core/PathSensitive/ProgramState.h"
 #include "clang/StaticAnalyzer/Core/PathSensitive/ProgramStateTrait.h"
 #include "llvm/ADT/Optional.h"
-#include "llvm/Support/raw_ostream.h"
 
 using namespace clang;
 using namespace ento;
 
 namespace {
 
-class UseAfterFreeChecker : public Checker<check::PostCall, check::PreStmt<BinaryOperator>> {
-  mutable std::unique_ptr<BugType> BT;
-
+class UseAfterFreeChecker : public Checker<checkPostCall> {
 public:
   void checkPostCall(const CallEvent &Call, CheckerContext &C) const;
-  void checkPreStmt(const BinaryOperator *BO, CheckerContext &C) const;
 };
 
-// ProgramState tracking freed pointers
-REGISTER_SET_WITH_PROGRAMSTATE(FreedPointers, SymbolRegionValue)
+void UseAfterFreeChecker::checkPostCall(const CallEvent &Call,
+                                        CheckerContext &C) const {
+  const auto *FE = dyn_cast<FunctionDecl>(Call.getDecl());
+  if (!FE)
+    return;
 
-void UseAfterFreeChecker::checkPostCall(const CallEvent &Call, CheckerContext &C) const {
-  const auto *CE = dyn_cast<CallExpr>(Call.getOriginExpr());
-  if (!CE) return;
-
-  const auto *CalleeDecl = Call.getDecl();
-  if (!CalleeDecl) return;
-
-  StringRef CalleeName = CalleeDecl->getName();
-  if (CalleeName != "free" && CalleeName != "delete" && CalleeName != "of_prop_free") return;
+  StringRef Name = FE->getName();
+  if (Name != "free" && Name != "delete" && Name != "of_prop_free") // Add other free functions as needed
+    return;
 
   const Expr *Arg = Call.getArg(0);
-  if (!Arg) return;
+  if (!Arg)
+    return;
 
-  ProgramStateRef state = C.getState();
-  SVal V = state->getSVal(Arg);
-  if (!V.isNonNull()) return;
+  SVal Pointer = C.getState()->getSVal(Arg);
+  if (!Pointer.isNonNull())
+    return;
 
-  const MemRegion *R = V.getAsRegion();
-  if (!R) return;
+  // Track the freed pointer.  This is a simplified approach; a more robust
+  // implementation might use a more sophisticated data structure to handle
+  // multiple frees of the same pointer.
+  C.addTransition(C.getState()->BindExpr(Arg, UnknownVal()));
 
-  state = state->add<FreedPointers>(R);
-  C.addTransition(state);
-}
 
-void UseAfterFreeChecker::checkPreStmt(const BinaryOperator *BO, CheckerContext &C) const {
-  if (BO->getOpcode() != BO_Assign) return;
-
-  const Expr *LHS = BO->getLHS();
-  const Expr *RHS = BO->getRHS();
-
-  if (!LHS || !RHS) return;
-
-  ProgramStateRef state = C.getState();
-  SVal LHSVal = state->getSVal(LHS);
-  if (!LHSVal.getAsRegion()) return;
-
-  const MemRegion *LHSRegion = LHSVal.getAsRegion();
-  if (!LHSRegion) return;
-
-  if (state->contains<FreedPointers>(LHSRegion)) {
-    ExplodedNode *N = C.generateErrorNode();
-    if (!N) return;
-
-    PathSensitiveBugReport *report = new PathSensitiveBugReport(*BT, "Use-after-free", N);
-    report->addRange(BO->getSourceRange());
-    C.emitReport(report);
+  // Check for subsequent dereferences.  This is a simplified approach; a more
+  // robust implementation would use a more sophisticated data flow analysis.
+  for (auto I = C.getAnalysisManager().getCFG()->begin(); I != C.getAnalysisManager().getCFG()->end(); ++I) {
+    const CFGBlock *Block = *I;
+    for (const CFGElement &Element : *Block) {
+      if (const auto *Stmt = Element.getAs<Stmt>()) {
+        if (const auto *BinaryOperator = dyn_cast<BinaryOperator>(Stmt)) {
+          if (BinaryOperator->getOpcode() == BO_PtrMemD) {
+            const Expr *Base = BinaryOperator->getLHS()->IgnoreParenCasts();
+            if (C.getState()->getSVal(Base) == Pointer) {
+              ExplodedNode *N = C.generateErrorNode();
+              if (N) {
+                PathSensitiveBugReport *report = new PathSensitiveBugReport(
+                    *this, "Use-after-free", categories::MemoryError, N,
+                    "Use of pointer after it has been freed");
+                C.emitReport(report);
+              }
+              return;
+            }
+          }
+        } else if (const auto *UnaryOperator = dyn_cast<UnaryOperator>(Stmt)) {
+          if (UnaryOperator->getOpcode() == UO_Deref) {
+            const Expr *Operand = UnaryOperator->getSubExpr()->IgnoreParenCasts();
+            if (C.getState()->getSVal(Operand) == Pointer) {
+              ExplodedNode *N = C.generateErrorNode();
+              if (N) {
+                PathSensitiveBugReport *report = new PathSensitiveBugReport(
+                    *this, "Use-after-free", categories::MemoryError, N,
+                    "Use of pointer after it has been freed");
+                C.emitReport(report);
+              }
+              return;
+            }
+          }
+        }
+      }
+    }
   }
 }
 

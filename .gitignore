@@ -1,0 +1,53 @@
+# API Keys and Secrets
+.secrets
+*.key
+*.pem
+api_keys.py
+secrets.py
+
+# Configuration with sensitive data
+config_local.py
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.dll
+*.so
+*.dylib
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log
+*.bak
+
+# Test outputs
+test_*.c
+kernel_vulnerability_demo.c
+test_vulnerability.c

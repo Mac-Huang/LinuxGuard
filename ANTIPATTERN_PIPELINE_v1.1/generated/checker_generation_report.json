@@ -1,13 +1,12 @@
 {
   "generation_method": "automated_gemini",
-  "api_model": "gemini-1.5-flash",
-  "checker_name": "UseAfterFreeChecker",
+  "api_model": "gemini-1.5-pro-latest",
   "files_generated": [
     "UseAfterFreeChecker.cpp",
     "UseAfterFreeChecker.h",
     "CMakeLists.txt"
   ],
-  "source_analysis": "data/gemini_analysis.json",
+  "source_analysis": "gemini_analysis.json",
   "vulnerability_pattern": "use-after-free",
   "target_commit": "80af3745ca465c6c47e833c1902004a7fa944f37"
 }

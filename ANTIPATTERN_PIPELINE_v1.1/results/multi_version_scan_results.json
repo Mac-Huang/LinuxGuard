@@ -1,0 +1,61 @@
+{
+  "scan_type": "multi_version_generated_checker",
+  "versions_requested": [
+    "80af3745ca465c6c47e833c1902004a7fa944f37^",
+    "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "HEAD~10",
+    "HEAD~5",
+    "HEAD"
+  ],
+  "versions_scanned": 5,
+  "total_versions": 5,
+  "total_issues_found": 0,
+  "results_by_version": {
+    "80af3745ca465c6c47e833c1902004a7fa944f37^": {
+      "status": "scanned",
+      "files_analyzed": 25,
+      "clang_issues": [],
+      "pattern_issues": [],
+      "total_issues": 0
+    },
+    "80af3745ca465c6c47e833c1902004a7fa944f37": {
+      "status": "scanned",
+      "files_analyzed": 25,
+      "clang_issues": [],
+      "pattern_issues": [],
+      "total_issues": 0
+    },
+    "HEAD~10": {
+      "status": "scanned",
+      "files_analyzed": 25,
+      "clang_issues": [],
+      "pattern_issues": [],
+      "total_issues": 0
+    },
+    "HEAD~5": {
+      "status": "scanned",
+      "files_analyzed": 25,
+      "clang_issues": [],
+      "pattern_issues": [],
+      "total_issues": 0
+    },
+    "HEAD": {
+      "status": "scanned",
+      "files_analyzed": 25,
+      "clang_issues": [],
+      "pattern_issues": [],
+      "total_issues": 0
+    }
+  },
+  "summary": {
+    "vulnerable_versions": [],
+    "clean_versions": [
+      "80af3745ca465c6c47e833c1902004a7fa944f37^",
+      "80af3745ca465c6c47e833c1902004a7fa944f37",
+      "HEAD~10",
+      "HEAD~5",
+      "HEAD"
+    ],
+    "failed_versions": []
+  }
+}
