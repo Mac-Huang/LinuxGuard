@@ -16,9 +16,9 @@ def run_pipeline():
     print("=" * 40)
     
     steps = [
-        ("Step 1: Analyze commit with Gemini", "gemini_analyzer.py"),
-        ("Step 2: Generate checker with Gemini", "checker_generator.py"), 
-        ("Step 3: Scan codebase with checker", "scan_with_generated_checker.py"),
+        ("Step 1: Analyze commit with Model", "model_analyzer.py"),
+        ("Step 2: Generate checker with Model", "checker_generator.py"), 
+        ("Step 3: Scan codebase with checker", "scanner.py"),
     ]
     
     results = {}
