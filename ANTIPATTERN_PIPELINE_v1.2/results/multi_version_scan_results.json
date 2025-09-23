@@ -1,0 +1,3352 @@
+{
+  "scan_type": "multi_version_generated_checker",
+  "versions_requested": [
+    "v5.10-rc1",
+    "v5.10-rc7",
+    "v6.0-rc1",
+    "v6.0-rc7"
+  ],
+  "versions_scanned": 4,
+  "total_versions": 4,
+  "total_issues_found": 412,
+  "results_by_version": {
+    "v5.10-rc1": {
+      "status": "scanned_without_checkout",
+      "clang_issues": [],
+      "pattern_issues": [
+        {
+          "file": "mm/backing-dev.c",
+          "line": 743,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 743, used at line 746",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/backing-dev.c",
+          "line": 896,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 896, used at line 899",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kasan/common.c",
+          "line": 431,
+          "type": "potential_use_after_free",
+          "message": "UAF: cache freed at line 431, used at line 434",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 226,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 226, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 233,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 233, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/async.c",
+          "line": 180,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 180, used at line 189",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 167,
+          "type": "potential_use_after_free",
+          "message": "UAF: array freed at line 167, used at line 171",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 900,
+          "type": "potential_use_after_free",
+          "message": "UAF: elem freed at line 900, used at line 912",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1031,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1031, used at line 1035",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1041,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 1041, used at line 1046",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1051,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1051, used at line 1055",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1101,
+          "type": "potential_use_after_free",
+          "message": "UAF: ee freed at line 1101, used at line 1112",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1230,
+          "type": "potential_use_after_free",
+          "message": "UAF: inner_map_meta freed at line 1230, used at line 1234",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1244,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1244, used at line 1249",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1246,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1246, used at line 1249",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/sched/autogroup.c",
+          "line": 22,
+          "type": "potential_use_after_free",
+          "message": "UAF: tg freed at line 22, used at line 31",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/ext4/acl.c",
+          "line": 175,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 175, used at line 190",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/acl.c",
+          "line": 50,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 50, used at line 60",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 115,
+          "type": "potential_use_after_free",
+          "message": "UAF: ret freed at line 115, used at line 119",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 144,
+          "type": "potential_use_after_free",
+          "message": "UAF: ret freed at line 144, used at line 149",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 283,
+          "type": "potential_use_after_free",
+          "message": "UAF: work freed at line 283, used at line 285",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 291,
+          "type": "potential_use_after_free",
+          "message": "UAF: self freed at line 291, used at line 293",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 372,
+          "type": "potential_use_after_free",
+          "message": "UAF: wq freed at line 372, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 382,
+          "type": "potential_use_after_free",
+          "message": "UAF: wq freed at line 382, used at line 385",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/xfs/kmem.c",
+          "line": 79,
+          "type": "potential_use_after_free",
+          "message": "UAF: ptr freed at line 79, used at line 87",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/blocklayout.c",
+          "line": 96,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 96, used at line 99",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/dev.c",
+          "line": 24,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 24, used at line 26",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/dev.c",
+          "line": 325,
+          "type": "potential_use_after_free",
+          "message": "UAF: devname freed at line 325, used at line 337",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/proc/base.c",
+          "line": 2693,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 2693, used at line 2698",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 103,
+          "type": "potential_use_after_free",
+          "message": "UAF: smap freed at line 103, used at line 108",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 244,
+          "type": "potential_use_after_free",
+          "message": "UAF: copy_selem freed at line 244, used at line 252",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 419,
+          "type": "potential_use_after_free",
+          "message": "UAF: diag freed at line 419, used at line 423",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/af_inet.c",
+          "line": 159,
+          "type": "potential_use_after_free",
+          "message": "UAF: rcu_dereference_protected freed at line 159, used at line 160",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/ah4.c",
+          "line": 534,
+          "type": "potential_use_after_free",
+          "message": "UAF: ahp freed at line 534, used at line 541",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 390,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 390, used at line 393",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 403,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 403, used at line 414",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 6940,
+          "type": "potential_use_after_free",
+          "message": "UAF: table freed at line 6940, used at line 6948",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7051,
+          "type": "potential_use_after_free",
+          "message": "UAF: dflt freed at line 7051, used at line 7062",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7054,
+          "type": "potential_use_after_free",
+          "message": "UAF: all freed at line 7054, used at line 7064",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 233,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 233, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 234,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 234, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 243,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 243, used at line 248",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 305,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 305, used at line 315",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 313,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 313, used at line 315",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 353,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 353, used at line 364",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 369,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 369, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 370,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 370, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 371,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 371, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 372,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 372, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 379,
+          "type": "potential_use_after_free",
+          "message": "UAF: transport freed at line 379, used at line 382",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 387,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 387, used at line 390",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 578,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 578, used at line 587",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 709,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 709, used at line 714",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1174,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1174, used at line 1175",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1178,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1178, used at line 1179",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1182,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1182, used at line 1183",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1651,
+          "type": "potential_use_after_free",
+          "message": "UAF: asconf freed at line 1651, used at line 1661",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1664,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1664, used at line 1671",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1684,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1684, used at line 1693",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 101,
+          "type": "potential_use_after_free",
+          "message": "UAF: sh_key freed at line 101, used at line 104",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 853,
+          "type": "potential_use_after_free",
+          "message": "UAF: cur_key freed at line 853, used at line 858",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1058,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1058, used at line 1060",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1059,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1059, used at line 1060",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1067,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1067, used at line 1069",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1068,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1068, used at line 1069",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1091,
+          "type": "potential_use_after_free",
+          "message": "UAF: set_enable freed at line 1091, used at line 1096",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1251,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 1251, used at line 1259",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 186,
+          "type": "potential_use_after_free",
+          "message": "UAF: rsp freed at line 186, used at line 193",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 838,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 838, used at line 841",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 863,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 863, used at line 867",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 492,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 492, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 493,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 493, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 495,
+          "type": "potential_use_after_free",
+          "message": "UAF: intfc freed at line 495, used at line 505",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 571,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of endpoint at line 571",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 834,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 834, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 836,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 836, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 843,
+          "type": "potential_use_after_free",
+          "message": "UAF: cf freed at line 843, used at line 844",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 850,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 850, used at line 851",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 882,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of config at line 882",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 887,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of rawdescriptors at line 887",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 933,
+          "type": "potential_use_after_free",
+          "message": "UAF: bigbuffer freed at line 933, used at line 942",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 953,
+          "type": "potential_use_after_free",
+          "message": "UAF: desc freed at line 953, used at line 954",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 962,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 962, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 963,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 963, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 999,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 999, used at line 1003",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1006,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 1006, used at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1010,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of bos at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c",
+          "line": 470,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 470, used at line 479",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c",
+          "line": 471,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 471, used at line 479",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c",
+          "line": 472,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 472, used at line 479",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-9xxx.c",
+          "line": 1045,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 1045, used at line 1052",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-sas.c",
+          "line": 923,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 923, used at line 927",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/block/amiflop.c",
+          "line": 1790,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of trackbuf at line 1790",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 404,
+          "type": "potential_use_after_free",
+          "message": "UAF: data freed at line 404, used at line 414",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 525,
+          "type": "potential_use_after_free",
+          "message": "UAF: rev freed at line 525, used at line 534",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 1350,
+          "type": "potential_use_after_free",
+          "message": "UAF: file freed at line 1350, used at line 1355",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 1692,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of dirname at line 1692",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "security/apparmor/audit.c",
+          "line": 172,
+          "type": "potential_use_after_free",
+          "message": "UAF: rule freed at line 172, used at line 176",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/audit.c",
+          "line": 199,
+          "type": "potential_use_after_free",
+          "message": "UAF: rule freed at line 199, used at line 207",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        }
+      ],
+      "total_issues": 99,
+      "note": "Analyzed using git show without checkout"
+    },
+    "v5.10-rc7": {
+      "status": "scanned_without_checkout",
+      "clang_issues": [],
+      "pattern_issues": [
+        {
+          "file": "mm/backing-dev.c",
+          "line": 743,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 743, used at line 746",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/backing-dev.c",
+          "line": 896,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 896, used at line 899",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kasan/common.c",
+          "line": 431,
+          "type": "potential_use_after_free",
+          "message": "UAF: cache freed at line 431, used at line 434",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 226,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 226, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 233,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 233, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/async.c",
+          "line": 180,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 180, used at line 189",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 167,
+          "type": "potential_use_after_free",
+          "message": "UAF: array freed at line 167, used at line 171",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 900,
+          "type": "potential_use_after_free",
+          "message": "UAF: elem freed at line 900, used at line 912",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1031,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1031, used at line 1035",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1041,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 1041, used at line 1046",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1051,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1051, used at line 1055",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1101,
+          "type": "potential_use_after_free",
+          "message": "UAF: ee freed at line 1101, used at line 1112",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1230,
+          "type": "potential_use_after_free",
+          "message": "UAF: inner_map_meta freed at line 1230, used at line 1234",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1244,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1244, used at line 1249",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1246,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1246, used at line 1249",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/sched/autogroup.c",
+          "line": 22,
+          "type": "potential_use_after_free",
+          "message": "UAF: tg freed at line 22, used at line 31",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/ext4/acl.c",
+          "line": 175,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 175, used at line 190",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/acl.c",
+          "line": 50,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 50, used at line 60",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 115,
+          "type": "potential_use_after_free",
+          "message": "UAF: ret freed at line 115, used at line 119",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 144,
+          "type": "potential_use_after_free",
+          "message": "UAF: ret freed at line 144, used at line 149",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 283,
+          "type": "potential_use_after_free",
+          "message": "UAF: work freed at line 283, used at line 285",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 291,
+          "type": "potential_use_after_free",
+          "message": "UAF: self freed at line 291, used at line 293",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 372,
+          "type": "potential_use_after_free",
+          "message": "UAF: wq freed at line 372, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 382,
+          "type": "potential_use_after_free",
+          "message": "UAF: wq freed at line 382, used at line 385",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/xfs/kmem.c",
+          "line": 79,
+          "type": "potential_use_after_free",
+          "message": "UAF: ptr freed at line 79, used at line 87",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/blocklayout.c",
+          "line": 96,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 96, used at line 99",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/dev.c",
+          "line": 24,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 24, used at line 26",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/dev.c",
+          "line": 325,
+          "type": "potential_use_after_free",
+          "message": "UAF: devname freed at line 325, used at line 337",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/proc/base.c",
+          "line": 2695,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 2695, used at line 2700",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 103,
+          "type": "potential_use_after_free",
+          "message": "UAF: smap freed at line 103, used at line 108",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 244,
+          "type": "potential_use_after_free",
+          "message": "UAF: copy_selem freed at line 244, used at line 252",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 419,
+          "type": "potential_use_after_free",
+          "message": "UAF: diag freed at line 419, used at line 423",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/af_inet.c",
+          "line": 159,
+          "type": "potential_use_after_free",
+          "message": "UAF: rcu_dereference_protected freed at line 159, used at line 160",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/ah4.c",
+          "line": 534,
+          "type": "potential_use_after_free",
+          "message": "UAF: ahp freed at line 534, used at line 541",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 390,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 390, used at line 393",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 403,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 403, used at line 414",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 6944,
+          "type": "potential_use_after_free",
+          "message": "UAF: table freed at line 6944, used at line 6952",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7055,
+          "type": "potential_use_after_free",
+          "message": "UAF: dflt freed at line 7055, used at line 7066",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7058,
+          "type": "potential_use_after_free",
+          "message": "UAF: all freed at line 7058, used at line 7068",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 233,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 233, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 234,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 234, used at line 240",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 243,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 243, used at line 248",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 305,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 305, used at line 315",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 313,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 313, used at line 315",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 353,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 353, used at line 364",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 369,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 369, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 370,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 370, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 371,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 371, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 372,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 372, used at line 375",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 379,
+          "type": "potential_use_after_free",
+          "message": "UAF: transport freed at line 379, used at line 382",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 387,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 387, used at line 390",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 578,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 578, used at line 587",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 709,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 709, used at line 714",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1174,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1174, used at line 1175",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1178,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1178, used at line 1179",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1182,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1182, used at line 1183",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1651,
+          "type": "potential_use_after_free",
+          "message": "UAF: asconf freed at line 1651, used at line 1661",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1664,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1664, used at line 1671",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1684,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1684, used at line 1693",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 101,
+          "type": "potential_use_after_free",
+          "message": "UAF: sh_key freed at line 101, used at line 104",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 853,
+          "type": "potential_use_after_free",
+          "message": "UAF: cur_key freed at line 853, used at line 858",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1058,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1058, used at line 1060",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1059,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1059, used at line 1060",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1067,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1067, used at line 1069",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1068,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1068, used at line 1069",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1091,
+          "type": "potential_use_after_free",
+          "message": "UAF: set_enable freed at line 1091, used at line 1096",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1251,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 1251, used at line 1259",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 186,
+          "type": "potential_use_after_free",
+          "message": "UAF: rsp freed at line 186, used at line 193",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 838,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 838, used at line 841",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 863,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 863, used at line 867",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 492,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 492, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 493,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 493, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 495,
+          "type": "potential_use_after_free",
+          "message": "UAF: intfc freed at line 495, used at line 505",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 571,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of endpoint at line 571",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 834,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 834, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 836,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 836, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 843,
+          "type": "potential_use_after_free",
+          "message": "UAF: cf freed at line 843, used at line 844",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 850,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 850, used at line 851",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 882,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of config at line 882",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 887,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of rawdescriptors at line 887",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 933,
+          "type": "potential_use_after_free",
+          "message": "UAF: bigbuffer freed at line 933, used at line 942",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 953,
+          "type": "potential_use_after_free",
+          "message": "UAF: desc freed at line 953, used at line 954",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 962,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 962, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 963,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 963, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 999,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 999, used at line 1003",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1006,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 1006, used at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1010,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of bos at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c",
+          "line": 470,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 470, used at line 479",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c",
+          "line": 471,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 471, used at line 479",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c",
+          "line": 472,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 472, used at line 479",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-9xxx.c",
+          "line": 1045,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 1045, used at line 1052",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-sas.c",
+          "line": 923,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 923, used at line 927",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/block/amiflop.c",
+          "line": 1790,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of trackbuf at line 1790",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 404,
+          "type": "potential_use_after_free",
+          "message": "UAF: data freed at line 404, used at line 414",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 525,
+          "type": "potential_use_after_free",
+          "message": "UAF: rev freed at line 525, used at line 534",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 1350,
+          "type": "potential_use_after_free",
+          "message": "UAF: file freed at line 1350, used at line 1355",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/apparmorfs.c",
+          "line": 1692,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of dirname at line 1692",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "security/apparmor/audit.c",
+          "line": 172,
+          "type": "potential_use_after_free",
+          "message": "UAF: rule freed at line 172, used at line 176",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "security/apparmor/audit.c",
+          "line": 199,
+          "type": "potential_use_after_free",
+          "message": "UAF: rule freed at line 199, used at line 207",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        }
+      ],
+      "total_issues": 99,
+      "note": "Analyzed using git show without checkout"
+    },
+    "v6.0-rc1": {
+      "status": "scanned_without_checkout",
+      "clang_issues": [],
+      "pattern_issues": [
+        {
+          "file": "mm/backing-dev.c",
+          "line": 805,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 805, used at line 808",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/backing-dev.c",
+          "line": 968,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 968, used at line 971",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/core.c",
+          "line": 493,
+          "type": "potential_use_after_free",
+          "message": "UAF: meta freed at line 493, used at line 494",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 347,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 347, used at line 358",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 379,
+          "type": "potential_use_after_free",
+          "message": "UAF: expect freed at line 379, used at line 380",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 412,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 412, used at line 423",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 484,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 484, used at line 494",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 504,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 504, used at line 512",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 569,
+          "type": "potential_use_after_free",
+          "message": "UAF: expect freed at line 569, used at line 577",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 597,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 597, used at line 606",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 623,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf2 freed at line 623, used at line 633",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 670,
+          "type": "potential_use_after_free",
+          "message": "UAF: expect freed at line 670, used at line 671",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 245,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 245, used at line 259",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 252,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 252, used at line 259",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/async.c",
+          "line": 180,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 180, used at line 189",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 150,
+          "type": "potential_use_after_free",
+          "message": "UAF: array freed at line 150, used at line 154",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 311,
+          "type": "potential_use_after_free",
+          "message": "UAF: val freed at line 311, used at line 312",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 978,
+          "type": "potential_use_after_free",
+          "message": "UAF: elem freed at line 978, used at line 990",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1109,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1109, used at line 1113",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1119,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 1119, used at line 1124",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1129,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1129, used at line 1133",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1177,
+          "type": "potential_use_after_free",
+          "message": "UAF: ee freed at line 1177, used at line 1188",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1239,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1239, used at line 1254",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1274,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1274, used at line 1288",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1302,
+          "type": "potential_use_after_free",
+          "message": "UAF: inner_map_meta freed at line 1302, used at line 1306",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1316,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1316, used at line 1321",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1318,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1318, used at line 1321",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/bloom_filter.c",
+          "line": 171,
+          "type": "potential_use_after_free",
+          "message": "UAF: bloom freed at line 171, used at line 174",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/sched/autogroup.c",
+          "line": 44,
+          "type": "potential_use_after_free",
+          "message": "UAF: tg freed at line 44, used at line 53",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/ext4/acl.c",
+          "line": 178,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 178, used at line 193",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/acl.c",
+          "line": 53,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 53, used at line 63",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 105,
+          "type": "potential_use_after_free",
+          "message": "UAF: ret freed at line 105, used at line 109",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 246,
+          "type": "potential_use_after_free",
+          "message": "UAF: work freed at line 246, used at line 248",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 254,
+          "type": "potential_use_after_free",
+          "message": "UAF: self freed at line 254, used at line 256",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 329,
+          "type": "potential_use_after_free",
+          "message": "UAF: wq freed at line 329, used at line 332",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/xfs/libxfs/xfs_ag.c",
+          "line": 176,
+          "type": "potential_use_after_free",
+          "message": "UAF: pag freed at line 176, used at line 186",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/xfs/libxfs/xfs_ag.c",
+          "line": 350,
+          "type": "potential_use_after_free",
+          "message": "UAF: pag freed at line 350, used at line 354",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/blocklayout.c",
+          "line": 96,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 96, used at line 99",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/dev.c",
+          "line": 24,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 24, used at line 26",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/proc/base.c",
+          "line": 2736,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 2736, used at line 2741",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 94,
+          "type": "potential_use_after_free",
+          "message": "UAF: smap freed at line 94, used at line 99",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 235,
+          "type": "potential_use_after_free",
+          "message": "UAF: copy_selem freed at line 235, used at line 243",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 501,
+          "type": "potential_use_after_free",
+          "message": "UAF: diag freed at line 501, used at line 505",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/af_inet.c",
+          "line": 156,
+          "type": "potential_use_after_free",
+          "message": "UAF: rcu_dereference_protected freed at line 156, used at line 157",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/ah4.c",
+          "line": 535,
+          "type": "potential_use_after_free",
+          "message": "UAF: ahp freed at line 535, used at line 542",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 395,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 395, used at line 398",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 408,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 408, used at line 420",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7094,
+          "type": "potential_use_after_free",
+          "message": "UAF: table freed at line 7094, used at line 7102",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7213,
+          "type": "potential_use_after_free",
+          "message": "UAF: dflt freed at line 7213, used at line 7228",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7216,
+          "type": "potential_use_after_free",
+          "message": "UAF: all freed at line 7216, used at line 7230",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7218,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7218, used at line 7223",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7233,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7233, used at line 7234",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7235,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7235, used at line 7236",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7245,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7245, used at line 7246",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 240,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 240, used at line 247",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 241,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 241, used at line 247",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 250,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 250, used at line 255",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 307,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 307, used at line 317",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 315,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 315, used at line 317",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 355,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 355, used at line 366",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 371,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 371, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 372,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 372, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 373,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 373, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 374,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 374, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 381,
+          "type": "potential_use_after_free",
+          "message": "UAF: transport freed at line 381, used at line 384",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 389,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 389, used at line 392",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 580,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 580, used at line 589",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 714,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 714, used at line 721",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1183,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1183, used at line 1184",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1187,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1187, used at line 1188",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1191,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1191, used at line 1192",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1660,
+          "type": "potential_use_after_free",
+          "message": "UAF: asconf freed at line 1660, used at line 1670",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1673,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1673, used at line 1680",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1693,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1693, used at line 1702",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 101,
+          "type": "potential_use_after_free",
+          "message": "UAF: sh_key freed at line 101, used at line 104",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 853,
+          "type": "potential_use_after_free",
+          "message": "UAF: cur_key freed at line 853, used at line 858",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1064,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1064, used at line 1066",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1065,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1065, used at line 1066",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1073,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1073, used at line 1075",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1074,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1074, used at line 1075",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1053,
+          "type": "potential_use_after_free",
+          "message": "UAF: set_enable freed at line 1053, used at line 1058",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1213,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 1213, used at line 1221",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 186,
+          "type": "potential_use_after_free",
+          "message": "UAF: rsp freed at line 186, used at line 193",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 839,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 839, used at line 842",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 864,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 864, used at line 868",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 492,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 492, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 493,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 493, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 495,
+          "type": "potential_use_after_free",
+          "message": "UAF: intfc freed at line 495, used at line 505",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 571,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of endpoint at line 571",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 834,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 834, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 836,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 836, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 843,
+          "type": "potential_use_after_free",
+          "message": "UAF: cf freed at line 843, used at line 844",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 850,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 850, used at line 851",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 882,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of config at line 882",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 887,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of rawdescriptors at line 887",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 933,
+          "type": "potential_use_after_free",
+          "message": "UAF: bigbuffer freed at line 933, used at line 942",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 953,
+          "type": "potential_use_after_free",
+          "message": "UAF: desc freed at line 953, used at line 954",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 962,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 962, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 963,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 963, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 999,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 999, used at line 1003",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1006,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 1006, used at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1010,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of bos at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/aldebaran.c",
+          "line": 440,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 440, used at line 441",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-9xxx.c",
+          "line": 1044,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 1044, used at line 1051",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-sas.c",
+          "line": 921,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 921, used at line 925",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/block/amiflop.c",
+          "line": 1811,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of trackbuf at line 1811",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/block/amiflop.c",
+          "line": 1834,
+          "type": "potential_use_after_free",
+          "message": "UAF: unit freed at line 1834, used at line 1836",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        }
+      ],
+      "total_issues": 107,
+      "note": "Analyzed using git show without checkout"
+    },
+    "v6.0-rc7": {
+      "status": "scanned_without_checkout",
+      "clang_issues": [],
+      "pattern_issues": [
+        {
+          "file": "mm/backing-dev.c",
+          "line": 805,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 805, used at line 808",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/backing-dev.c",
+          "line": 968,
+          "type": "potential_use_after_free",
+          "message": "UAF: bdi freed at line 968, used at line 971",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/core.c",
+          "line": 493,
+          "type": "potential_use_after_free",
+          "message": "UAF: meta freed at line 493, used at line 494",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 347,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 347, used at line 358",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 379,
+          "type": "potential_use_after_free",
+          "message": "UAF: expect freed at line 379, used at line 380",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 412,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 412, used at line 423",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 484,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 484, used at line 494",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 504,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 504, used at line 512",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 569,
+          "type": "potential_use_after_free",
+          "message": "UAF: expect freed at line 569, used at line 577",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 597,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf freed at line 597, used at line 606",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 623,
+          "type": "potential_use_after_free",
+          "message": "UAF: buf2 freed at line 623, used at line 633",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "mm/kfence/kfence_test.c",
+          "line": 670,
+          "type": "potential_use_after_free",
+          "message": "UAF: expect freed at line 670, used at line 671",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 245,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 245, used at line 259",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/acct.c",
+          "line": 252,
+          "type": "potential_use_after_free",
+          "message": "UAF: acct freed at line 252, used at line 259",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/async.c",
+          "line": 180,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 180, used at line 189",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 150,
+          "type": "potential_use_after_free",
+          "message": "UAF: array freed at line 150, used at line 154",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 311,
+          "type": "potential_use_after_free",
+          "message": "UAF: val freed at line 311, used at line 312",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 978,
+          "type": "potential_use_after_free",
+          "message": "UAF: elem freed at line 978, used at line 990",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1109,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1109, used at line 1113",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1119,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 1119, used at line 1124",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1129,
+          "type": "potential_use_after_free",
+          "message": "UAF: aux freed at line 1129, used at line 1133",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1177,
+          "type": "potential_use_after_free",
+          "message": "UAF: ee freed at line 1177, used at line 1188",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1239,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1239, used at line 1254",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1274,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1274, used at line 1288",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1302,
+          "type": "potential_use_after_free",
+          "message": "UAF: inner_map_meta freed at line 1302, used at line 1306",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1316,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1316, used at line 1321",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/arraymap.c",
+          "line": 1318,
+          "type": "potential_use_after_free",
+          "message": "UAF: map freed at line 1318, used at line 1321",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/bpf/bloom_filter.c",
+          "line": 171,
+          "type": "potential_use_after_free",
+          "message": "UAF: bloom freed at line 171, used at line 174",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "kernel/sched/autogroup.c",
+          "line": 44,
+          "type": "potential_use_after_free",
+          "message": "UAF: tg freed at line 44, used at line 53",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/ext4/acl.c",
+          "line": 178,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 178, used at line 193",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/acl.c",
+          "line": 53,
+          "type": "potential_use_after_free",
+          "message": "UAF: value freed at line 53, used at line 63",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 105,
+          "type": "potential_use_after_free",
+          "message": "UAF: ret freed at line 105, used at line 109",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 246,
+          "type": "potential_use_after_free",
+          "message": "UAF: work freed at line 246, used at line 248",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 254,
+          "type": "potential_use_after_free",
+          "message": "UAF: self freed at line 254, used at line 256",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/btrfs/async-thread.c",
+          "line": 329,
+          "type": "potential_use_after_free",
+          "message": "UAF: wq freed at line 329, used at line 332",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/xfs/libxfs/xfs_ag.c",
+          "line": 176,
+          "type": "potential_use_after_free",
+          "message": "UAF: pag freed at line 176, used at line 186",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/xfs/libxfs/xfs_ag.c",
+          "line": 350,
+          "type": "potential_use_after_free",
+          "message": "UAF: pag freed at line 350, used at line 354",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/blocklayout.c",
+          "line": 96,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 96, used at line 99",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/nfs/blocklayout/dev.c",
+          "line": 24,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 24, used at line 26",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "fs/proc/base.c",
+          "line": 2736,
+          "type": "potential_use_after_free",
+          "message": "UAF: p freed at line 2736, used at line 2741",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 94,
+          "type": "potential_use_after_free",
+          "message": "UAF: smap freed at line 94, used at line 99",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 235,
+          "type": "potential_use_after_free",
+          "message": "UAF: copy_selem freed at line 235, used at line 243",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/core/bpf_sk_storage.c",
+          "line": 502,
+          "type": "potential_use_after_free",
+          "message": "UAF: diag freed at line 502, used at line 506",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/af_inet.c",
+          "line": 156,
+          "type": "potential_use_after_free",
+          "message": "UAF: rcu_dereference_protected freed at line 156, used at line 157",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv4/ah4.c",
+          "line": 535,
+          "type": "potential_use_after_free",
+          "message": "UAF: ahp freed at line 535, used at line 542",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 395,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 395, used at line 398",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 408,
+          "type": "potential_use_after_free",
+          "message": "UAF: ndev freed at line 408, used at line 420",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7098,
+          "type": "potential_use_after_free",
+          "message": "UAF: table freed at line 7098, used at line 7106",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7216,
+          "type": "potential_use_after_free",
+          "message": "UAF: dflt freed at line 7216, used at line 7231",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7219,
+          "type": "potential_use_after_free",
+          "message": "UAF: all freed at line 7219, used at line 7233",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7221,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7221, used at line 7226",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7236,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7236, used at line 7237",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7238,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7238, used at line 7239",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf.c",
+          "line": 7248,
+          "type": "potential_use_after_free",
+          "message": "UAF: net freed at line 7248, used at line 7249",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 240,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 240, used at line 247",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 241,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 241, used at line 247",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/ipv6/addrconf_core.c",
+          "line": 250,
+          "type": "potential_use_after_free",
+          "message": "UAF: idev freed at line 250, used at line 255",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 307,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 307, used at line 317",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 315,
+          "type": "potential_use_after_free",
+          "message": "UAF: struct freed at line 315, used at line 317",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 355,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 355, used at line 366",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 371,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 371, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 372,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 372, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 373,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 373, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 374,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 374, used at line 377",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 381,
+          "type": "potential_use_after_free",
+          "message": "UAF: transport freed at line 381, used at line 384",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 389,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 389, used at line 392",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 580,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 580, used at line 589",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 714,
+          "type": "potential_use_after_free",
+          "message": "UAF: peer freed at line 714, used at line 721",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1183,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1183, used at line 1184",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1187,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1187, used at line 1188",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1191,
+          "type": "potential_use_after_free",
+          "message": "UAF: asoc freed at line 1191, used at line 1192",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1660,
+          "type": "potential_use_after_free",
+          "message": "UAF: asconf freed at line 1660, used at line 1670",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1673,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1673, used at line 1680",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/associola.c",
+          "line": 1693,
+          "type": "potential_use_after_free",
+          "message": "UAF: ack freed at line 1693, used at line 1702",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 101,
+          "type": "potential_use_after_free",
+          "message": "UAF: sh_key freed at line 101, used at line 104",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 853,
+          "type": "potential_use_after_free",
+          "message": "UAF: cur_key freed at line 853, used at line 858",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1064,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1064, used at line 1066",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1065,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1065, used at line 1066",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1073,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1073, used at line 1075",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/sctp/auth.c",
+          "line": 1074,
+          "type": "potential_use_after_free",
+          "message": "UAF: ep freed at line 1074, used at line 1075",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1053,
+          "type": "potential_use_after_free",
+          "message": "UAF: set_enable freed at line 1053, used at line 1058",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/6lowpan.c",
+          "line": 1213,
+          "type": "potential_use_after_free",
+          "message": "UAF: entry freed at line 1213, used at line 1221",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 186,
+          "type": "potential_use_after_free",
+          "message": "UAF: rsp freed at line 186, used at line 193",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 839,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 839, used at line 842",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "net/bluetooth/a2mp.c",
+          "line": 864,
+          "type": "potential_use_after_free",
+          "message": "UAF: mgr freed at line 864, used at line 868",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 492,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 492, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 493,
+          "type": "potential_use_after_free",
+          "message": "UAF: alt freed at line 493, used at line 500",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 495,
+          "type": "potential_use_after_free",
+          "message": "UAF: intfc freed at line 495, used at line 505",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 571,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of endpoint at line 571",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 834,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 834, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 836,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 836, used at line 837",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 843,
+          "type": "potential_use_after_free",
+          "message": "UAF: cf freed at line 843, used at line 844",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 850,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 850, used at line 851",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 882,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of config at line 882",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 887,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of rawdescriptors at line 887",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 933,
+          "type": "potential_use_after_free",
+          "message": "UAF: bigbuffer freed at line 933, used at line 942",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 953,
+          "type": "potential_use_after_free",
+          "message": "UAF: desc freed at line 953, used at line 954",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 962,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 962, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 963,
+          "type": "potential_use_after_free",
+          "message": "UAF: dev freed at line 963, used at line 964",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 999,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 999, used at line 1003",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1006,
+          "type": "potential_use_after_free",
+          "message": "UAF: bos freed at line 1006, used at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/usb/core/config.c",
+          "line": 1010,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of bos at line 1010",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/gpu/drm/amd/amdgpu/aldebaran.c",
+          "line": 423,
+          "type": "potential_use_after_free",
+          "message": "UAF: adev freed at line 423, used at line 424",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-9xxx.c",
+          "line": 1044,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 1044, used at line 1051",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/scsi/3w-sas.c",
+          "line": 921,
+          "type": "potential_use_after_free",
+          "message": "UAF: tw_dev freed at line 921, used at line 925",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        },
+        {
+          "file": "drivers/block/amiflop.c",
+          "line": 1811,
+          "type": "missing_null_check",
+          "message": "Missing NULL check after allocation of trackbuf at line 1811",
+          "analyzer": "pattern_detection",
+          "severity": "medium"
+        },
+        {
+          "file": "drivers/block/amiflop.c",
+          "line": 1834,
+          "type": "potential_use_after_free",
+          "message": "UAF: unit freed at line 1834, used at line 1836",
+          "analyzer": "pattern_detection",
+          "severity": "high"
+        }
+      ],
+      "total_issues": 107,
+      "note": "Analyzed using git show without checkout"
+    }
+  },
+  "summary": {
+    "vulnerable_versions": [
+      "v5.10-rc1",
+      "v5.10-rc7",
+      "v6.0-rc1",
+      "v6.0-rc7"
+    ],
+    "clean_versions": [],
+    "failed_versions": []
+  }
+}

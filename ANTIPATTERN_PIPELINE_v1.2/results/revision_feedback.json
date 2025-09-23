@@ -1,0 +1,108 @@
+{
+  "metadata": {
+    "scan_date": "2025-09-20 22:18:38.137381",
+    "versions_scanned": 4,
+    "total_issues": 412
+  },
+  "pattern_distribution": {
+    "potential_use_after_free": 390,
+    "missing_null_check": 22
+  },
+  "critical_issues": [
+    {
+      "file": "mm/backing-dev.c",
+      "line": 743,
+      "type": "potential_use_after_free",
+      "message": "UAF: bdi freed at line 743, used at line 746",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "mm/backing-dev.c",
+      "line": 896,
+      "type": "potential_use_after_free",
+      "message": "UAF: bdi freed at line 896, used at line 899",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "mm/kasan/common.c",
+      "line": 431,
+      "type": "potential_use_after_free",
+      "message": "UAF: cache freed at line 431, used at line 434",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "kernel/acct.c",
+      "line": 226,
+      "type": "potential_use_after_free",
+      "message": "UAF: acct freed at line 226, used at line 240",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "kernel/acct.c",
+      "line": 233,
+      "type": "potential_use_after_free",
+      "message": "UAF: acct freed at line 233, used at line 240",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "kernel/async.c",
+      "line": 180,
+      "type": "potential_use_after_free",
+      "message": "UAF: entry freed at line 180, used at line 189",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "kernel/bpf/arraymap.c",
+      "line": 167,
+      "type": "potential_use_after_free",
+      "message": "UAF: array freed at line 167, used at line 171",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "kernel/bpf/arraymap.c",
+      "line": 900,
+      "type": "potential_use_after_free",
+      "message": "UAF: elem freed at line 900, used at line 912",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "kernel/bpf/arraymap.c",
+      "line": 1031,
+      "type": "potential_use_after_free",
+      "message": "UAF: aux freed at line 1031, used at line 1035",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    },
+    {
+      "file": "kernel/bpf/arraymap.c",
+      "line": 1041,
+      "type": "potential_use_after_free",
+      "message": "UAF: struct freed at line 1041, used at line 1046",
+      "analyzer": "pattern_detection",
+      "severity": "high"
+    }
+  ],
+  "recommendations": [
+    "High number of missing NULL checks - consider contextual analysis to reduce false positives",
+    "Use-after-free patterns detected - enhance tracking of variable lifecycle",
+    "Excessive detection rate - implement confidence scoring",
+    "Consider adding context-aware filtering for common safe patterns",
+    "Implement cross-function analysis for better accuracy"
+  ],
+  "metrics": {
+    "detection_rate": 103.0,
+    "files_per_version": 50,
+    "patterns_detected": [
+      "potential_use_after_free",
+      "missing_null_check"
+    ]
+  }
+}
