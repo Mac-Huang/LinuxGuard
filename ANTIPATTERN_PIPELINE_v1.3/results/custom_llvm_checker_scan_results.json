@@ -1,0 +1,15 @@
+{
+  "scan_method": "custom_llvm_build",
+  "compilation_status": "success",
+  "checker_name": "UseAfterFreeChecker",
+  "compiled_checker_path": null,
+  "llvm_build_path": "..\\..\\llvm-source-build\\llvm-build",
+  "total_files_analyzed": 10,
+  "target_files_requested": 15,
+  "checker_findings": [],
+  "summary": {
+    "compilation_failed": false,
+    "total_issues": 0,
+    "successful_scans": 10
+  }
+}
