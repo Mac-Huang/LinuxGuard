@@ -1,26 +1,39 @@
 #!/usr/bin/env python3
 """
-Automated checker generator using Gemini API
+Automated checker generator using Model API
 Generates Clang Static Analyzer checker code based on vulnerability analysis
-NOTE: API key will be removed before publication
 """
 
 import json
 import requests
 import os
+import sys
+from pathlib import Path
 from data.commit_data import *
 
-GEMINI_API_KEY = "AIzaSyDhZ9-yVw8SZzDgVgzaaGYI-d-16iVL9Ys"
-GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+# Add parent directory to path for config import
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    from config import get_api_key, MODEL_NAME, MODEL_ENDPOINT
+    MODEL_API_KEY = get_api_key()
+except ImportError:
+    # Fallback to environment variable
+    MODEL_API_KEY = os.getenv("API_KEY")
+    MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.0-flash-lite")
+    MODEL_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent"
+
+if not MODEL_API_KEY:
+    raise ValueError("Please set API_KEY in .env file or environment variable")
 
 class CheckerGenerator:
     def __init__(self):
-        self.analysis_file = "data/gemini_analysis.json"
+        self.analysis_file = "data/model_analysis.json"
         self.analysis_text = ""
         self.checker_name = "VulnerabilityChecker"  # Default name, will be determined from analysis
         
     def load_analysis(self):
-        """Load the Gemini analysis from previous step"""
+        """Load the Model analysis from previous step"""
         if os.path.exists(self.analysis_file):
             with open(self.analysis_file, 'r') as f:
                 data = json.load(f)
@@ -28,11 +41,11 @@ class CheckerGenerator:
                 # Determine checker name from vulnerability type
                 vuln_type = data.get('vulnerability_type', 'unknown')
                 self.checker_name = self._determine_checker_name(vuln_type, self.analysis_text)
-                print(f"Analysis loaded from gemini_analysis.json")
+                print(f"Analysis loaded from model_analysis.json")
                 print(f"Detected vulnerability type: {vuln_type}")
                 print(f"Generated checker name: {self.checker_name}")
         else:
-            print("Error: gemini_analysis.json not found. Run gemini_analyzer.py first.")
+            print("Error: model_analysis.json not found. Run model_analyzer.py first.")
             return False
         return True
     
@@ -65,7 +78,7 @@ class CheckerGenerator:
             return "VulnerabilityChecker"
     
     def generate_cpp_checker(self):
-        """Generate C++ Clang Static Analyzer checker using Gemini"""
+        """Generate C++ Clang Static Analyzer checker using Model API"""
         
         prompt = f"""You are an expert C++ developer and static analysis expert. Based on the following vulnerability analysis, generate a complete, working Clang Static Analyzer checker in C++.
 
@@ -109,10 +122,10 @@ Generate ONLY the complete C++ code for the checker file. Do not include explana
             }
         }
         
-        url = f"{GEMINI_ENDPOINT}?key={GEMINI_API_KEY}"
+        url = f"{MODEL_ENDPOINT}?key={MODEL_API_KEY}"
         
         try:
-            print("Generating C++ checker with Gemini...")
+            print("Generating C++ checker with Model...")
             response = requests.post(url, headers=headers, json=data, timeout=60)
             response.raise_for_status()
             
@@ -133,18 +146,18 @@ Generate ONLY the complete C++ code for the checker file. Do not include explana
                 print(f"{self.checker_name}.cpp generated successfully")
                 return cpp_code
             else:
-                print("Error: No code generated from Gemini API")
+                print("Error: No code generated from Model API")
                 return None
                 
         except requests.exceptions.RequestException as e:
-            print(f"Error calling Gemini API: {e}")
+            print(f"Error calling Model API: {e}")
             return None
         except json.JSONDecodeError as e:
-            print(f"Error parsing Gemini response: {e}")
+            print(f"Error parsing Model response: {e}")
             return None
     
     def generate_header_file(self):
-        """Generate header file using Gemini"""
+        """Generate header file using Model API"""
         
         prompt = f"""Generate a complete header file {self.checker_name}.h for the Clang Static Analyzer checker.
 
@@ -175,10 +188,10 @@ Generate ONLY the complete header file code. Do not include explanations or mark
             }
         }
         
-        url = f"{GEMINI_ENDPOINT}?key={GEMINI_API_KEY}"
+        url = f"{MODEL_ENDPOINT}?key={MODEL_API_KEY}"
         
         try:
-            print("Generating header file with Gemini...")
+            print("Generating header file with Model...")
             response = requests.post(url, headers=headers, json=data, timeout=60)
             response.raise_for_status()
             
@@ -199,15 +212,15 @@ Generate ONLY the complete header file code. Do not include explanations or mark
                 print(f"{self.checker_name}.h generated successfully")
                 return header_code
             else:
-                print("Error: No header code generated from Gemini API")
+                print("Error: No header code generated from Model API")
                 return None
                 
         except requests.exceptions.RequestException as e:
-            print(f"Error calling Gemini API: {e}")
+            print(f"Error calling Model API: {e}")
             return None
     
     def generate_cmake_file(self):
-        """Generate CMake build file using Gemini"""
+        """Generate CMake build file using Model API"""
         
         prompt = f"""Generate a complete CMakeLists.txt file for building a Clang Static Analyzer checker plugin.
 
@@ -240,10 +253,10 @@ Generate ONLY the complete CMakeLists.txt content. Do not include explanations o
             }
         }
         
-        url = f"{GEMINI_ENDPOINT}?key={GEMINI_API_KEY}"
+        url = f"{MODEL_ENDPOINT}?key={MODEL_API_KEY}"
         
         try:
-            print("Generating CMakeLists.txt with Gemini...")
+            print("Generating CMakeLists.txt with Model...")
             response = requests.post(url, headers=headers, json=data, timeout=60)
             response.raise_for_status()
             
@@ -264,11 +277,11 @@ Generate ONLY the complete CMakeLists.txt content. Do not include explanations o
                 print("CMakeLists.txt generated successfully")
                 return cmake_code
             else:
-                print("Error: No CMake code generated from Gemini API")
+                print("Error: No CMake code generated from Model API")
                 return None
                 
         except requests.exceptions.RequestException as e:
-            print(f"Error calling Gemini API: {e}")
+            print(f"Error calling Model API: {e}")
             return None
     
     def generate_all_files(self):
@@ -298,8 +311,8 @@ Generate ONLY the complete CMakeLists.txt content. Do not include explanations o
         
         # Save generation report
         report = {
-            'generation_method': 'automated_gemini',
-            'api_model': 'gemini-1.5-flash',
+            'generation_method': 'automated_model',
+            'api_model': MODEL_NAME if 'MODEL_NAME' in globals() else 'gemini-2.0-flash-lite',
             'checker_name': self.checker_name,
             'files_generated': [
                 f'{self.checker_name}.cpp',
