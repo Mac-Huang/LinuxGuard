@@ -1,0 +1,13 @@
+{
+  "generation_method": "automated_model",
+  "api_model": "gemini-2.0-flash-lite",
+  "checker_name": "BufferOverflowChecker",
+  "files_generated": [
+    "BufferOverflowChecker.cpp",
+    "BufferOverflowChecker.h",
+    "CMakeLists.txt"
+  ],
+  "source_analysis": "data/model_analysis.json",
+  "vulnerability_pattern": "buffer-overflow",
+  "target_commit": "f8af9113d3a5b16e1d32230bc1e3affbf812e011"
+}

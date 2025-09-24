@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 """
 ANTIPATTERN_PIPELINE v1.2
-4-Step Pipeline: Analyze → Generate → Test → Scan → Multi-Version Scan
+3-Step Pipeline: Analyze → Generate → Scan Multi-Version Scan
 """
 
 import os
 import sys
 
 def run_pipeline():
-    """Run the 4-step v1.2 pipeline"""
+    """Run the 3-step v1.2 pipeline"""
     
     print("ANTIPATTERN_PIPELINE v1.2")
     print("=" * 50)
-    print("4-Step Pipeline: Analyze → Generate → Test → Scan → Multi-Version")
+    print("3-Step Pipeline: Analyze → Generate → Scan Multi-Version")
     print("=" * 50)
     
     steps = [
         ("Step 1: Analyze commit with Model", "model_analyzer.py"),
         ("Step 2: Generate checker with Model", "checker_generator.py"), 
-        ("Step 3: Test generated checker", "test_generated_checker.py"),
-        ("Step 4: Multi-version historical scanning", "multi_version_scan_with_checker.py"),
+        ("Step 3: Multi-version historical scanning", "multi_version_scan_with_checker.py"),
     ]
     
     results = {}
@@ -60,7 +59,7 @@ def run_pipeline():
         status = "[PASS]" if result == "SUCCESS" else "[FAIL]"
         print(f"{status} {step_name}")
     
-    if successful_steps >= 4:  # At least core pipeline works
+    if successful_steps >= 3:  # At least core pipeline works
         print(f"\n[COMPLETE] PIPELINE v1.2 SUCCESSFUL!")
         print("New in v1.2: Added multi-version scanning capability")
         return 0

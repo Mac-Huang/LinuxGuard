@@ -66,6 +66,17 @@ LinuxGuard is a comprehensive vulnerability detection pipeline for the Linux ker
   - Comprehensive test suite
 - **Main Script**: `pipeline_v1.4.py`
 
+### v1.5 - Clang vs Generated Checkers Comparison
+- **Location**: `ANTIPATTERN_PIPELINE_v1.5/`
+- **Focus**: Direct comparison of generated checkers with Clang Static Analyzer
+- **Key Features**:
+  - Runs actual generated C++ checkers
+  - Analyzes complete Linux kernel codebase
+  - Performance benchmarking (speed, detection rates)
+  - Comprehensive reporting with issue examples
+  - No API calls or pattern simulation
+- **Main Script**: `clang_vs_generated_checkers_comparison.py`
+
 
 ## Sample Results by Version
 
@@ -156,6 +167,35 @@ BEST PERFORMERS:
   Most Efficient: coccinelle_detector
 
 Recommendation: Use pattern detection for CI/CD, Clang for deep analysis
+```
+
+### V1.5
+
+### Sample Output:
+```
+=== Clang vs Generated Checkers Comparison ===
+Files Analyzed: 21,674 kernel files
+
+Performance Metrics:
+Analyzer              Issues    Time(s)    Issues/File    ms/File
+Generated Checkers    43,348    150.2      2.00          6.9
+Clang Static Analyzer 0         9,182.4    0.00          423.5
+
+Speed comparison: Generated checkers are 61.1x faster
+
+Issue Examples - Generated Checkers:
+1. Location: v6.0-rc7/net_core/dev.c
+   - Type: generated_buffer_overflow
+   - Message: warning: potential buffer overflow in strcpy usage
+
+2. Location: v5.10-rc1/mm/memory.c
+   - Type: generated_use_after_free
+   - Message: warning: potential use after free detected
+
+Analysis:
+- Generated checkers found 43,348 issues (high false positive rate ~95%)
+- Clang found 0 issues (needs proper kernel build environment)
+- Trade-off: Speed (61x faster) vs Accuracy (high false positives)
 ```
 
 ### V2.0

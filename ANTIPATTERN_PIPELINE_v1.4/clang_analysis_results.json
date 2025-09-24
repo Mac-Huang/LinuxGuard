@@ -1,0 +1,36 @@
+{
+  "analyzer": "clang",
+  "test_results": [
+    {
+      "file": "test_clang\\buffer_overflow.c",
+      "issues": [
+        "test_clang\\buffer_overflow.c:8:5: warning: Call to function 'strcpy' is insecure as it does not provide bounding of the memory buffer. Replace unbounded copy functions with analogous functions that support length arguments such as 'strlcpy'. CWE-119 [security.insecureAPI.strcpy]",
+        "test_clang\\buffer_overflow.c:14:5: warning: Call to function 'strncpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'strncpy_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      ],
+      "return_code": 0
+    },
+    {
+      "file": "test_clang\\memory_leak.c",
+      "issues": [
+        "test_clang\\memory_leak.c:5:10: warning: Value stored to 'leak' during its initialization is never read [deadcode.DeadStores]",
+        "test_clang\\memory_leak.c:7:5: warning: Potential leak of memory pointed to by 'leak' [unix.Malloc]",
+        "test_clang\\memory_leak.c:11:14: warning: Division by zero [core.DivideZero]"
+      ],
+      "return_code": 0
+    },
+    {
+      "file": "test_clang\\use_after_free.c",
+      "issues": [
+        "test_clang\\use_after_free.c:8:10: warning: Use of memory after it is freed [unix.Malloc]",
+        "test_clang\\use_after_free.c:13:8: warning: Dereference of null pointer (loaded from variable 'p') [core.NullDereference]"
+      ],
+      "return_code": 0
+    }
+  ],
+  "comparison": {
+    "Core Only": 5,
+    "Security Focus": 7,
+    "Unix + Memory": 5,
+    "All Standard": 7
+  }
+}

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+ <key>clang_version</key>
+<string>clang version 18.1.8</string>
+ <key>diagnostics</key>
+ <array>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>5</integer>
+      <key>col</key><integer>10</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>5</integer>
+         <key>col</key><integer>10</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>5</integer>
+         <key>col</key><integer>13</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+       <array>
+        <dict>
+         <key>line</key><integer>5</integer>
+         <key>col</key><integer>17</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>5</integer>
+         <key>col</key><integer>47</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Value stored to &apos;leak&apos; during its initialization is never read</string>
+     <key>message</key>
+     <string>Value stored to &apos;leak&apos; during its initialization is never read</string>
+    </dict>
+   </array>
+   <key>description</key><string>Value stored to &apos;leak&apos; during its initialization is never read</string>
+   <key>category</key><string>Unused code</string>
+   <key>type</key><string>Dead initialization</string>
+   <key>check_name</key><string>deadcode.DeadStores</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>b500c74563fdd4b6b723317d9e789e5c</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>memory_leak</string>
+  <key>issue_hash_function_offset</key><string>1</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>5</integer>
+   <key>col</key><integer>10</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  <key>ExecutedLines</key>
+  <dict>
+   <key>0</key>
+   <array>
+    <integer>5</integer>
+   </array>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>5</integer>
+      <key>col</key><integer>23</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>5</integer>
+         <key>col</key><integer>23</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>5</integer>
+         <key>col</key><integer>47</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Memory is allocated</string>
+     <key>message</key>
+     <string>Memory is allocated</string>
+    </dict>
+    <dict>
+     <key>kind</key><string>control</string>
+     <key>edges</key>
+      <array>
+       <dict>
+        <key>start</key>
+         <array>
+          <dict>
+           <key>line</key><integer>5</integer>
+           <key>col</key><integer>5</integer>
+           <key>file</key><integer>0</integer>
+          </dict>
+          <dict>
+           <key>line</key><integer>5</integer>
+           <key>col</key><integer>7</integer>
+           <key>file</key><integer>0</integer>
+          </dict>
+         </array>
+        <key>end</key>
+         <array>
+          <dict>
+           <key>line</key><integer>7</integer>
+           <key>col</key><integer>5</integer>
+           <key>file</key><integer>0</integer>
+          </dict>
+          <dict>
+           <key>line</key><integer>7</integer>
+           <key>col</key><integer>10</integer>
+           <key>file</key><integer>0</integer>
+          </dict>
+         </array>
+       </dict>
+      </array>
+    </dict>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>7</integer>
+      <key>col</key><integer>5</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Potential leak of memory pointed to by &apos;leak&apos;</string>
+     <key>message</key>
+     <string>Potential leak of memory pointed to by &apos;leak&apos;</string>
+    </dict>
+   </array>
+   <key>description</key><string>Potential leak of memory pointed to by &apos;leak&apos;</string>
+   <key>category</key><string>Memory error</string>
+   <key>type</key><string>Memory leak</string>
+   <key>check_name</key><string>unix.Malloc</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>df7ea83d0b457337b50401456fb91fba</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>memory_leak</string>
+  <key>issue_hash_function_offset</key><string>1</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>7</integer>
+   <key>col</key><integer>5</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  <key>ExecutedLines</key>
+  <dict>
+   <key>0</key>
+   <array>
+    <integer>4</integer>
+    <integer>5</integer>
+    <integer>7</integer>
+   </array>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>11</integer>
+      <key>col</key><integer>14</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>11</integer>
+         <key>col</key><integer>12</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>11</integer>
+         <key>col</key><integer>16</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Division by zero</string>
+     <key>message</key>
+     <string>Division by zero</string>
+    </dict>
+   </array>
+   <key>description</key><string>Division by zero</string>
+   <key>category</key><string>Logic error</string>
+   <key>type</key><string>Division by zero</string>
+   <key>check_name</key><string>core.DivideZero</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>9ac5f5182036f08183b828afdd25028d</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>divide_by_zero</string>
+  <key>issue_hash_function_offset</key><string>1</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>11</integer>
+   <key>col</key><integer>14</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  <key>ExecutedLines</key>
+  <dict>
+   <key>0</key>
+   <array>
+    <integer>10</integer>
+    <integer>11</integer>
+   </array>
+  </dict>
+  </dict>
+ </array>
+ <key>files</key>
+ <array>
+  <string>test_clang\memory_leak.c</string>
+ </array>
+</dict>
+</plist>

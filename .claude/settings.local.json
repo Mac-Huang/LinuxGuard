@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Claude code has Full Access: Claude Code can read any files, make edits, and run commands with network access, without approval.",
+      "Bash(dir:*)",
+      "Bash(xcopy:*)",
+      "Bash(ren:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"Updating $dir/checker_generator.py\")",
+      "Bash(done)",
+      "Bash(python:*)",
+      "Bash(del multi_version_scan_with_checker.py)",
+      "Bash(del commit_analyzer.py)",
+      "Bash(if not exist \"detectors\" mkdir \"detectors\")",
+      "Bash(if not exist:*)",
+      "Bash(del:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)",
+      "Bash(clang:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -51,3 +51,36 @@ temp/
 test_*.c
 kernel_vulnerability_demo.c
 test_vulnerability.c
+
+# Large kernel source directories - IMPORTANT TO IGNORE
+kernel_versions/
+kernel_versions_complete/
+linux_kernel/
+extracted_files/
+
+# Large archives
+*.tar.gz
+*.tar.xz
+*.zip
+
+# LLVM build directory (very large)
+llvm-source-build/
+
+# Compilation artifacts
+*.o
+*.a
+*.lib
+
+# Large result files (keep only markdown summaries)
+*/results/*.json
+*/comparison_results/*.json
+!*/comparison_results/comparison_summary_*.md
+
+# Database files
+*.db
+*.sqlite
+*.h5
+
+# Temporary checker builds
+checker_build_*/
+checker_wrapper_*/

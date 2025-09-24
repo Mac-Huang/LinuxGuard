@@ -8,19 +8,33 @@ Add this file to .gitignore to keep API keys private
 import os
 from pathlib import Path
 
+# Try to load from .env file first
+try:
+    from dotenv import load_dotenv
+    ENV_FILE = Path(__file__).parent / ".env"
+    if ENV_FILE.exists():
+        load_dotenv(ENV_FILE)
+except ImportError:
+    pass
+
 # API Configuration
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_API_KEY_HERE")
+# Priority: 1. API_KEY from .env, 2. MODEL_API_KEY from env, 3. .secrets file
+MODEL_API_KEY = os.getenv("API_KEY") or os.getenv("MODEL_API_KEY", "YOUR_API_KEY_HERE")
+
+# Gemini 2.0 Flash Model Configuration
+MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.0-flash-lite")
+MODEL_ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent"
 
 # If API key not in environment, try to load from local file
 CONFIG_DIR = Path(__file__).parent
 SECRETS_FILE = CONFIG_DIR / ".secrets"
 
-if GEMINI_API_KEY == "YOUR_API_KEY_HERE" and SECRETS_FILE.exists():
+if MODEL_API_KEY == "YOUR_API_KEY_HERE" and SECRETS_FILE.exists():
     try:
         with open(SECRETS_FILE, 'r') as f:
             for line in f:
-                if line.startswith("GEMINI_API_KEY="):
-                    GEMINI_API_KEY = line.split("=", 1)[1].strip()
+                if line.startswith("MODEL_API_KEY=") or line.startswith("API_KEY="):
+                    MODEL_API_KEY = line.split("=", 1)[1].strip()
                     break
     except Exception:
         pass
@@ -44,14 +58,14 @@ RESULTS_DIR = "results"
 REPORT_FORMAT = "markdown"  # or "json"
 
 def get_api_key():
-    """Get the Gemini API key from configuration"""
-    if GEMINI_API_KEY == "YOUR_API_KEY_HERE":
+    """Get the Model API key from configuration"""
+    if MODEL_API_KEY == "YOUR_API_KEY_HERE":
         raise ValueError(
-            "API key not configured. Please set GEMINI_API_KEY environment variable "
-            "or create a .secrets file with GEMINI_API_KEY=your_key_here"
+            "API key not configured. Please set MODEL_API_KEY environment variable "
+            "or create a .secrets file with MODEL_API_KEY=your_key_here"
         )
-    return GEMINI_API_KEY
+    return MODEL_API_KEY
 
 def is_configured():
     """Check if the configuration is properly set up"""
-    return GEMINI_API_KEY != "YOUR_API_KEY_HERE"
+    return MODEL_API_KEY != "YOUR_API_KEY_HERE"

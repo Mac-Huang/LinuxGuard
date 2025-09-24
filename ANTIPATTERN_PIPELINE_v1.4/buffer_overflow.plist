@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+ <key>clang_version</key>
+<string>clang version 18.1.8</string>
+ <key>diagnostics</key>
+ <array>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>8</integer>
+      <key>col</key><integer>5</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>8</integer>
+         <key>col</key><integer>5</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>8</integer>
+         <key>col</key><integer>10</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Call to function &apos;strcpy&apos; is insecure as it does not provide bounding of the memory buffer. Replace unbounded copy functions with analogous functions that support length arguments such as &apos;strlcpy&apos;. CWE-119</string>
+     <key>message</key>
+     <string>Call to function &apos;strcpy&apos; is insecure as it does not provide bounding of the memory buffer. Replace unbounded copy functions with analogous functions that support length arguments such as &apos;strlcpy&apos;. CWE-119</string>
+    </dict>
+   </array>
+   <key>description</key><string>Call to function &apos;strcpy&apos; is insecure as it does not provide bounding of the memory buffer. Replace unbounded copy functions with analogous functions that support length arguments such as &apos;strlcpy&apos;. CWE-119</string>
+   <key>category</key><string>Security</string>
+   <key>type</key><string>Potential insecure memory buffer bounds restriction in call &apos;strcpy&apos;</string>
+   <key>check_name</key><string>security.insecureAPI.strcpy</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>bf7a802976d8c584c33dcade98da1cac</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>vulnerable_buffer</string>
+  <key>issue_hash_function_offset</key><string>3</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>8</integer>
+   <key>col</key><integer>5</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  <key>ExecutedLines</key>
+  <dict>
+   <key>0</key>
+   <array>
+    <integer>8</integer>
+   </array>
+  </dict>
+  </dict>
+  <dict>
+   <key>path</key>
+   <array>
+    <dict>
+     <key>kind</key><string>event</string>
+     <key>location</key>
+     <dict>
+      <key>line</key><integer>14</integer>
+      <key>col</key><integer>5</integer>
+      <key>file</key><integer>0</integer>
+     </dict>
+     <key>ranges</key>
+     <array>
+       <array>
+        <dict>
+         <key>line</key><integer>14</integer>
+         <key>col</key><integer>5</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+        <dict>
+         <key>line</key><integer>14</integer>
+         <key>col</key><integer>11</integer>
+         <key>file</key><integer>0</integer>
+        </dict>
+       </array>
+     </array>
+     <key>depth</key><integer>0</integer>
+     <key>extended_message</key>
+     <string>Call to function &apos;strncpy&apos; is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as &apos;strncpy_s&apos; in case of C11</string>
+     <key>message</key>
+     <string>Call to function &apos;strncpy&apos; is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as &apos;strncpy_s&apos; in case of C11</string>
+    </dict>
+   </array>
+   <key>description</key><string>Call to function &apos;strncpy&apos; is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as &apos;strncpy_s&apos; in case of C11</string>
+   <key>category</key><string>Security</string>
+   <key>type</key><string>Potential insecure memory buffer bounds restriction in call &apos;strncpy&apos;</string>
+   <key>check_name</key><string>security.insecureAPI.DeprecatedOrUnsafeBufferHandling</string>
+   <!-- This hash is experimental and going to change! -->
+   <key>issue_hash_content_of_line_in_context</key><string>02693095d7b8d51f7b8e108cfd2642f7</string>
+  <key>issue_context_kind</key><string>function</string>
+  <key>issue_context</key><string>safe_buffer</string>
+  <key>issue_hash_function_offset</key><string>3</string>
+  <key>location</key>
+  <dict>
+   <key>line</key><integer>14</integer>
+   <key>col</key><integer>5</integer>
+   <key>file</key><integer>0</integer>
+  </dict>
+  <key>ExecutedLines</key>
+  <dict>
+   <key>0</key>
+   <array>
+    <integer>14</integer>
+   </array>
+  </dict>
+  </dict>
+ </array>
+ <key>files</key>
+ <array>
+  <string>test_clang\buffer_overflow.c</string>
+ </array>
+</dict>
+</plist>
