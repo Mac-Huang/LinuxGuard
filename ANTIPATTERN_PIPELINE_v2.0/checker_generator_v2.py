@@ -60,7 +60,7 @@ class OptimizedCheckerGenerator:
 Based on the professional LLVM clang-tidy LinuxKernel module structure, generate a production-ready Clang checker.
 
 REFERENCE LLVM CLANG-TIDY STRUCTURE:
-{example_structure[:1500]}  # First 1500 chars as reference
+{example_structure[:3000]}  # First 3000 chars as reference
 
 VULNERABILITY TO DETECT:
 {json.dumps(vulnerability_info, indent=2)}
@@ -236,3 +236,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
