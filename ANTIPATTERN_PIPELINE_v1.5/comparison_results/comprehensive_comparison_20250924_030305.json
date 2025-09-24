@@ -1,0 +1,265 @@
+{
+  "metadata": {
+    "timestamp": "20250924_030305",
+    "files_analyzed": 35774,
+    "kernel_source": ""
+  },
+  "results": {
+    "generated": {
+      "total_issues": 10,
+      "execution_time": 14635.119037628174,
+      "issues_per_file": 0.00027953262145692404,
+      "ms_per_file": 409.09931899223386,
+      "breakdown": {
+        "generated_buffer_overflow": 10
+      }
+    },
+    "clang": {
+      "total_issues": 37,
+      "execution_time": 7490.19568157196,
+      "issues_per_file": 0.0010342706993906189,
+      "ms_per_file": 209.37540340951418
+    }
+  },
+  "all_issues": {
+    "generated": [
+      {
+        "file": "\\Documentation\\scheduler\\sched-pelt.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\Documentation\\scheduler\\sched-pelt.c:26:12: warning: Left shift by '32' overflows the capacity of 'unsigned long' [core.BitwiseShift]"
+      },
+      {
+        "file": "\\Documentation\\scheduler\\sched-pelt.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\Documentation\\scheduler\\sched-pelt.c:61:30: warning: Left shift by '32' overflows the capacity of 'unsigned long' [core.BitwiseShift]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\drivers\\zorro\\gen-devlist.c:61:29: warning: Access out-of-bound array element (buffer overflow) [alpha.security.ArrayBound]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\drivers\\zorro\\gen-devlist.c:83:4: warning: Call to function 'strcpy' is insecure as it does not provide bounding of the memory buffer. Replace unbounded copy functions with analogous functions that support length arguments such as 'strlcpy'. CWE-119 [security.insecureAPI.strcpy]"
+      },
+      {
+        "file": "\\tools\\perf\\util\\levenshtein.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\tools\\perf\\util\\levenshtein.c:48:33: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\perf\\util\\levenshtein.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\tools\\perf\\util\\levenshtein.c:49:33: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\perf\\util\\levenshtein.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\tools\\perf\\util\\levenshtein.c:50:33: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory.c:30:36: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory.c:40:9: warning: Potential leak of memory pointed to by 'regions' [unix.Malloc]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory_even.c",
+        "type": "generated_buffer_overflow",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory_even.c:29:36: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      }
+    ],
+    "clang": [
+      {
+        "file": "\\Documentation\\scheduler\\sched-pelt.c",
+        "type": "clang_analyzer",
+        "message": "\\Documentation\\scheduler\\sched-pelt.c:26:12: warning: Left shift by '32' overflows the capacity of 'unsigned long' [core.BitwiseShift]"
+      },
+      {
+        "file": "\\Documentation\\scheduler\\sched-pelt.c",
+        "type": "clang_analyzer",
+        "message": "\\Documentation\\scheduler\\sched-pelt.c:61:30: warning: Left shift by '32' overflows the capacity of 'unsigned long' [core.BitwiseShift]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:22:4: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:41:3: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:61:29: warning: Out of bound access to memory after the end of the region [alpha.security.ArrayBoundV2]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:64:8: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:68:6: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:83:4: warning: Call to function 'strcpy' is insecure as it does not provide bounding of the memory buffer. Replace unbounded copy functions with analogous functions that support length arguments such as 'strlcpy'. CWE-119 [security.insecureAPI.strcpy]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:86:5: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:89:4: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\zorro\\gen-devlist.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\zorro\\gen-devlist.c:95:4: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:33:2: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:40:2: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:99:4: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:103:5: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:105:4: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:109:4: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:119:3: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:121:2: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:144:2: warning: Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'memcpy_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:181:3: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:192:4: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:198:2: warning: Call to function 'fprintf' is insecure as it does not provide bounding of the memory buffer or security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c",
+        "type": "clang_analyzer",
+        "message": "\\drivers\\gpu\\drm\\xe\\xe_gen_wa_oob.c:203:3: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\tools\\perf\\perf-read-vdso.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\perf\\util/find-map.c:10:3: warning: Call to function 'fprintf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'fprintf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\tools\\perf\\perf-read-vdso.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\perf\\util/find-map.c:18:12: warning: Call to function 'sscanf' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'sscanf_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\tools\\perf\\perf-read-vdso.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\perf\\util/find-map.c:24:17: warning: Potential out of bound access to 'line' with tainted index [alpha.security.ArrayBoundV2]"
+      },
+      {
+        "file": "\\tools\\perf\\util\\levenshtein.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\perf\\util\\levenshtein.c:48:33: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\perf\\util\\levenshtein.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\perf\\util\\levenshtein.c:49:33: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\perf\\util\\levenshtein.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\perf\\util\\levenshtein.c:50:33: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory.c:30:36: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory.c:38:4: warning: Call to function 'memset' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'memset_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory.c:40:9: warning: Potential leak of memory pointed to by 'regions' [unix.Malloc]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory_even.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory_even.c:29:36: warning: the computation of the size of the memory allocation may overflow [alpha.security.MallocOverflow]"
+      },
+      {
+        "file": "\\tools\\testing\\selftests\\damon\\access_memory_even.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\testing\\selftests\\damon\\access_memory_even.c:36:5: warning: Call to function 'memset' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'memset_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\tools\\virtio\\ringtest\\noring.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\virtio\\ringtest\\main.h:164:3: warning: Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'memcpy_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      },
+      {
+        "file": "\\tools\\virtio\\ringtest\\noring.c",
+        "type": "clang_analyzer",
+        "message": "\\tools\\virtio\\ringtest\\main.h:178:3: warning: Call to function 'memcpy' is insecure as it does not provide security checks introduced in the C11 standard. Replace with analogous functions that support length arguments or provides boundary checks such as 'memcpy_s' in case of C11 [security.insecureAPI.DeprecatedOrUnsafeBufferHandling]"
+      }
+    ]
+  }
+}
