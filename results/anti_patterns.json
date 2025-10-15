@@ -1,0 +1,47 @@
+{
+  "is_security_fix": true,
+  "confidence": "high",
+  "anti_pattern_type": "use-after-free",
+  "vulnerability_class": "CWE-416",
+  "vulnerable_pattern": {
+    "description": "The code frees a memory block (new_pp) and then immediately attempts to dereference it on the next line if of_changeset_add_property() fails.",
+    "key_indicators": [
+      "of_changeset_add_property() call",
+      "Freeing 'new_pp' on error path",
+      "Dereferencing 'new_pp' after being freed"
+    ],
+    "code_context": "if (ret)\n\t\t__of_prop_free(new_pp);\n\n\tnew_pp->next = np->deadprops;",
+    "exploitability": "An attacker could potentially trigger a crash by causing the function to fail, which would then allow them to access data that was in the freed memory location."
+  },
+  "fix_pattern": {
+    "description": "The fix introduces a return statement after freeing 'new_pp' on error, preventing the use-after-free.",
+    "required_checks": [
+      "Check the return value of of_changeset_add_property()",
+      "Return the error code if the call fails."
+    ],
+    "code_context": "if (ret) {\n\t\t__of_prop_free(new_pp);\n\t\treturn ret;\n\t}",
+    "protection_mechanism": "Early return after freeing memory preventing access to freed memory."
+  },
+  "ast_matcher_hints": {
+    "node_types": [
+      "IfStatement",
+      "FunctionCall",
+      "AssignmentExpression"
+    ],
+    "relationships": [
+      "Check the return value of a function, then free the return value, then use the return value in the subsequent line"
+    ],
+    "conditions": [
+      "Check if the return value of 'of_changeset_add_property' is non-zero",
+      "If so, '__of_prop_free' is called on the 'new_pp' pointer",
+      "The 'new_pp' pointer is accessed in the following line."
+    ],
+    "pattern_description": "Identify code that frees a dynamically allocated object and subsequently uses that object in the same function within an if statement branch."
+  },
+  "severity": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "impact": "Crash, potential for information disclosure or further exploitation.",
+  "affected_subsystem": "of (Open Firmware)"
+}

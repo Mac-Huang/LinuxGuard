@@ -1,0 +1,99 @@
+{
+  "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+  "fetch_date": "2025-10-07T01:28:23.968063",
+  "commit_info": {
+    "subject": "[PATCH] of: dynamic: Fix use after free in",
+    "author": {
+      "name": "Dan Carpenter",
+      "email": "dan.carpenter@linaro.org",
+      "date": "2025-08-22T08:08:46Z"
+    },
+    "date": "Fri, 22 Aug 2025 11:08:46 +0300",
+    "message_body": "of_changeset_add_prop_helper()\n\nIf the of_changeset_add_property() function call fails, then this code\nfrees \"new_pp\" and then dereference it on the next line.  Return the\nerror code directly instead.\n\nLink: https://lore.kernel.org/r/aKgljjhnpa4lVpdx@stanley.mountain\n---\n drivers/of/dynamic.c | 6 ++++--\n 1 file changed, 4 insertions(+), 2 deletions(-)",
+    "signed_off_by": [
+      "Dan Carpenter <dan.carpenter@linaro.org>",
+      "Rob Herring (Arm) <robh@kernel.org>"
+    ],
+    "reviewed_by": [],
+    "reported_by": [],
+    "fixes": [
+      "c81f6ce16785 (\"of: dynamic: Fix memleak when of_pci_add_properties() failed\")"
+    ],
+    "cc": [],
+    "sha": "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "committer": {
+      "name": "Rob Herring (Arm)",
+      "email": "robh@kernel.org",
+      "date": "2025-08-22T21:21:35Z"
+    },
+    "message": "of: dynamic: Fix use after free in of_changeset_add_prop_helper()\n\nIf the of_changeset_add_property() function call fails, then this code\nfrees \"new_pp\" and then dereference it on the next line.  Return the\nerror code directly instead.\n\nFixes: c81f6ce16785 (\"of: dynamic: Fix memleak when of_pci_add_properties() failed\")\nSigned-off-by: Dan Carpenter <dan.carpenter@linaro.org>\nLink: https://lore.kernel.org/r/aKgljjhnpa4lVpdx@stanley.mountain\nSigned-off-by: Rob Herring (Arm) <robh@kernel.org>",
+    "stats": {
+      "total": 6,
+      "additions": 4,
+      "deletions": 2
+    },
+    "files": [
+      {
+        "filename": "drivers/of/dynamic.c",
+        "status": "modified",
+        "additions": 4,
+        "deletions": 2,
+        "changes": 6
+      }
+    ],
+    "diff_analysis": {
+      "files_changed": [
+        {
+          "from": "drivers/of/dynamic.c",
+          "to": "drivers/of/dynamic.c",
+          "hunks": [
+            {
+              "header": "@@ -935,13 +935,15 @@ static int of_changeset_add_prop_helper(struct of_changeset *ocs,",
+              "context": [
+                "\t\treturn -ENOMEM;",
+                "",
+                "\tret = of_changeset_add_property(ocs, np, new_pp);",
+                "\t\t__of_prop_free(new_pp);",
+                "",
+                "\tnew_pp->next = np->deadprops;",
+                "\tnp->deadprops = new_pp;",
+                "",
+                "}",
+                "",
+                "/**"
+              ],
+              "removed": [
+                "\tif (ret)",
+                "\treturn ret;"
+              ],
+              "added": [
+                "\tif (ret) {",
+                "\t\treturn ret;",
+                "\t}",
+                "\treturn 0;"
+              ]
+            }
+          ]
+        }
+      ],
+      "total_additions": 4,
+      "total_deletions": 2,
+      "hunks": []
+    }
+  },
+  "patch_file": "/home/mac/private/linux-guard/commits/80af3745ca465c6c47e833c1902004a7fa944f37.patch",
+  "summary": {
+    "subject": "[PATCH] of: dynamic: Fix use after free in",
+    "author": {
+      "name": "Dan Carpenter",
+      "email": "dan.carpenter@linaro.org",
+      "date": "2025-08-22T08:08:46Z"
+    },
+    "date": "Fri, 22 Aug 2025 11:08:46 +0300",
+    "files_changed": 1,
+    "additions": 4,
+    "deletions": 2,
+    "has_fixes_tag": true,
+    "reporters": []
+  }
+}

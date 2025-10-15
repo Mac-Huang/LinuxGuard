@@ -82,15 +82,7 @@ class CheckerIntegrator:
             self.update_module_registration(checker_name)
 
             return True
-
-        except Exception as e:
-            print(f"  ✗ Error integrating checker: {e}")
-            return False
-
-    def update_cmake_lists(self, checker_name: str):
-        """Add checker to CMakeLists.txt."""
-
-        cmake_file = self.clang_tidy_dir / "CMakeLists.txt"
+ang_tidy_dir / "CMakeLists.txt"
 
         with open(cmake_file, 'r') as f:
             lines = f.readlines()
@@ -147,7 +139,7 @@ class CheckerIntegrator:
         # Add checker registration
         # Convert MustCheckErrorsCheck -> must-check-errors
         checker_id = self.camel_to_kebab(checker_name.replace("Check", ""))
-        registration_line = f'    CheckFactories.registerCheck<{checker_name}>("{checker_id}");\n'
+        registration_line = f'    CheckFactories.registerCheck<{checker_name}>("linuxkernel-{checker_id}");\n'
 
         # Find the registration block and add our checker
         registration_marker = 'CheckFactories.registerCheck<MustCheckErrsCheck>("must-check-errs");'
@@ -246,7 +238,7 @@ class CheckerIntegrator:
             return False
 
         # List available checks
-        cmd = [str(clang_tidy_bin), "--list-checks", "-checks='linuxkernel-*'"]
+        cmd = [str(clang_tidy_bin), "--list-checks", "-checks='linuxkernel-*"]
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
