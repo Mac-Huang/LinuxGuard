@@ -24,8 +24,8 @@ class PipelineOrchestrator:
 
     def __init__(self, base_dir: str = "/home/mac/private/linux-guard"):
         self.base_dir = Path(base_dir)
-        self.max_iterations = 3 
-        self.max_repair_attempts = 3
+        self.max_iterations = 3 # Don't really matter?
+        self.max_repair_attempts = 5 # Repair times should be sufficient (Give LLM more chance and context)
         self.validation_sample = None  # None = full scan
 
         # Initialize Gemini for repairs
@@ -429,7 +429,7 @@ IMPLEMENTATION:
 
         # Run Module 4 - scan files in kernel
         if self.validation_sample:
-            print(f"  Scanning kernel v3.0 ({self.validation_sample} sample files)...")
+            print(f"  Scanning kernel ({self.validation_sample} sample files)...")
             cmd = [
                 "python3", str(self.scripts_dir / "module4_validation.py"),
                 "--kernel-version", "linux-v3.0",
@@ -548,7 +548,7 @@ def main():
                       help='Clean up before starting')
     parser.add_argument('--max-iterations', type=int, default=3,
                       help='Maximum generation iterations')
-    parser.add_argument('--max-repairs', type=int, default=3,
+    parser.add_argument('--max-repairs', type=int, default=5,
                       help='Maximum repair attempts per iteration')
     parser.add_argument('--validation-sample', type=int, default=None,
                       help='Number of files to scan for validation (None = full scan)')

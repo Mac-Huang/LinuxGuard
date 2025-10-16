@@ -139,18 +139,29 @@ ang_tidy_dir / "CMakeLists.txt"
         # Add checker registration
         # Convert MustCheckErrorsCheck -> must-check-errors
         checker_id = self.camel_to_kebab(checker_name.replace("Check", ""))
-        registration_line = f'    CheckFactories.registerCheck<{checker_name}>("linuxkernel-{checker_id}");\n'
+        registration_line = f'    CheckFactories.registerCheck<{checker_name}>(\n        "linuxkernel-{checker_id}");\n'
 
-        # Find the registration block and add our checker
-        registration_marker = 'CheckFactories.registerCheck<MustCheckErrsCheck>("must-check-errs");'
-        if registration_marker in content:
-            content = content.replace(registration_marker,
-                                    f'{registration_marker}\n{registration_line.rstrip()}')
+        # Find the correct registration marker (multi-line format)
+        # Look for the existing MustCheckErrsCheck registration
+        import re
+        pattern = r'(CheckFactories\.registerCheck<MustCheckErrsCheck>\(\s*\n\s*"linuxkernel-must-check-errs"\);)'
+
+        match = re.search(pattern, content)
+        if match:
+            # Insert after the existing registration
+            insert_pos = match.end()
+            content = content[:insert_pos] + '\n' + registration_line + content[insert_pos:]
+        else:
+            # Fallback: find the addCheckFactories method and add before closing brace
+            pattern2 = r'(void addCheckFactories\([^)]*\)[^{]*\{[^}]*)(})'
+            match2 = re.search(pattern2, content, re.DOTALL)
+            if match2:
+                content = match2.group(1) + registration_line + '  ' + match2.group(2)
 
         with open(module_file, 'w') as f:
             f.write(content)
 
-        print(f"  ✓ Registered {checker_name} as '{checker_id}'")
+        print(f"  ✓ Registered {checker_name} as 'linuxkernel-{checker_id}'")
 
     def camel_to_kebab(self, name: str) -> str:
         """Convert CamelCase to kebab-case."""
@@ -228,7 +239,7 @@ ang_tidy_dir / "CMakeLists.txt"
             print("\n  Diagnosis: Missing include file")
             print("  Suggestion: Verify all header files are properly included")
 
-    def verify_integration(self) -> bool:
+    def verify_integration(self, expected_checkers: List[str] = None) -> bool:
         """Verify that the checker was successfully integrated."""
 
         clang_tidy_bin = self.build_dir / "bin" / "clang-tidy"
@@ -238,7 +249,7 @@ ang_tidy_dir / "CMakeLists.txt"
             return False
 
         # List available checks
-        cmd = [str(clang_tidy_bin), "--list-checks", "-checks='linuxkernel-*"]
+        cmd = [str(clang_tidy_bin), "--list-checks", "-checks='linuxkernel-*'"]
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -249,6 +260,20 @@ ang_tidy_dir / "CMakeLists.txt"
 
             for check in checks:
                 print(f"    - {check}")
+
+            # Verify expected checkers if provided
+            if expected_checkers:
+                missing = []
+                for checker_name in expected_checkers:
+                    checker_id = f"linuxkernel-{self.camel_to_kebab(checker_name.replace('Check', ''))}"
+                    if checker_id not in checks:
+                        missing.append(checker_id)
+                        print(f"  ✗ MISSING: {checker_id}")
+
+                if missing:
+                    print(f"\n  ⚠️  WARNING: {len(missing)} checker(s) not registered!")
+                    print("  This means they won't run during scans.")
+                    return False
 
             return len(checks) > 0
 
@@ -326,8 +351,8 @@ def main():
         if integrator.build_clang_tidy(args.jobs):
             print("\n✓ Build completed successfully")
 
-            # Verify integration
-            if integrator.verify_integration():
+            # Verify integration with expected checkers
+            if integrator.verify_integration(successful_integrations):
                 print("\n✓ Integration verified - checkers are available")
 
                 # Save integration status
