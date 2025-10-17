@@ -137,3 +137,4 @@ export RESULTS_DIR=$HOME/private/linux-guard/results
 - Location: `/home/mac/private/linux-guard/`
 - Server: Shared lab environment (bumble)
 - My methodology is to utilizing the commits from current version, which means such specific bug mentioned in these commits have a high chance not been found from the previous versions, thus build the pipeline to automate such process to detect similar anti-patterns.
+- The main path of this project is `/nvme/write/mac/private/linux-guard`. All the path written in the code should be the relative one.

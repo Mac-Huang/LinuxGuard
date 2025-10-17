@@ -1,0 +1,7 @@
+{
+  "integrated_checkers": [
+    "UseAfterFreeCheck"
+  ],
+  "clang_tidy_binary": "/nvme/write/mac/private/linux-guard/llvm-project/build/bin/clang-tidy",
+  "status": "success"
+}

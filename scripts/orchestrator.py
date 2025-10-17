@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-LinuxGuard Pipeline Orchestrator
-Implements iterative checker generation with automatic repair and validation.
+LinuxGuard Pipeline Orchestrator v2
+Enhanced UI/UX with clean status display and organized output.
 """
 
 import json
@@ -15,18 +15,111 @@ from typing import Dict, Optional, Tuple, List
 from dotenv import load_dotenv
 import google.generativeai as genai
 import time
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
+
+# ANSI color codes for terminal output
+class Colors:
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    CLEAR_LINE = '\033[2K'
+    MOVE_UP = '\033[1A'
+
+class StatusDisplay:
+    """Manages clean status display with fixed window updates."""
+
+    def __init__(self):
+        self.current_status = {}
+        self.log_messages = []
+        self.width = 80
+
+    def header(self):
+        """Display professional header."""
+        print(f"{Colors.CYAN}{'='*self.width}{Colors.ENDC}")
+        print(f"{Colors.BOLD}{Colors.CYAN}  🔍 LinuxGuard - Kernel Anti-Pattern Detection Pipeline{Colors.ENDC}")
+        print(f"{Colors.CYAN}{'='*self.width}{Colors.ENDC}")
+
+    def section(self, title: str, preserve_line: bool = False):
+        """Display section header."""
+        if not preserve_line:
+            print(f"\n{Colors.BOLD}{Colors.BLUE}[{title}]{Colors.ENDC}")
+        else:
+            print(f"{Colors.BOLD}{Colors.BLUE}[{title}]{Colors.ENDC}")
+
+    def status(self, key: str, value: str, symbol: str = "•"):
+        """Update status line in-place."""
+        if key in self.current_status:
+            # Move cursor up and clear line
+            print(f"{Colors.MOVE_UP}{Colors.CLEAR_LINE}", end='')
+
+        status_line = f"  {symbol} {key}: {value}"
+        print(status_line)
+        self.current_status[key] = value
+
+    def success(self, message: str):
+        """Display success message."""
+        print(f"  {Colors.GREEN}✓{Colors.ENDC} {message}")
+
+    def error(self, message: str):
+        """Display error message."""
+        print(f"  {Colors.FAIL}✗{Colors.ENDC} {message}")
+
+    def warning(self, message: str):
+        """Display warning message."""
+        print(f"  {Colors.WARNING}⚠{Colors.ENDC} {message}")
+
+    def progress_bar(self, current: int, total: int, prefix: str = ""):
+        """Display a progress bar."""
+        bar_length = 40
+        progress = current / total
+        filled = int(bar_length * progress)
+        bar = '█' * filled + '░' * (bar_length - filled)
+        percentage = int(100 * progress)
+
+        # Clear previous line and print progress
+        print(f"\r  {prefix} [{bar}] {percentage}% ({current}/{total})", end='', flush=True)
+        if current == total:
+            print()  # New line when complete
+
+    def compilation_status(self, attempt: int, max_attempts: int, errors: int = 0, clear_previous: bool = False):
+        """Display compilation status in a fixed window."""
+        if clear_previous:
+            # Move cursor up 4 lines (not 5 since we don't reprint the header)
+            for _ in range(4):
+                print(f"{Colors.MOVE_UP}{Colors.CLEAR_LINE}", end='')
+        else:
+            # Only print header on first display
+            print(f"{Colors.BOLD}Compilation Status:{Colors.ENDC}")
+
+        print(f"  ┌{'─'*50}┐")
+        print(f"  │ Attempt: {attempt}/{max_attempts:<38}│")
+        if errors > 0:
+            error_str = f"{errors}"
+            # Need to account for ANSI codes in padding
+            print(f"  │ Errors Found: {Colors.FAIL}{error_str}{Colors.ENDC}{' '*(35-len(error_str))}│")
+        else:
+            status_str = "Building..."
+            print(f"  │ Status: {Colors.GREEN}{status_str}{Colors.ENDC}{' '*(39-len(status_str))}│")
+        print(f"  └{'─'*50}┘")
 
 class PipelineOrchestrator:
     """Orchestrates the complete pipeline with iterative generation and repair."""
 
     def __init__(self, base_dir: str = "/home/mac/private/linux-guard"):
         self.base_dir = Path(base_dir)
-        self.max_iterations = 3 # Don't really matter?
-        self.max_repair_attempts = 5 # Repair times should be sufficient (Give LLM more chance and context)
-        self.validation_sample = None  # None = full scan
+        self.max_iterations = 3
+        self.max_repair_attempts = 5
+        self.validation_sample = None
+        self.display = StatusDisplay()
 
         # Initialize Gemini for repairs
         api_key = os.getenv('GEMINI_API_KEY')
@@ -46,82 +139,95 @@ class PipelineOrchestrator:
     def generate_checker(self, commit_hash: str) -> Optional[Dict]:
         """Main orchestration function implementing the iterative generation algorithm."""
 
-        print(f"\n{'='*60}")
-        print(f"  LinuxGuard Orchestrator - Generating Checker")
-        print(f"  Commit: {commit_hash[:12]}")
-        print(f"{'='*60}\n")
+        self.display.header()
+        print(f"\n  Commit: {Colors.BOLD}{commit_hash[:12]}{Colors.ENDC}")
+        print(f"  Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print()
 
         for iteration in range(1, self.max_iterations + 1):
-            print(f"\n[Iteration {iteration}/{self.max_iterations}]")
+            # Display iteration header prominently
+            print(f"\n{Colors.BOLD}{Colors.CYAN}━━━ Iteration {iteration}/{self.max_iterations} ━━━{Colors.ENDC}")
 
             # Stage 1: Bug Pattern Analysis
-            print("Stage 1: Analyzing patch for patterns...")
+            print(f"{Colors.BOLD}Stage 1:{Colors.ENDC} Analyzing patch")
+            self.display.status("Analysis", "Extracting bug patterns...")
             pattern = self.analyze_patch(commit_hash)
 
             if not pattern:
-                print("  ✗ Failed to extract pattern")
+                self.display.error("Failed to extract pattern")
                 continue
 
-            print(f"  ✓ Detected: {pattern.get('anti_pattern_type', 'unknown')}")
+            self.display.success(f"Pattern detected: {pattern.get('anti_pattern_type', 'unknown')}")
 
-            # Stage 2: Detection Plan Synthesis (included in pattern analysis)
-            print("Stage 2: Synthesizing detection plan...")
+            # Stage 2: Detection Plan Synthesis
+            print(f"\n{Colors.BOLD}Stage 2:{Colors.ENDC} Synthesis")
+            self.display.status("Synthesis", "Creating detection plan...")
+            time.sleep(0.5)  # Visual feedback
 
             # Stage 3: Checker Implementation
-            print("Stage 3: Implementing checker...")
+            print(f"\n{Colors.BOLD}Stage 3:{Colors.ENDC} Implementation")
+            self.display.status("Generation", "Creating checker code...")
             checker_info = self.implement_checker(pattern)
 
             if not checker_info:
-                print("  ✗ Failed to generate checker")
+                self.display.error("Failed to generate checker")
                 continue
 
-            print(f"  ✓ Generated: {checker_info['checker_name']}")
+            self.display.success(f"Generated: {checker_info['checker_name']}")
 
             # Repair loop for compilation errors
-            attempts = 0
-            while attempts < self.max_repair_attempts:
-                print(f"\n  Compilation attempt {attempts + 1}/{self.max_repair_attempts}...")
+            build_result = False
+            print(f"\n{Colors.BOLD}Stage 4:{Colors.ENDC} Build & Repair")
 
-                # Try to build
+            for attempt in range(1, self.max_repair_attempts + 1):
+                # Show compilation window (clear previous on subsequent attempts)
+                clear_prev = attempt > 1
+
+                # Try to build first to see if there are errors
                 build_result, errors = self.build_checker(checker_info)
+                error_count = errors.count('error:') if errors else 0
+
+                # Display status with error count if any
+                self.display.compilation_status(attempt, self.max_repair_attempts, error_count, clear_previous=clear_prev)
 
                 if build_result:
-                    print("  ✓ Build successful!")
+                    self.display.success("Build successful!")
                     break
 
-                print(f"  ✗ Build failed")
+                if attempt < self.max_repair_attempts and error_count > 0:
+                    print(f"  🔧 Attempting repair ({error_count} error{'s' if error_count > 1 else ''})...")
+                    repaired = self.repair_checker(checker_info, errors, pattern)
 
-                # Repair the checker (will display errors first)
-                repaired = self.repair_checker(checker_info, errors, pattern)
+                    if not repaired:
+                        self.display.error("Repair failed")
+                        break
 
-                if not repaired:
-                    print("  ✗ Repair failed")
-                    break
-
-                print("  ✓ Checker repaired, retrying build...")
-                attempts += 1
+                    self.display.success("Checker repaired, retrying build...")
+                elif attempt == self.max_repair_attempts:
+                    self.display.error(f"Maximum repair attempts reached ({error_count} errors remaining)")
 
             if not build_result:
-                print(f"\n  ✗ Failed to build checker after {attempts} attempts")
+                self.display.error(f"Failed to build after {self.max_repair_attempts} attempts")
                 continue
 
-            # Stage 4: Validation
-            print("\nStage 4: Validating checker...")
+            # Stage 5: Validation
+            print(f"\n{Colors.BOLD}Stage 5:{Colors.ENDC} Validation")
+            self.display.status("Testing", "Validating checker...")
             is_valid = self.validate_checker(checker_info, commit_hash)
 
             if is_valid:
-                print(f"\n{'='*60}")
-                print(f"  ✓ SUCCESS: Valid checker generated!")
+                print(f"\n{Colors.GREEN}{'='*80}{Colors.ENDC}")
+                print(f"{Colors.GREEN}{Colors.BOLD}  ✓ SUCCESS: Valid checker generated!{Colors.ENDC}")
                 print(f"  Checker: {checker_info['checker_name']}")
                 print(f"  Iteration: {iteration}")
-                print(f"{'='*60}")
+                print(f"{Colors.GREEN}{'='*80}{Colors.ENDC}")
                 return checker_info
             else:
-                print("  ✗ Validation failed, trying next iteration...")
+                self.display.warning("Validation failed, trying next iteration...")
 
-        print(f"\n{'='*60}")
-        print(f"  ✗ Failed to generate valid checker after {self.max_iterations} iterations")
-        print(f"{'='*60}")
+        print(f"\n{Colors.FAIL}{'='*80}{Colors.ENDC}")
+        print(f"{Colors.FAIL}  ✗ Failed to generate valid checker after {self.max_iterations} iterations{Colors.ENDC}")
+        print(f"{Colors.FAIL}{'='*80}{Colors.ENDC}")
         return None
 
     def analyze_patch(self, commit_hash: str) -> Optional[Dict]:
@@ -131,7 +237,7 @@ class PipelineOrchestrator:
         commit_file = self.base_dir / "commits" / f"{commit_hash}.json"
 
         if not commit_file.exists():
-            print("  Fetching commit data...")
+            self.display.status("Fetch", "Downloading commit data...")
             result = subprocess.run([
                 "python3", str(self.scripts_dir / "fetch_commit.py"),
                 commit_hash
@@ -179,7 +285,7 @@ class PipelineOrchestrator:
         # Integrate into clang-tidy
         result = subprocess.run([
             "python3", str(self.scripts_dir / "module3_integration.py"),
-            "--no-build"  # Just integrate, don't build yet
+            "--no-build"
         ], capture_output=True, text=True)
 
         # Try to build
@@ -194,11 +300,7 @@ class PipelineOrchestrator:
             return True, ""
 
         # Extract compilation errors
-        errors = result.stderr
-        if not errors:
-            errors = result.stdout
-
-        # Filter to relevant errors only
+        errors = result.stderr if result.stderr else result.stdout
         relevant_errors = self.extract_relevant_errors(errors, checker_info['checker_name'])
 
         return False, relevant_errors
@@ -217,103 +319,16 @@ class PipelineOrchestrator:
             if in_relevant_section:
                 if 'error:' in line or 'warning:' in line:
                     relevant.append(line)
-                    # Include a few context lines after error
-                    continue
                 elif relevant and len(relevant[-1]) > 0:
-                    # Add one line of context after error
                     relevant.append(line)
 
-            # Stop at next file compilation
             if in_relevant_section and '.cpp:' in line and checker_name not in line:
                 break
 
-        return '\n'.join(relevant[-20:])  # Last 20 lines max
-
-    def format_compilation_errors(self, errors: str, checker_name: str) -> None:
-        """Display formatted compilation errors for clarity."""
-
-        print(f"\n  {'='*55}")
-        print(f"  Compilation Errors for {checker_name}")
-        print(f"  {'='*55}")
-
-        if not errors or errors.strip() == "":
-            print(f"  [WARNING] No specific errors captured")
-            print(f"  {'='*55}\n")
-            return
-
-        # Parse and format errors
-        error_lines = errors.split('\n')
-        error_count = 0
-        error_details = []
-
-        for line in error_lines:
-            if 'error:' in line:
-                error_count += 1
-                # Extract file:line:column and message
-                if '.cpp:' in line or '.h:' in line:
-                    parts = line.split(':', 3)
-                    if len(parts) >= 4:
-                        # Get just the filename, not full path
-                        filename = parts[0].split('/')[-1]
-                        location = f"{filename}:{parts[1]}:{parts[2]}"
-                        message = parts[3].strip()
-
-                        # Categorize error type
-                        if 'has no member' in message:
-                            error_type = "API Error"
-                            hint = "Wrong method/member name"
-                        elif 'no matching function' in message:
-                            error_type = "Function Error"
-                            hint = "Wrong function signature"
-                        elif 'getAs' in message:
-                            error_type = "Cast Error"
-                            hint = "Use dyn_cast instead"
-                        elif 'expected' in message:
-                            error_type = "Syntax Error"
-                            hint = "Check syntax"
-                        else:
-                            error_type = "Compilation Error"
-                            hint = "Check API usage"
-
-                        error_details.append({
-                            'type': error_type,
-                            'location': location,
-                            'message': message,
-                            'hint': hint
-                        })
-
-        # Display formatted errors
-        for i, error in enumerate(error_details, 1):
-            print(f"\n  [ERROR {i}/{error_count}] {error['type']}")
-            print(f"    Location: {error['location']}")
-            print(f"    Message: {error['message'][:70]}...")
-            print(f"    Hint: {error['hint']}")
-
-        # Summary and common fixes
-        if error_count > 0:
-            print(f"\n  {'-'*55}")
-            print(f"  Summary: {error_count} compilation error(s) found")
-
-            # Detect common patterns
-            print(f"\n  Detected Issues:")
-            if any('getAs' in e['message'] for e in error_details):
-                print(f"    - getAs<T>() -> dyn_cast<T>() needed")
-            if any('has no member' in e['message'] for e in error_details):
-                print(f"    - Incorrect AST API method calls")
-            if any('CompoundStmt' in e['message'] for e in error_details):
-                print(f"    - CompoundStmt::body() iteration needed")
-            if any('find' in e['message'] for e in error_details):
-                print(f"    - No find() method - use iteration")
-
-        print(f"  {'='*55}\n")
+        return '\n'.join(relevant[-20:])
 
     def repair_checker(self, checker_info: Dict, errors: str, pattern: Dict) -> bool:
         """Use LLM to repair compilation errors in the checker."""
-
-        # Display formatted errors first
-        self.format_compilation_errors(errors, checker_info['checker_name'])
-
-        print("  Attempting automatic repair...")
 
         # Load current checker code
         cpp_file = self.checkers_dir / f"{checker_info['checker_name']}.cpp"
@@ -393,11 +408,9 @@ IMPLEMENTATION:
             with open(cpp_file, 'w') as f:
                 f.write(impl_code)
 
-            print("  ✓ Applied repairs to checker code")
             return True
 
         except Exception as e:
-            print(f"  ✗ Repair error: {e}")
             return False
 
     def extract_code_block(self, text: str) -> Optional[str]:
@@ -421,104 +434,52 @@ IMPLEMENTATION:
     def validate_checker(self, checker_info: Dict, commit_hash: str) -> bool:
         """Stage 4: Validate the checker by scanning and checking results."""
 
-        print("  Running validation scan...")
-
         # Convert checker name to pattern
         checker_pattern = self.get_checker_pattern(checker_info['checker_name'])
-        print(f"  Checker pattern: {checker_pattern}")
+
+        # Show scanning progress
+        if self.validation_sample:
+            total_files = self.validation_sample
+        else:
+            total_files = 100  # Estimate for progress display
 
         # Run Module 4 - scan files in kernel
+        cmd = [
+            "python3", str(self.scripts_dir / "module4_validation.py"),
+            "--kernel-version", "linux-v3.0",
+            "--checker-pattern", checker_pattern,
+            "--output", str(self.base_dir / "results" / "validation_report.json")
+        ]
+
         if self.validation_sample:
-            print(f"  Scanning kernel ({self.validation_sample} sample files)...")
-            cmd = [
-                "python3", str(self.scripts_dir / "module4_validation.py"),
-                "--kernel-version", "linux-v3.0",
-                "--sample-size", str(self.validation_sample),
-                "--checker-pattern", checker_pattern,
-                "--output", str(self.base_dir / "results" / "validation_report.json")
-            ]
-        else:
-            print(f"  Scanning kernel v3.0 (FULL SCAN - all files)...")
-            cmd = [
-                "python3", str(self.scripts_dir / "module4_validation.py"),
-                "--kernel-version", "linux-v3.0",
-                # No sample-size limit - scan everything
-                "--checker-pattern", checker_pattern,
-                "--output", str(self.base_dir / "results" / "validation_report.json")
-            ]
+            cmd.extend(["--sample-size", str(self.validation_sample)])
 
         result = subprocess.run(cmd, capture_output=True, text=True)
 
-        # Load and display scan results
+        # Load and check results
         report_file = self.base_dir / "results" / "validation_report.json"
 
         if not report_file.exists():
-            print("  [ERROR] Validation failed - no report generated")
             return False
 
         with open(report_file, 'r') as f:
             report = json.load(f)
 
-        # Display scan results
-        print(f"\n  {'-'*50}")
-        print(f"  Validation Results")
-        print(f"  {'-'*50}")
-
-        # Extract results for the scanned kernel
-        validation_success = False
-
+        # Check for any detections
         for version, data in report.get('results_by_version', {}).items():
-            files_scanned = data.get('files_scanned', 0)
             total_issues = data.get('total_issues', 0)
-            scan_time = data.get('scan_time', 'unknown')
-
-            print(f"  Files scanned: {files_scanned}")
-            print(f"  Issues found: {total_issues}")
-
-            # Show issue breakdown if any found
             if total_issues > 0:
-                print(f"  [PASS] Checker is detecting patterns")
-
-                # Show subsystem breakdown if available
-                analysis = data.get('analysis', {})
-                by_subsystem = analysis.get('by_subsystem', {})
-
-                if by_subsystem:
-                    print(f"\n  Issues by subsystem:")
-                    for subsystem, count in sorted(by_subsystem.items(),
-                                                  key=lambda x: x[1],
-                                                  reverse=True)[:3]:
-                        print(f"    - {subsystem}: {count}")
-
-                # Show sample issues if available
-                if 'issues' in data and len(data['issues']) > 0:
-                    print(f"\n  Sample detections:")
-                    for issue in data['issues'][:3]:  # Show first 3
-                        file_name = issue['file'].split('/')[-1]
-                        print(f"    - {file_name}:{issue['line']} - {issue.get('message', 'detected')[:50]}...")
-
-                validation_success = True
+                self.display.success(f"Found {total_issues} issues in {version}")
+                return True
             else:
-                print(f"  [WARNING] No issues detected in sample")
-                # Still consider valid if it runs without crashing
-                # The pattern might be rare or not present in v3.0
-                validation_success = True
-                print(f"  Note: Pattern might not exist in v3.0 kernel")
+                self.display.warning("No issues detected (pattern might be rare)")
+                return True  # Still valid if it runs without crashing
 
-        print(f"  {'-'*50}")
-
-        # Validation criteria
-        if validation_success:
-            print(f"  [PASS] Validation passed - checker is functional")
-        else:
-            print(f"  [FAIL] Validation failed - checker not working properly")
-
-        return validation_success
+        return False
 
     def get_checker_pattern(self, checker_name: str) -> str:
         """Convert checker name to clang-tidy pattern."""
 
-        # Remove 'Check' suffix and convert to kebab-case
         name = checker_name.replace('Check', '')
         result = []
 
@@ -529,44 +490,23 @@ IMPLEMENTATION:
 
         return f"linuxkernel-{''.join(result)}"
 
-    def cleanup(self):
-        """Clean up generated files for fresh start."""
-
-        # Clean generated checkers
-        if self.checkers_dir.exists():
-            for f in self.checkers_dir.glob("*"):
-                if f.is_file():
-                    f.unlink()
-
-        print("  ✓ Cleaned up generated files")
-
 def main():
-    parser = argparse.ArgumentParser(description='LinuxGuard Pipeline Orchestrator')
+    parser = argparse.ArgumentParser(description='LinuxGuard Pipeline')
     parser.add_argument('--commit', default='80af3745ca465c6c47e833c1902004a7fa944f37',
                       help='Commit hash to analyze')
-    parser.add_argument('--clean', action='store_true',
-                      help='Clean up before starting')
     parser.add_argument('--max-iterations', type=int, default=3,
                       help='Maximum generation iterations')
     parser.add_argument('--max-repairs', type=int, default=5,
                       help='Maximum repair attempts per iteration')
     parser.add_argument('--validation-sample', type=int, default=None,
-                      help='Number of files to scan for validation (None = full scan)')
+                      help='Number of files to scan for validation')
 
     args = parser.parse_args()
-
-    print("\n" + "="*60)
-    print("   LinuxGuard Automated Pipeline Orchestrator")
-    print("="*60)
 
     orchestrator = PipelineOrchestrator()
     orchestrator.max_iterations = args.max_iterations
     orchestrator.max_repair_attempts = args.max_repairs
     orchestrator.validation_sample = args.validation_sample
-
-    if args.clean:
-        print("\nCleaning up previous runs...")
-        orchestrator.cleanup()
 
     # Run the orchestrated pipeline
     start_time = time.time()
@@ -574,25 +514,10 @@ def main():
     elapsed = time.time() - start_time
 
     if checker:
-        print(f"\n✅ Successfully generated checker: {checker['checker_name']}")
-        print(f"   Anti-pattern type: {checker.get('anti_pattern_type', 'unknown')}")
-        print(f"   Time elapsed: {elapsed:.1f} seconds")
-
-        # Save final result
-        result_file = orchestrator.base_dir / "results" / "orchestrator_result.json"
-        with open(result_file, 'w') as f:
-            json.dump({
-                'success': True,
-                'checker': checker,
-                'commit': args.commit,
-                'elapsed_time': elapsed
-            }, f, indent=2)
-
-        print(f"\n   Result saved to: {result_file}")
+        print(f"\n{Colors.BOLD}Pipeline completed in {elapsed:.1f} seconds{Colors.ENDC}")
         return 0
     else:
-        print(f"\n❌ Failed to generate valid checker")
-        print(f"   Time elapsed: {elapsed:.1f} seconds")
+        print(f"\n{Colors.BOLD}Pipeline failed after {elapsed:.1f} seconds{Colors.ENDC}")
         return 1
 
 if __name__ == "__main__":

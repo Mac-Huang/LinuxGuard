@@ -6,11 +6,10 @@ Scans Linux kernel versions with generated checkers and produces vulnerability r
 
 import json
 import subprocess
-import os
 import argparse
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from datetime import datetime
 import multiprocessing as mp
 
@@ -29,15 +28,19 @@ class KernelScanner:
     def get_kernel_versions(self) -> List[Path]:
         """Get available kernel versions."""
         versions = []
+        print("\n🔍 Discovering kernel versions...")
         for item in self.kernels_dir.iterdir():
             if item.is_dir() and item.name.startswith("linux-"):
                 compile_db = item / "compile_commands.json"
                 if compile_db.exists():
+                    print(f"  [✓] Found valid kernel: {item.name}")
                     versions.append(item)
+                else:
+                    print(f"  [✗] Skipping '{item.name}': missing compile_commands.json")
         return sorted(versions)
 
     def scan_kernel(self, kernel_path: Path, checker_pattern: str = "linuxkernel-*",
-            sample_size: Optional[int] = None) -> Dict:
+                    sample_size: Optional[int] = None) -> Dict:
         """Scan a kernel version with specified checkers."""
 
         print(f"\nScanning {kernel_path.name}...")
@@ -75,7 +78,7 @@ class KernelScanner:
 
             try:
                 result = subprocess.run(batch_cmd, capture_output=True, text=True,
-                        timeout=300)  # 5 min timeout per batch
+                                        timeout=300)  # 5 min timeout per batch
 
                 # Parse clang-tidy output
                 issues = self.parse_clang_tidy_output(result.stdout)
@@ -129,13 +132,13 @@ class KernelScanner:
             match = re.match(pattern, line)
             if match:
                 issues.append({
-                    "file": match.group(1),
-                    "line": int(match.group(2)),
-                    "column": int(match.group(3)),
-                    "message": match.group(4),
-                    "checker": match.group(5),
-                    "subsystem": self.get_subsystem(match.group(1))
-                    })
+                        "file": match.group(1),
+                        "line": int(match.group(2)),
+                        "column": int(match.group(3)),
+                        "message": match.group(4),
+                        "checker": match.group(5),
+                        "subsystem": self.get_subsystem(match.group(1))
+                        })
 
         return issues
 
@@ -163,40 +166,40 @@ class KernelScanner:
 
     def analyze_results(self, scan_results: Dict) -> Dict:
         """Analyze scan results..."""
-    analysis = {
-            "summary": {
-                "total_issues": scan_results.get("total_issues", 0),
-                "unique_files_affected": len(set(i["file"] for i in scan_results.get("issues", [])))
-                },
-            "by_subsystem": {},
-            "by_checker": {},
-            "hotspots": []
-            }
+        analysis = {
+                "summary": {
+                    "total_issues": scan_results.get("total_issues", 0),
+                    "unique_files_affected": len(set(i["file"] for i in scan_results.get("issues", [])))
+                    },
+                "by_subsystem": {},
+                "by_checker": {},
+                "hotspots": []
+                }
 
-    # Group by subsystem
-    for issue in scan_results.get("issues", []):
-        subsystem = issue.get("subsystem", "unknown")
-        checker = issue.get("checker", "unknown")
+        # Group by subsystem
+        for issue in scan_results.get("issues", []):
+            subsystem = issue.get("subsystem", "unknown")
+            checker = issue.get("checker", "unknown")
 
-        analysis["by_subsystem"][subsystem] = analysis["by_subsystem"].get(subsystem, 0) + 1
-        analysis["by_checker"][checker] = analysis["by_checker"].get(checker, 0) + 1
+            analysis["by_subsystem"][subsystem] = analysis["by_subsystem"].get(subsystem, 0) + 1
+            analysis["by_checker"][checker] = analysis["by_checker"].get(checker, 0) + 1
 
-    # Find hotspot files
-    file_counts = {}
-    for issue in scan_results.get("issues", []):
-        file_path = issue["file"]
-        file_counts[file_path] = file_counts.get(file_path, 0) + 1
+        # Find hotspot files
+        file_counts = {}
+        for issue in scan_results.get("issues", []):
+            file_path = issue["file"]
+            file_counts[file_path] = file_counts.get(file_path, 0) + 1
 
-    analysis["hotspots"] = sorted(
-            [{"file": f, "issue_count": c} for f, c in file_counts.items() if c > 2],
-            key=lambda x: x["issue_count"],
-            reverse=True
-            )[:10]
+        analysis["hotspots"] = sorted(
+                [{"file": f, "issue_count": c} for f, c in file_counts.items() if c > 2],
+                key=lambda x: x["issue_count"],
+                reverse=True
+                )[:10]
 
-    return analysis
+        return analysis
 
-def generate_report(self, all_results: List[Dict], output_path: Path):
-    """Generate comprehensive vulnerability report."""
+    def generate_report(self, all_results: List[Dict], output_path: Path):
+        """Generate comprehensive vulnerability report."""
 
         report = {
                 "scan_metadata": {
@@ -215,6 +218,7 @@ def generate_report(self, all_results: List[Dict], output_path: Path):
                     "total_issues": result["total_issues"],
                     "files_scanned": result["files_scanned"],
                     "scan_time": result["scan_time"],
+                    "issues": result.get("issues", []),  # Add the full list of issues
                     "analysis": self.analyze_results(result)
                     }
 
@@ -288,7 +292,7 @@ def generate_report(self, all_results: List[Dict], output_path: Path):
             if data["analysis"].get("by_subsystem"):
                 md_lines.append("\n**Issues by Subsystem:**")
                 for subsystem, count in sorted(data["analysis"]["by_subsystem"].items(),
-                        key=lambda x: x[1], reverse=True)[:5]:
+                                               key=lambda x: x[1], reverse=True)[:5]:
                     md_lines.append(f"- {subsystem}: {count}")
 
         if report.get("cross_version_analysis", {}).get("persistent_issues"):
@@ -301,14 +305,24 @@ def generate_report(self, all_results: List[Dict], output_path: Path):
         with open(output_path, 'w') as f:
             f.write('\n'.join(md_lines))
 
+def run_scan_for_kernel(args_tuple):
+    """Helper function for multiprocessing pool to scan a single kernel."""
+    clang_tidy_path, kernels_dir, kernel_path, checker_pattern, sample_size = args_tuple
+    # We instantiate the scanner in the worker process to avoid pickling issues
+    scanner = KernelScanner(str(clang_tidy_path), str(kernels_dir))
+    return scanner.scan_kernel(kernel_path, checker_pattern, sample_size)
+
 def main():
+    script_dir = Path(__file__).parent.resolve()
+    default_base_dir = script_dir.parent  # Assumes script is in a 'scripts' subdir
+
     parser = argparse.ArgumentParser(description='Validate checkers across kernel versions')
     parser.add_argument('--clang-tidy',
-            default='/home/mac/private/linux-guard/llvm-project/build/bin/clang-tidy',
+            default=str(default_base_dir / 'llvm-project/build/bin/clang-tidy'),
             help='Path to clang-tidy binary')
-    parser.add_argument('--kernels-dir', default='/home/mac/private/linux-guard/kernels',
+    parser.add_argument('--kernels-dir', default=str(default_base_dir / 'kernels'),
             help='Directory containing kernel versions')
-    parser.add_argument('--output', default='/home/mac/private/linux-guard/results/scan_report.json',
+    parser.add_argument('--output', default=str(default_base_dir / 'results/scan_report.json'),
             help='Output file for scan report')
     parser.add_argument('--checker-pattern', default='linuxkernel-*',
             help='Pattern for checkers to use')
@@ -340,13 +354,22 @@ def main():
     for kernel in kernels_to_scan:
         print(f"  - {kernel.name}")
 
-    # Scan each kernel
-    all_results = []
+    # Scan each kernel in parallel
+    print("\nStarting parallel scan...")
 
-    for kernel_path in kernels_to_scan:
-        result = scanner.scan_kernel(kernel_path, args.checker_pattern, args.sample_size)
-        if result:
-            all_results.append(result)
+    # Prepare arguments for each worker process
+    scan_args = [
+        (args.clang_tidy, args.kernels_dir, kernel_path, args.checker_pattern, args.sample_size)
+        for kernel_path in kernels_to_scan
+    ]
+
+    all_results = []
+    # Use a multiprocessing Pool to scan kernels concurrently
+    # The number of processes will default to the number of CPUs on the machine
+    with mp.Pool() as pool:
+        results_from_pool = pool.map(run_scan_for_kernel, scan_args)
+        # Filter out any None or empty dict results from failed/empty scans
+        all_results = [r for r in results_from_pool if r]
 
     if not all_results:
         print("\n✗ No scan results obtained")
@@ -372,3 +395,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+

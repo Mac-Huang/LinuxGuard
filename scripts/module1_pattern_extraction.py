@@ -97,8 +97,9 @@ Lines Removed: {summary['deletions']}
     def analyze_with_llm(self, context: str) -> Optional[Dict]:
         """Use LLM to analyze commit with rich context."""
 
-        prompt = f"""You are analyzing a Linux kernel commit to determine if it fixes a security vulnerability or critical bug.
-You have access to the complete commit information including message, metadata, and full patch.
+        prompt = f"""You are analyzing a Linux kernel commit to identify the EXACT security bug pattern that was fixed.
+
+Your goal: Extract the SPECIFIC pattern so we can find this EXACT bug in older kernel versions.
 
 Analyze the following commit and determine:
 
@@ -106,15 +107,13 @@ Analyze the following commit and determine:
    - Fixes tags referencing security issues
    - Security-related keywords in the commit message
    - Patterns indicating vulnerability fixes (bounds checks, null checks, race conditions, etc.)
-   - Reporter information suggesting security research
    - Code changes that add defensive checks or fix dangerous patterns
 
-2. If this IS a security/critical fix, extract:
-   - Anti-pattern type (unchecked-error, null-deref, use-after-free, race-condition, overflow, double-free, uninitialized-var, missing-bounds-check, etc.)
-   - What was vulnerable in the BEFORE code
-   - What protection was added in the AFTER code
-   - AST patterns that could detect similar issues
-   - Severity assessment based on exploitability and impact
+2. If this IS a security/critical fix, extract THE EXACT PATTERN:
+   - PRESERVE specific function names (e.g., "of_changeset_add_property", "__of_prop_free")
+   - PRESERVE specific variable names and patterns
+   - PRESERVE the exact control flow that causes the bug
+   - This is about finding THE SAME BUG in older code, not similar bugs
 
 Respond with this JSON structure:
 
@@ -128,28 +127,36 @@ If IS a security fix:
   "anti_pattern_type": "specific-type",
   "vulnerability_class": "CWE-XXX category if applicable",
   "vulnerable_pattern": {{
-    "description": "what was wrong in the original code",
-    "key_indicators": ["specific code patterns that were vulnerable"],
-    "code_context": "relevant code snippet showing the vulnerability",
+    "description": "EXACT description of what was wrong, including specific function/variable names",
+    "key_indicators": ["EXACT function calls like 'of_changeset_add_property'", "EXACT variable patterns like 'new_pp'", "EXACT control flow patterns"],
+    "code_context": "EXACT code snippet from BEFORE the fix showing the vulnerability",
+    "specific_functions": ["list of EXACT function names involved"],
+    "specific_variables": ["list of EXACT variable names if relevant"],
     "exploitability": "how could this be exploited"
   }},
   "fix_pattern": {{
     "description": "what the fix does to prevent the vulnerability",
-    "required_checks": ["specific checks or validations added"],
-    "code_context": "relevant code snippet showing the fix",
+    "required_checks": ["EXACT checks or validations added"],
+    "code_context": "EXACT code snippet from AFTER the fix",
     "protection_mechanism": "type of protection added"
   }},
   "ast_matcher_hints": {{
     "node_types": ["AST node types to match"],
-    "relationships": ["parent-child or sibling relationships"],
-    "conditions": ["specific conditions to check for"],
-    "pattern_description": "natural language description of what to match"
+    "exact_function_names": ["EXACT function names to match in AST"],
+    "relationships": ["EXACT parent-child or sibling relationships"],
+    "conditions": ["EXACT conditions to check for"],
+    "pattern_description": "Match calls to [EXACT FUNCTION NAMES] followed by [EXACT PATTERN]"
   }},
   "severity": "critical|high|medium|low",
   "cwe_ids": ["CWE-XXX"],
   "impact": "potential impact if exploited",
   "affected_subsystem": "kernel subsystem affected"
 }}
+
+IMPORTANT: We are looking for THIS EXACT BUG in older kernels, not similar bugs.
+- Keep all specific function names exactly as they appear
+- Keep all specific variable names and patterns
+- Describe the exact control flow that causes the vulnerability
 
 COMMIT TO ANALYZE:
 {context}

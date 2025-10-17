@@ -1,0 +1,99 @@
+--- orchestrator.py.orig	2025-01-01 00:00:00.000000000 +0000
++++ orchestrator.py	2025-01-01 00:00:00.000000000 +0000
+@@ -48,9 +48,9 @@
+         """Main orchestration function implementing the iterative generation algorithm."""
+
+         print(f"\n{'='*60}")
+-        print(f"  LinuxGuard Orchestrator - Generating Checker")
+-        print(f"  Commit: {commit_hash[:12]}")
+-        print(f"{'='*60}\n")
++        print(f"  🔍 LinuxGuard - Kernel Security Checker Generator")
++        print(f"     Commit: {commit_hash[:12]}")
++        print(f"{'='*60}")
+
+         for iteration in range(1, self.max_iterations + 1):
+             print(f"\n[Iteration {iteration}/{self.max_iterations}]")
+@@ -80,7 +80,8 @@
+             # Repair loop for compilation errors
+             attempts = 0
+             while attempts < self.max_repair_attempts:
+-                print(f"\n  Compilation attempt {attempts + 1}/{self.max_repair_attempts}...")
++                # Use \r for in-place update
++                print(f"\r  Build attempt {attempts + 1}/{self.max_repair_attempts}...", end='', flush=True)
+
+                 # Try to build
+                 build_result, errors = self.build_checker(checker_info)
+@@ -231,41 +232,23 @@
+
+     def format_compilation_errors(self, errors: str, checker_name: str) -> None:
+         """Display formatted compilation errors for clarity."""
+-
+-        print(f"\n  {'='*55}")
+-        print(f"  Compilation Errors for {checker_name}")
+-        print(f"  {'='*55}")
++
++        # Count errors but don't display all details
++        error_count = errors.count('error:')
++
++        print(f"\n  ┌─ Compilation Report ─────────────────────────────┐")
++        print(f"  │ Checker: {checker_name:<40}│")
++        print(f"  │ Errors: {error_count:<41}│")
+
+         if not errors or errors.strip() == "":
+-            print(f"  [WARNING] No specific errors captured")
+-            print(f"  {'='*55}\n")
++            print(f"  │ Status: No errors captured                      │")
++            print(f"  └──────────────────────────────────────────────────┘")
+             return
+-
+-        # Parse and format errors
+-        error_lines = errors.split('\n')
+-        error_count = 0
+-        error_details = []
+-
+-        for line in error_lines:
+-            if 'error:' in line:
+-                error_count += 1
+-                # Extract file:line:column and message
+-                if '.cpp:' in line or '.h:' in line:
+-                    parts = line.split(':', 3)
+-                    if len(parts) >= 4:
+-                        # Get just the filename, not full path
+-                        filename = parts[0].split('/')[-1]
+-                        location = f"{filename}:{parts[1]}:{parts[2]}"
+-                        message = parts[3].strip()
+-
+-                        # Categorize error type
+-                        if 'has no member' in message:
+-                            error_type = "API Error"
+-                            hint = "Wrong method/member name"
+-                        elif 'no matching function' in message:
+-                            error_type = "Function Error"
+-                            hint = "Wrong function signature"
+-                        elif 'getAs' in message:
+-                            error_type = "Cast Error"
+-                            hint = "Use dyn_cast instead"
++
++        # Show only key issue types found
++        if 'getAs' in errors:
++            print(f"  │ Issue: getAs<T>() → use dyn_cast<T>()           │")
++        if 'has no member' in errors:
++            print(f"  │ Issue: Wrong AST API method                     │")
++
++        print(f"  └──────────────────────────────────────────────────┘")
+
+@@ -314,7 +297,7 @@
+         # Display formatted errors first
+         self.format_compilation_errors(errors, checker_info['checker_name'])
+
+-        print("  Attempting automatic repair...")
++        print("\n  🔧 Attempting automatic repair...", end='', flush=True)
+
+         # Load current checker code
+         cpp_file = self.checkers_dir / f"{checker_info['checker_name']}.cpp"
+@@ -558,7 +541,7 @@
+
+     print("\n" + "="*60)
+-    print("   LinuxGuard Automated Pipeline Orchestrator")
++    print("   🔍 LinuxGuard - Security Pattern Detection Pipeline")
+     print("="*60)

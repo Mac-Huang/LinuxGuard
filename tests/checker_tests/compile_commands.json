@@ -1,0 +1,1 @@
+[{"directory": "../tests/checker_tests", "command": "cc -c test_use_after_free.c", "file": "../tests/checker_tests/test_use_after_free.c"}]

@@ -1,3 +1,6 @@
 # API Keys
 .env
 
+# Claude
+.claude
+CLAUDE.md

@@ -82,7 +82,15 @@ class CheckerIntegrator:
             self.update_module_registration(checker_name)
 
             return True
-ang_tidy_dir / "CMakeLists.txt"
+
+        except Exception as e:
+            print(f"  ✗ Error integrating checker: {e}")
+            return False
+
+    def update_cmake_lists(self, checker_name: str):
+        """Update CMakeLists.txt to include the new checker."""
+
+        cmake_file = self.clang_tidy_dir / "CMakeLists.txt"
 
         with open(cmake_file, 'r') as f:
             lines = f.readlines()
@@ -115,51 +123,76 @@ ang_tidy_dir / "CMakeLists.txt"
         with open(module_file, 'r') as f:
             content = f.read()
 
-        # Check if already registered
-        if checker_name in content:
+        # Check if already registered (look for the actual registerCheck line, not just the name)
+        if f"registerCheck<{checker_name}>" in content:
             print(f"  - {checker_name} already registered")
             return
 
-        # Add include directive
-        include_line = f'#include "{checker_name}.h"\n'
+        # Add include directive (only if not already present)
+        include_line = f'#include "{checker_name}.h"'
         include_marker = '#include "MustCheckErrsCheck.h"'
 
-        if include_marker in content:
-            content = content.replace(include_marker,
-                                    f'{include_marker}\n{include_line}')
-        else:
-            # Find last include and add after it
-            lines = content.split('\n')
-            for i, line in enumerate(lines):
-                if line.startswith('#include "') and line.endswith('.h"'):
-                    last_include = i
-            lines.insert(last_include + 1, include_line.strip())
-            content = '\n'.join(lines)
+        if include_line not in content:
+            if include_marker in content:
+                content = content.replace(include_marker,
+                                        f'{include_marker}\n{include_line}')
+            else:
+                # Find last include and add after it
+                lines = content.split('\n')
+                for i, line in enumerate(lines):
+                    if line.startswith('#include "') and line.endswith('.h"'):
+                        last_include = i
+                lines.insert(last_include + 1, include_line)
+                content = '\n'.join(lines)
 
         # Add checker registration
         # Convert MustCheckErrorsCheck -> must-check-errors
         checker_id = self.camel_to_kebab(checker_name.replace("Check", ""))
         registration_line = f'    CheckFactories.registerCheck<{checker_name}>(\n        "linuxkernel-{checker_id}");\n'
 
-        # Find the correct registration marker (multi-line format)
-        # Look for the existing MustCheckErrsCheck registration
+        # Find where to insert the registration
         import re
-        pattern = r'(CheckFactories\.registerCheck<MustCheckErrsCheck>\(\s*\n\s*"linuxkernel-must-check-errs"\);)'
 
+        # Try to find the existing must-check-errs registration (multi-line format)
+        pattern = r'(CheckFactories\.registerCheck<MustCheckErrsCheck>\(\s*\n\s*"linuxkernel-must-check-errs"\);)'
         match = re.search(pattern, content)
+
         if match:
             # Insert after the existing registration
             insert_pos = match.end()
             content = content[:insert_pos] + '\n' + registration_line + content[insert_pos:]
         else:
-            # Fallback: find the addCheckFactories method and add before closing brace
-            pattern2 = r'(void addCheckFactories\([^)]*\)[^{]*\{[^}]*)(})'
-            match2 = re.search(pattern2, content, re.DOTALL)
-            if match2:
-                content = match2.group(1) + registration_line + '  ' + match2.group(2)
+            # Alternative: Look for the closing brace of addCheckFactories
+            # Find the addCheckFactories method
+            lines = content.split('\n')
+            in_add_check = False
+            brace_count = 0
+            insert_line = -1
+
+            for i, line in enumerate(lines):
+                if 'void addCheckFactories' in line:
+                    in_add_check = True
+                if in_add_check:
+                    brace_count += line.count('{')
+                    brace_count -= line.count('}')
+                    if brace_count == 1 and '}' in lines[i+1] if i+1 < len(lines) else False:
+                        # Found the line before the closing brace
+                        insert_line = i + 1
+                        break
+
+            if insert_line > 0:
+                lines.insert(insert_line, registration_line.rstrip())
+                content = '\n'.join(lines)
+            else:
+                print("  ⚠ Warning: Could not find insertion point for registration")
 
         with open(module_file, 'w') as f:
             f.write(content)
+
+        # Force timestamp update to ensure rebuild
+        import time
+        time.sleep(0.1)  # Small delay to ensure timestamp difference
+        Path(module_file).touch()  # Update modification time
 
         print(f"  ✓ Registered {checker_name} as 'linuxkernel-{checker_id}'")
 
@@ -179,6 +212,19 @@ ang_tidy_dir / "CMakeLists.txt"
         """Build clang-tidy with the integrated checkers."""
 
         print(f"\nBuilding clang-tidy (using {jobs} jobs)...")
+
+        # Clean LinuxKernel module objects to force rebuild
+        linux_kernel_cmake = self.build_dir / "tools/clang/tools/extra/clang-tidy/linuxkernel/CMakeFiles"
+        if linux_kernel_cmake.exists():
+            # Remove the entire CMakeFiles directory to force complete rebuild
+            shutil.rmtree(linux_kernel_cmake)
+            print("  ✓ Cleaned LinuxKernel module build artifacts to ensure fresh build")
+
+        # Also remove the static library to force relink
+        lib_file = self.build_dir / "lib/libclangTidyLinuxKernelModule.a"
+        if lib_file.exists():
+            lib_file.unlink()
+            print("  ✓ Removed LinuxKernel static library to force relink")
 
         # Check if ninja is available
         build_system = "ninja" if shutil.which("ninja") else "make"
@@ -249,14 +295,18 @@ ang_tidy_dir / "CMakeLists.txt"
             return False
 
         # List available checks
-        cmd = [str(clang_tidy_bin), "--list-checks", "-checks='linuxkernel-*'"]
+        cmd = [str(clang_tidy_bin), "--list-checks", "-checks=linuxkernel-*"]
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             print("\n  Available Linux kernel checks:")
 
-            checks = [line.strip() for line in result.stdout.split('\n')
-                     if line.strip().startswith('linuxkernel-')]
+            # Parse the output, handling indentation and filtering for linuxkernel checks
+            checks = []
+            for line in result.stdout.split('\n'):
+                line = line.strip()
+                if line.startswith('linuxkernel-'):
+                    checks.append(line)
 
             for check in checks:
                 print(f"    - {check}")
@@ -283,12 +333,16 @@ ang_tidy_dir / "CMakeLists.txt"
 
 def main():
     parser = argparse.ArgumentParser(description='Integrate checkers into clang-tidy')
+
+    # Use relative paths from project root
+    base_dir = Path(__file__).parent.parent  # Go up from scripts/ to project root
+
     parser.add_argument('--checker-metadata',
-                      default='/home/mac/private/linux-guard/checkers/generated/generated_checkers.json',
+                      default=str(base_dir / 'checkers/generated/generated_checkers.json'),
                       help='Metadata file with generated checker information')
-    parser.add_argument('--llvm-dir', default='/home/mac/private/linux-guard/llvm-project',
+    parser.add_argument('--llvm-dir', default=str(base_dir / 'llvm-project'),
                       help='LLVM source directory')
-    parser.add_argument('--build-dir', default='/home/mac/private/linux-guard/llvm-project/build',
+    parser.add_argument('--build-dir', default=str(base_dir / 'llvm-project/build'),
                       help='LLVM build directory')
     parser.add_argument('--jobs', type=int, default=4,
                       help='Number of parallel build jobs')

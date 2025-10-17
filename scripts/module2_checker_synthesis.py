@@ -116,46 +116,56 @@ Respond with ONLY the complete C++ header code, no explanations."""
             "relationships": guidance["checker_requirements"].get("relationships", [])
         }
 
-        prompt = f"""Generate a clang-tidy checker implementation file based on this template and requirements.
+        prompt = f"""Generate a clang-tidy checker implementation file that detects the EXACT pattern from this bug fix.
 
 Template structure to follow:
 ```cpp
 {self.templates['cpp']}
 ```
 
-Checker Requirements:
-- Name: {checker_name}
-- Anti-pattern: {guidance['anti_pattern_type']}
-- Vulnerability description: {guidance['pattern_description']['vulnerable'].get('description', '')}
-- Fix pattern: {guidance['pattern_description']['fixed'].get('description', '')}
+CRITICAL REQUIREMENTS - This checker must find the EXACT bug pattern:
+- Checker Name: {checker_name}
+- Bug Type: {guidance['anti_pattern_type']}
 
-AST Matcher Requirements:
-- Node types to match: {ast_requirements['node_types']}
-- Conditions to check: {ast_requirements['conditions']}
-- Relationships between nodes: {ast_requirements['relationships']}
+EXACT VULNERABILITY PATTERN TO DETECT:
+{guidance['pattern_description']['vulnerable'].get('description', '')}
 
-Key indicators of the vulnerability:
+Code context showing the EXACT bug:
+{guidance['pattern_description']['vulnerable'].get('code_context', '')}
+
+SPECIFIC indicators that MUST be matched:
 {json.dumps(guidance['pattern_description']['vulnerable'].get('key_indicators', []), indent=2)}
 
-Generate an implementation that:
-1. Uses the registerMatchers() function to set up AST matchers for this specific anti-pattern
-2. Uses the check() function to report violations with descriptive messages
-3. Follows the exact same structure as the template
-4. Replaces MustCheckErrsCheck with {checker_name}
-5. Creates appropriate AST matchers based on the anti-pattern type
+The fix that was applied:
+{guidance['pattern_description']['fixed'].get('description', '')}
 
-For {guidance['anti_pattern_type']}, focus on:
+IMPORTANT - BE SPECIFIC:
+- If the bug involves specific function names (like "of_changeset_add_property", "__of_prop_free"), use THOSE EXACT names
+- If the bug involves specific variable names or patterns, match those EXACTLY
+- This is NOT about finding general patterns - we want to find THIS EXACT bug in older kernels
+
+AST Matching Strategy:
+- Node types involved: {ast_requirements['node_types']}
+- Specific conditions: {ast_requirements['conditions']}
+- Control flow relationships: {ast_requirements['relationships']}
+
+For {guidance['anti_pattern_type']}, create matchers that:
 {self.get_pattern_specific_hints(guidance['anti_pattern_type'])}
 
-Use these common AST matchers as appropriate:
-- callExpr(): Match function calls
-- ifStmt(): Match if statements
-- returnStmt(): Match return statements
-- varDecl(): Match variable declarations
-- memberExpr(): Match member access
-- hasParent(): Check parent node relationships
-- hasDescendant(): Check descendant nodes
-- unless(): Negative matching
+BUT prioritize matching the EXACT pattern described above over general patterns.
+
+Common AST matchers to use:
+- callExpr(callee(functionDecl(hasName("exact_function_name")))): Match specific function calls
+- ifStmt(): Match if statements and their branches
+- returnStmt(): Match return statements (or lack thereof)
+- compoundStmt(): Match code blocks
+- hasDescendant(): Check for patterns within blocks
+- unless(hasDescendant(returnStmt())): Check for missing returns
+
+Structure your implementation:
+1. In registerMatchers(): Set up matchers for the EXACT pattern described
+2. In check(): Report when the exact vulnerable pattern is found
+3. Use the template structure but replace MustCheckErrsCheck with {checker_name}
 
 Respond with ONLY the complete C++ implementation code, no explanations."""
 
