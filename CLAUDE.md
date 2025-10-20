@@ -106,8 +106,6 @@ python3 ~/private/linux-guard/llvm-project/clang-tools-extra/clang-tidy/tool/run
 - ✅ Linux kernels v3.0, v4.0, v5.0, v6.0 downloaded
 - ✅ Compilation databases generated
 - ✅ MustCheckErrsCheck implemented and integrated
-- 🔄 Ready to scan kernels and analyze results
-- 📋 Next: Generate additional checkers from bug patterns
 
 ### Key Insights
 
@@ -134,7 +132,7 @@ export RESULTS_DIR=$HOME/private/linux-guard/results
 ### Contact/User
 
 - User: Xuming (Mac)
-- Location: `/home/mac/private/linux-guard/`
+- Location: `/nvme/write/mac/private/linux-guard/`
 - Server: Shared lab environment (bumble)
 - My methodology is to utilizing the commits from current version, which means such specific bug mentioned in these commits have a high chance not been found from the previous versions, thus build the pipeline to automate such process to detect similar anti-patterns.
 - The main path of this project is `/nvme/write/mac/private/linux-guard`. All the path written in the code should be the relative one.

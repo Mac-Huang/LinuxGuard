@@ -1,0 +1,90 @@
+{
+  "verification_metadata": {
+    "verification_date": "2025-10-19",
+    "verification_method": "manual_review",
+    "verified_by": "Xuming (Mac)",
+    "scan_report_source": "results/scan_report.json",
+    "notes": "Manual verification of all 76 detected issues across kernel versions"
+  },
+  "overall_metrics": {
+    "total_issues_detected": 76,
+    "true_positives": 36,
+    "false_positives": 40,
+    "precision": 47.368,
+    "precision_formatted": "47.368%",
+    "calculation": "(76 - 40) / 76 = 47.368%"
+  },
+  "results_by_version": {
+    "linux-v6.0": {
+      "files_scanned": 31809,
+      "total_issues": 68,
+      "true_positives": 34,
+      "false_positives": 34,
+      "precision": 50.0,
+      "precision_formatted": "50%",
+      "calculation": "(68 - 34) / 68 = 50%"
+    },
+    "linux-v5.0": {
+      "files_scanned": 26665,
+      "total_issues": 8,
+      "true_positives": 2,
+      "false_positives": 6,
+      "precision": 25.0,
+      "precision_formatted": "25%",
+      "calculation": "(8 - 6) / 8 = 25%"
+    },
+    "linux-v4.0": {
+      "files_scanned": 20985,
+      "total_issues": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "precision": null,
+      "precision_formatted": "N/A",
+      "calculation": "No issues detected"
+    },
+    "linux-v3.0": {
+      "files_scanned": 16201,
+      "total_issues": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "precision": null,
+      "precision_formatted": "N/A",
+      "calculation": "No issues detected"
+    }
+  },
+  "analysis": {
+    "key_findings": [
+      "Overall precision of 47.368% indicates significant false positive rate",
+      "Newer kernel (v6.0) shows better precision (50%) than older v5.0 (25%)",
+      "No issues detected in v3.0 and v4.0 - pattern may not exist in those versions",
+      "34 true positives in v6.0 represent real unchecked error vulnerabilities",
+      "2 true positives in v5.0 represent opportunities for backport fixes"
+    ],
+    "temporal_distribution": {
+      "v6.0_coverage": "89.5% of all issues (68/76)",
+      "v5.0_coverage": "10.5% of all issues (8/76)",
+      "older_kernels_coverage": "0% (0/76)"
+    },
+    "checker_performance": {
+      "checker_name": "linuxkernel-must-check-errs",
+      "total_detections": 76,
+      "true_positive_rate": "47.368%",
+      "false_positive_rate": "52.632%",
+      "recommendation": "Refine AST matchers to reduce false positives while maintaining true positive detection"
+    }
+  },
+  "recommendations": {
+    "immediate_actions": [
+      "Review false positive patterns to identify common causes",
+      "Refine checker logic to exclude benign unchecked error cases",
+      "Investigate why v5.0 has lower precision than v6.0",
+      "Analyze the 36 true positives for potential CVE reporting"
+    ],
+    "future_improvements": [
+      "Add context-aware analysis to distinguish critical vs. non-critical unchecked errors",
+      "Implement dataflow analysis to track actual error propagation",
+      "Create test suite based on true positive patterns",
+      "Extend pattern database with additional kernel bug commits"
+    ]
+  }
+}

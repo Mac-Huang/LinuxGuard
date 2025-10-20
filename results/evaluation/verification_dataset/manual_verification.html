@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LinuxGuard Manual Verification</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        .item { border: 1px solid #ccc; margin: 10px 0; padding: 10px; }
+        .metadata { background: #f0f0f0; padding: 5px; }
+        .code { background: #f8f8f8; padding: 10px; overflow-x: auto; }
+        .issue-line { background: #ffdddd; font-weight: bold; }
+        .verdict { margin: 10px 0; padding: 10px; border: 1px dashed #999; }
+        .true-positive { background: #ddffdd; }
+        .false-positive { background: #ffdddd; }
+        button { margin: 5px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h1>LinuxGuard Detection Manual Verification</h1>
+    <p>Total items to verify: 76</p>
+    <hr>
+
+    <div class="item" id="item-1">
+        <div class="metadata">
+            <strong>Item #1</strong> |
+            linux-v5.0 |
+            drivers/xen/manage.c:236:6 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'IS_ERR' is unused</div>
+        <div class="code">
+            <pre>	if (err)
+		return;
+
+	str = (char *)xenbus_read(xbt, "control", "shutdown", NULL);
+	/* Ignore read errors and empty reads. */
+<span class="issue-line">&gt;&gt;&gt; 	if (XENBUS_IS_ERR_READ(str)) {
+</span>		xenbus_transaction_end(xbt, 1);
+		return;
+	}
+
+	for (idx = 0; idx < ARRAY_SIZE(shutdown_handlers); idx++) {
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(1, true)">✓ True Positive</button>
+            <button onclick="markItem(1, false)">✗ False Positive</button>
+            <span id="status-1"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-2">
+        <div class="metadata">
+            <strong>Item #2</strong> |
+            linux-v5.0 |
+            drivers/gpu/drm/rockchip/cdn-dp-core.c:1197:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'cdn_dp_audio_codec_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	}
+
+	mutex_init(&dp->lock);
+	dev_set_drvdata(dev, dp);
+
+<span class="issue-line">&gt;&gt;&gt; 	cdn_dp_audio_codec_init(dp, dev);
+</span>
+	return component_add(dev, &cdn_dp_component_ops);
+}
+
+static int cdn_dp_remove(struct platform_device *pdev)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(2, true)">✓ True Positive</button>
+            <button onclick="markItem(2, false)">✗ False Positive</button>
+            <span id="status-2"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-3">
+        <div class="metadata">
+            <strong>Item #3</strong> |
+            linux-v5.0 |
+            drivers/net/wireless/broadcom/brcm80211/brcmsmac/debug.c:227:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'brcms_debugfs_add_entry' is unused but represents an error value</div>
+        <div class="code">
+            <pre>void brcms_debugfs_create_files(struct brcms_pub *drvr)
+{
+	if (IS_ERR_OR_NULL(drvr->dbgfs_dir))
+		return;
+
+<span class="issue-line">&gt;&gt;&gt; 	brcms_debugfs_add_entry(drvr, "hardware", brcms_debugfs_hardware_read);
+</span>	brcms_debugfs_add_entry(drvr, "macstat", brcms_debugfs_macstat_read);
+}
+
+#define __brcms_fn(fn)						\
+void __brcms_ ##fn(struct device *dev, const char *fmt, ...)	\
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(3, true)">✓ True Positive</button>
+            <button onclick="markItem(3, false)">✗ False Positive</button>
+            <span id="status-3"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-4">
+        <div class="metadata">
+            <strong>Item #4</strong> |
+            linux-v5.0 |
+            drivers/net/wireless/broadcom/brcm80211/brcmsmac/debug.c:228:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'brcms_debugfs_add_entry' is unused but represents an error value</div>
+        <div class="code">
+            <pre>{
+	if (IS_ERR_OR_NULL(drvr->dbgfs_dir))
+		return;
+
+	brcms_debugfs_add_entry(drvr, "hardware", brcms_debugfs_hardware_read);
+<span class="issue-line">&gt;&gt;&gt; 	brcms_debugfs_add_entry(drvr, "macstat", brcms_debugfs_macstat_read);
+</span>}
+
+#define __brcms_fn(fn)						\
+void __brcms_ ##fn(struct device *dev, const char *fmt, ...)	\
+{								\
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(4, true)">✓ True Positive</button>
+            <button onclick="markItem(4, false)">✗ False Positive</button>
+            <span id="status-4"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-5">
+        <div class="metadata">
+            <strong>Item #5</strong> |
+            linux-v5.0 |
+            drivers/net/ieee802154/adf7242.c:1294:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'adf7242_debugfs_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	if (ret)
+		goto err_hw_init;
+
+	dev_set_drvdata(&spi->dev, lp);
+
+<span class="issue-line">&gt;&gt;&gt; 	adf7242_debugfs_init(lp);
+</span>
+	dev_info(&spi->dev, "mac802154 IRQ-%d registered\n", spi->irq);
+
+	return ret;
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(5, true)">✓ True Positive</button>
+            <button onclick="markItem(5, false)">✗ False Positive</button>
+            <span id="status-5"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-6">
+        <div class="metadata">
+            <strong>Item #6</strong> |
+            linux-v5.0 |
+            arch/arm/mach-imx/mach-mx31moboard.c:553:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'moboard_usbh2_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		ARRAY_SIZE(moboard_spi_board_info));
+
+	imx31_add_mxc_mmc(0, &sdhc1_pdata);
+
+	usb_xcvr_reset();
+<span class="issue-line">&gt;&gt;&gt; 	moboard_usbh2_init();
+</span>
+	imx_add_platform_device("imx_mc13783", 0, NULL, 0, NULL, 0);
+
+	switch (mx31moboard_baseboard) {
+	case MX31NOBOARD:
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(6, true)">✓ True Positive</button>
+            <button onclick="markItem(6, false)">✗ False Positive</button>
+            <span id="status-6"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-7">
+        <div class="metadata">
+            <strong>Item #7</strong> |
+            linux-v5.0 |
+            arch/arm/mach-imx/mx31moboard-marxbot.c:278:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'marxbot_usbh1_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	gpio_direction_input(IOMUX_TO_GPIO(MX31_PIN_LCS0));
+	gpio_export(IOMUX_TO_GPIO(MX31_PIN_LCS0), false);
+
+	imx31_add_fsl_usb2_udc(&usb_pdata);
+
+<span class="issue-line">&gt;&gt;&gt; 	marxbot_usbh1_init();
+</span>}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(7, true)">✓ True Positive</button>
+            <button onclick="markItem(7, false)">✗ False Positive</button>
+            <span id="status-7"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-8">
+        <div class="metadata">
+            <strong>Item #8</strong> |
+            linux-v5.0 |
+            arch/arm/mach-imx/mx31moboard-devboard.c:246:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'devboard_usbh1_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	devboard_init_sel_gpios();
+
+	imx31_add_fsl_usb2_udc(&usb_pdata);
+
+<span class="issue-line">&gt;&gt;&gt; 	devboard_usbh1_init();
+</span>}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(8, true)">✓ True Positive</button>
+            <button onclick="markItem(8, false)">✗ False Positive</button>
+            <span id="status-8"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-9">
+        <div class="metadata">
+            <strong>Item #9</strong> |
+            linux-v6.0 |
+            drivers/hid/hid-logitech-hidpp.c:3926:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'hidpp_initialize_battery' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+			hidpp->name = devm_name;
+		}
+	}
+
+<span class="issue-line">&gt;&gt;&gt; 	hidpp_initialize_battery(hidpp);
+</span>
+	/* forward current battery state */
+	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP10_BATTERY) {
+		hidpp10_enable_battery_reporting(hidpp);
+		if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(9, true)">✓ True Positive</button>
+            <button onclick="markItem(9, false)">✗ False Positive</button>
+            <span id="status-9"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-10">
+        <div class="metadata">
+            <strong>Item #10</strong> |
+            linux-v6.0 |
+            drivers/scsi/scsi_transport_iscsi.c:1565:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'iscsi_bsg_host_add' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	struct iscsi_cls_host *ihost = shost->shost_data;
+
+	memset(ihost, 0, sizeof(*ihost));
+	mutex_init(&ihost->mutex);
+
+<span class="issue-line">&gt;&gt;&gt; 	iscsi_bsg_host_add(shost, ihost);
+</span>	/* ignore any bsg add error - we just can't do sgio */
+
+	return 0;
+}
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(10, true)">✓ True Positive</button>
+            <button onclick="markItem(10, false)">✗ False Positive</button>
+            <span id="status-10"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-11">
+        <div class="metadata">
+            <strong>Item #11</strong> |
+            linux-v6.0 |
+            drivers/pci/endpoint/pci-epf-core.c:414:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'pci_epf_add_cfs' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	ret = driver_register(&driver->driver);
+	if (ret)
+		return ret;
+
+<span class="issue-line">&gt;&gt;&gt; 	pci_epf_add_cfs(driver);
+</span>
+	return 0;
+}
+EXPORT_SYMBOL_GPL(__pci_epf_register_driver);
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(11, true)">✓ True Positive</button>
+            <button onclick="markItem(11, false)">✗ False Positive</button>
+            <span id="status-11"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-12">
+        <div class="metadata">
+            <strong>Item #12</strong> |
+            linux-v6.0 |
+            drivers/video/fbdev/omap2/omapfb/dss/dsi.c:5399:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'dsi_init_pll_data' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	r = dsi_get_clocks(dsidev);
+	if (r)
+		return r;
+
+<span class="issue-line">&gt;&gt;&gt; 	dsi_init_pll_data(dsidev);
+</span>
+	pm_runtime_enable(&dsidev->dev);
+
+	r = dsi_runtime_get(dsidev);
+	if (r)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(12, true)">✓ True Positive</button>
+            <button onclick="markItem(12, false)">✗ False Positive</button>
+            <span id="status-12"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-13">
+        <div class="metadata">
+            <strong>Item #13</strong> |
+            linux-v6.0 |
+            drivers/tty/serial/qcom_geni_serial.c:210:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'qcom_geni_serial_request_port' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+static void qcom_geni_serial_config_port(struct uart_port *uport, int cfg_flags)
+{
+	if (cfg_flags & UART_CONFIG_TYPE) {
+		uport->type = PORT_MSM;
+<span class="issue-line">&gt;&gt;&gt; 		qcom_geni_serial_request_port(uport);
+</span>	}
+}
+
+static unsigned int qcom_geni_serial_get_mctrl(struct uart_port *uport)
+{
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(13, true)">✓ True Positive</button>
+            <button onclick="markItem(13, false)">✗ False Positive</button>
+            <span id="status-13"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-14">
+        <div class="metadata">
+            <strong>Item #14</strong> |
+            linux-v6.0 |
+            drivers/tty/serial/men_z135_uart.c:765:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'men_z135_request_port' is unused but represents an error value</div>
+        <div class="code">
+            <pre>}
+
+static void men_z135_config_port(struct uart_port *port, int type)
+{
+	port->type = PORT_MEN_Z135;
+<span class="issue-line">&gt;&gt;&gt; 	men_z135_request_port(port);
+</span>}
+
+static int men_z135_verify_port(struct uart_port *port,
+				struct serial_struct *serinfo)
+{
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(14, true)">✓ True Positive</button>
+            <button onclick="markItem(14, false)">✗ False Positive</button>
+            <span id="status-14"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-15">
+        <div class="metadata">
+            <strong>Item #15</strong> |
+            linux-v6.0 |
+            drivers/pinctrl/sunxi/pinctrl-sunxi.c:1664:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'sunxi_pinctrl_setup_debounce' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		irq_set_chained_handler_and_data(pctl->irq[i],
+						 sunxi_pinctrl_irq_handler,
+						 pctl);
+	}
+
+<span class="issue-line">&gt;&gt;&gt; 	sunxi_pinctrl_setup_debounce(pctl, node);
+</span>
+	dev_info(&pdev->dev, "initialized sunXi PIO driver\n");
+
+	return 0;
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(15, true)">✓ True Positive</button>
+            <button onclick="markItem(15, false)">✗ False Positive</button>
+            <span id="status-15"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-16">
+        <div class="metadata">
+            <strong>Item #16</strong> |
+            linux-v6.0 |
+            drivers/firmware/ti_sci.c:3280:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'ti_sci_cmd_core_reboot' is unused but represents an error value</div>
+        <div class="code">
+            <pre>				void *cmd)
+{
+	struct ti_sci_info *info = reboot_to_ti_sci_info(nb);
+	const struct ti_sci_handle *handle = &info->handle;
+
+<span class="issue-line">&gt;&gt;&gt; 	ti_sci_cmd_core_reboot(handle);
+</span>
+	/* call fail OR pass, we should not be here in the first place */
+	return NOTIFY_BAD;
+}
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(16, true)">✓ True Positive</button>
+            <button onclick="markItem(16, false)">✗ False Positive</button>
+            <span id="status-16"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-17">
+        <div class="metadata">
+            <strong>Item #17</strong> |
+            linux-v6.0 |
+            drivers/firmware/arm_scmi/voltage.c:252:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'scmi_voltage_levels_get' is unused but represents an error value</div>
+        <div class="code">
+            <pre>			if (SUPPORTS_ASYNC_LEVEL_SET(attributes))
+				v->async_level_set = true;
+		}
+
+		/* Skip invalid voltage descriptors */
+<span class="issue-line">&gt;&gt;&gt; 		scmi_voltage_levels_get(ph, v);
+</span>	}
+
+	ph->xops->xfer_put(ph, td);
+
+	return ret;
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(17, true)">✓ True Positive</button>
+            <button onclick="markItem(17, false)">✗ False Positive</button>
+            <span id="status-17"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-18">
+        <div class="metadata">
+            <strong>Item #18</strong> |
+            linux-v6.0 |
+            drivers/crypto/sa2ul.c:1631:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'sa_sha_cra_init_alg' is unused but represents an error value</div>
+        <div class="code">
+            <pre>static int sa_sha1_cra_init(struct crypto_tfm *tfm)
+{
+	struct algo_data ad = { 0 };
+	struct sa_tfm_ctx *ctx = crypto_tfm_ctx(tfm);
+
+<span class="issue-line">&gt;&gt;&gt; 	sa_sha_cra_init_alg(tfm, "sha1");
+</span>
+	ad.aalg_id = SA_AALG_ID_SHA1;
+	ad.hash_size = SHA1_DIGEST_SIZE;
+	ad.auth_ctrl = SA_AUTH_SW_CTRL_SHA1;
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(18, true)">✓ True Positive</button>
+            <button onclick="markItem(18, false)">✗ False Positive</button>
+            <span id="status-18"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-19">
+        <div class="metadata">
+            <strong>Item #19</strong> |
+            linux-v6.0 |
+            drivers/crypto/sa2ul.c:1647:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'sa_sha_cra_init_alg' is unused but represents an error value</div>
+        <div class="code">
+            <pre>static int sa_sha256_cra_init(struct crypto_tfm *tfm)
+{
+	struct algo_data ad = { 0 };
+	struct sa_tfm_ctx *ctx = crypto_tfm_ctx(tfm);
+
+<span class="issue-line">&gt;&gt;&gt; 	sa_sha_cra_init_alg(tfm, "sha256");
+</span>
+	ad.aalg_id = SA_AALG_ID_SHA2_256;
+	ad.hash_size = SHA256_DIGEST_SIZE;
+	ad.auth_ctrl = SA_AUTH_SW_CTRL_SHA256;
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(19, true)">✓ True Positive</button>
+            <button onclick="markItem(19, false)">✗ False Positive</button>
+            <span id="status-19"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-20">
+        <div class="metadata">
+            <strong>Item #20</strong> |
+            linux-v6.0 |
+            drivers/crypto/sa2ul.c:1663:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'sa_sha_cra_init_alg' is unused but represents an error value</div>
+        <div class="code">
+            <pre>static int sa_sha512_cra_init(struct crypto_tfm *tfm)
+{
+	struct algo_data ad = { 0 };
+	struct sa_tfm_ctx *ctx = crypto_tfm_ctx(tfm);
+
+<span class="issue-line">&gt;&gt;&gt; 	sa_sha_cra_init_alg(tfm, "sha512");
+</span>
+	ad.aalg_id = SA_AALG_ID_SHA2_512;
+	ad.hash_size = SHA512_DIGEST_SIZE;
+	ad.auth_ctrl = SA_AUTH_SW_CTRL_SHA512;
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(20, true)">✓ True Positive</button>
+            <button onclick="markItem(20, false)">✗ False Positive</button>
+            <span id="status-20"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-21">
+        <div class="metadata">
+            <strong>Item #21</strong> |
+            linux-v6.0 |
+            drivers/crypto/inside-secure/safexcel_cipher.c:2978:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'safexcel_aead_fallback_cra_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+static int safexcel_aead_chachapoly_cra_init(struct crypto_tfm *tfm)
+{
+	struct safexcel_cipher_ctx *ctx = crypto_tfm_ctx(tfm);
+
+<span class="issue-line">&gt;&gt;&gt; 	safexcel_aead_fallback_cra_init(tfm);
+</span>	ctx->alg  = SAFEXCEL_CHACHA20;
+	ctx->mode = CONTEXT_CONTROL_CHACHA20_MODE_256_32 |
+		    CONTEXT_CONTROL_CHACHA20_MODE_CALC_OTK;
+	ctx->ctrinit = 0;
+	ctx->hash_alg = CONTEXT_CONTROL_CRYPTO_ALG_POLY1305;
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(21, true)">✓ True Positive</button>
+            <button onclick="markItem(21, false)">✗ False Positive</button>
+            <span id="status-21"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-22">
+        <div class="metadata">
+            <strong>Item #22</strong> |
+            linux-v6.0 |
+            drivers/crypto/inside-secure/safexcel_cipher.c:3445:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'safexcel_aead_fallback_cra_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+static int safexcel_aead_sm4cbc_sm3_cra_init(struct crypto_tfm *tfm)
+{
+	struct safexcel_cipher_ctx *ctx = crypto_tfm_ctx(tfm);
+
+<span class="issue-line">&gt;&gt;&gt; 	safexcel_aead_fallback_cra_init(tfm);
+</span>	ctx->alg = SAFEXCEL_SM4;
+	ctx->blocksz = SM4_BLOCK_SIZE;
+	ctx->hash_alg = CONTEXT_CONTROL_CRYPTO_ALG_SM3;
+	ctx->state_sz = SM3_DIGEST_SIZE;
+	return 0;
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(22, true)">✓ True Positive</button>
+            <button onclick="markItem(22, false)">✗ False Positive</button>
+            <span id="status-22"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-23">
+        <div class="metadata">
+            <strong>Item #23</strong> |
+            linux-v6.0 |
+            drivers/block/paride/pd.c:801:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'pd_special_command' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	mutex_lock(&pd_mutex);
+	disk->access++;
+
+	if (disk->removable) {
+<span class="issue-line">&gt;&gt;&gt; 		pd_special_command(disk, pd_media_check);
+</span>		pd_special_command(disk, pd_door_lock);
+	}
+	mutex_unlock(&pd_mutex);
+	return 0;
+}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(23, true)">✓ True Positive</button>
+            <button onclick="markItem(23, false)">✗ False Positive</button>
+            <span id="status-23"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-24">
+        <div class="metadata">
+            <strong>Item #24</strong> |
+            linux-v6.0 |
+            drivers/block/paride/pd.c:802:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'pd_special_command' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	mutex_lock(&pd_mutex);
+	disk->access++;
+
+	if (disk->removable) {
+		pd_special_command(disk, pd_media_check);
+<span class="issue-line">&gt;&gt;&gt; 		pd_special_command(disk, pd_door_lock);
+</span>	}
+	mutex_unlock(&pd_mutex);
+	return 0;
+}
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(24, true)">✓ True Positive</button>
+            <button onclick="markItem(24, false)">✗ False Positive</button>
+            <span id="status-24"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-25">
+        <div class="metadata">
+            <strong>Item #25</strong> |
+            linux-v6.0 |
+            drivers/block/paride/pd.c:858:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'pd_special_command' is unused but represents an error value</div>
+        <div class="code">
+            <pre>{
+	struct pd_unit *disk = p->private_data;
+	int r;
+	if (!disk->removable)
+		return 0;
+<span class="issue-line">&gt;&gt;&gt; 	pd_special_command(disk, pd_media_check);
+</span>	r = disk->changed;
+	disk->changed = 0;
+	return r ? DISK_EVENT_MEDIA_CHANGE : 0;
+}
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(25, true)">✓ True Positive</button>
+            <button onclick="markItem(25, false)">✗ False Positive</button>
+            <span id="status-25"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-26">
+        <div class="metadata">
+            <strong>Item #26</strong> |
+            linux-v6.0 |
+            drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c:1066:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'dpu_kms_parse_data_bus_icc_path' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	if (IS_ERR(dpu_kms->reg_dma)) {
+		dpu_kms->reg_dma = NULL;
+		DPU_DEBUG("REG_DMA is not defined");
+	}
+
+<span class="issue-line">&gt;&gt;&gt; 	dpu_kms_parse_data_bus_icc_path(dpu_kms);
+</span>
+	rc = pm_runtime_resume_and_get(&dpu_kms->pdev->dev);
+	if (rc < 0)
+		goto error;
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(26, true)">✓ True Positive</button>
+            <button onclick="markItem(26, false)">✗ False Positive</button>
+            <span id="status-26"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-27">
+        <div class="metadata">
+            <strong>Item #27</strong> |
+            linux-v6.0 |
+            drivers/gpu/drm/kmb/kmb_drv.c:131:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'kmb_initialize_clocks' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	ret = kmb_dsi_map_mmio(kmb->kmb_dsi);
+	if (ret)
+		return ret;
+
+	/* Enable display clocks */
+<span class="issue-line">&gt;&gt;&gt; 	kmb_initialize_clocks(kmb, &pdev->dev);
+</span>
+	/* Register irqs here - section 17.3 in databook
+	 * lists LCD at 79 and 82 for MIPI under MSS CPU -
+	 * firmware has redirected 79 to A53 IRQ 33
+	 */
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(27, true)">✓ True Positive</button>
+            <button onclick="markItem(27, false)">✗ False Positive</button>
+            <span id="status-27"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-28">
+        <div class="metadata">
+            <strong>Item #28</strong> |
+            linux-v6.0 |
+            drivers/gpu/drm/rockchip/cdn-dp-core.c:1221:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'cdn_dp_audio_codec_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	}
+
+	mutex_init(&dp->lock);
+	dev_set_drvdata(dev, dp);
+
+<span class="issue-line">&gt;&gt;&gt; 	cdn_dp_audio_codec_init(dp, dev);
+</span>
+	return component_add(dev, &cdn_dp_component_ops);
+}
+
+static int cdn_dp_remove(struct platform_device *pdev)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(28, true)">✓ True Positive</button>
+            <button onclick="markItem(28, false)">✗ False Positive</button>
+            <span id="status-28"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-29">
+        <div class="metadata">
+            <strong>Item #29</strong> |
+            linux-v6.0 |
+            drivers/gpu/drm/bridge/ite-it66121.c:1617:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'it66121_audio_codec_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		dev_err(dev, "Failed to request irq %d:%d\n", client->irq, ret);
+		ite66121_power_off(ctx);
+		return ret;
+	}
+
+<span class="issue-line">&gt;&gt;&gt; 	it66121_audio_codec_init(ctx, dev);
+</span>
+	drm_bridge_add(&ctx->bridge);
+
+	dev_info(ctx->dev, "IT66121 revision %d probed\n", revision_id);
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(29, true)">✓ True Positive</button>
+            <button onclick="markItem(29, false)">✗ False Positive</button>
+            <span id="status-29"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-30">
+        <div class="metadata">
+            <strong>Item #30</strong> |
+            linux-v6.0 |
+            drivers/gpu/drm/bridge/sii902x.c:1054:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'sii902x_audio_codec_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	if (sii902x->i2c->irq > 0)
+		sii902x->bridge.ops |= DRM_BRIDGE_OP_HPD;
+
+	drm_bridge_add(&sii902x->bridge);
+
+<span class="issue-line">&gt;&gt;&gt; 	sii902x_audio_codec_init(sii902x, dev);
+</span>
+	i2c_set_clientdata(sii902x->i2c, sii902x);
+
+	sii902x->i2cmux = i2c_mux_alloc(sii902x->i2c->adapter, dev,
+					1, 0, I2C_MUX_GATE,
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(30, true)">✓ True Positive</button>
+            <button onclick="markItem(30, false)">✗ False Positive</button>
+            <span id="status-30"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-31">
+        <div class="metadata">
+            <strong>Item #31</strong> |
+            linux-v6.0 |
+            drivers/gpu/drm/omapdrm/dss/dsi.c:4562:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'dsi_init_pll_data' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	u32 rev;
+	int r;
+
+	dsi->dss = dss;
+
+<span class="issue-line">&gt;&gt;&gt; 	dsi_init_pll_data(dss, dsi);
+</span>
+	r = dsi_runtime_get(dsi);
+	if (r)
+		return r;
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(31, true)">✓ True Positive</button>
+            <button onclick="markItem(31, false)">✗ False Positive</button>
+            <span id="status-31"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-32">
+        <div class="metadata">
+            <strong>Item #32</strong> |
+            linux-v6.0 |
+            drivers/memory/tegra/tegra20-emc.c:1259:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'tegra_emc_interconnect_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		return err;
+
+	platform_set_drvdata(pdev, emc);
+	tegra_emc_rate_requests_init(emc);
+	tegra_emc_debugfs_init(emc);
+<span class="issue-line">&gt;&gt;&gt; 	tegra_emc_interconnect_init(emc);
+</span>	tegra_emc_devfreq_init(emc);
+
+	/*
+	 * Don't allow the kernel module to be unloaded. Unloading adds some
+	 * extra complexity which doesn't really worth the effort in a case of
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(32, true)">✓ True Positive</button>
+            <button onclick="markItem(32, false)">✗ False Positive</button>
+            <span id="status-32"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-33">
+        <div class="metadata">
+            <strong>Item #33</strong> |
+            linux-v6.0 |
+            drivers/memory/tegra/tegra20-emc.c:1260:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'tegra_emc_devfreq_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	platform_set_drvdata(pdev, emc);
+	tegra_emc_rate_requests_init(emc);
+	tegra_emc_debugfs_init(emc);
+	tegra_emc_interconnect_init(emc);
+<span class="issue-line">&gt;&gt;&gt; 	tegra_emc_devfreq_init(emc);
+</span>
+	/*
+	 * Don't allow the kernel module to be unloaded. Unloading adds some
+	 * extra complexity which doesn't really worth the effort in a case of
+	 * this driver.
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(33, true)">✓ True Positive</button>
+            <button onclick="markItem(33, false)">✗ False Positive</button>
+            <span id="status-33"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-34">
+        <div class="metadata">
+            <strong>Item #34</strong> |
+            linux-v6.0 |
+            drivers/hv/hv_debugfs.c:123:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'hv_debug_set_test_state' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		if (IS_ERR(dev_root)) {
+			pr_debug("debugfs_hyperv: hyperv/%s/ not created\n",
+				 device);
+			return PTR_ERR(dev_root);
+		}
+<span class="issue-line">&gt;&gt;&gt; 		hv_debug_set_test_state(dev, dev_root);
+</span>		hv_debug_set_dir_dentry(dev, dev_root);
+		delay = debugfs_create_dir(delay_name, dev_root);
+
+		if (IS_ERR(delay)) {
+			pr_debug("debugfs_hyperv: hyperv/%s/%s/ not created\n",
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(34, true)">✓ True Positive</button>
+            <button onclick="markItem(34, false)">✗ False Positive</button>
+            <span id="status-34"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-35">
+        <div class="metadata">
+            <strong>Item #35</strong> |
+            linux-v6.0 |
+            drivers/s390/block/dasd_eckd.c:2112:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'dasd_eckd_read_features' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	dasd_eckd_read_fc_security(device);
+	dasd_path_create_kobjects(device);
+
+	/* Read Feature Codes */
+<span class="issue-line">&gt;&gt;&gt; 	dasd_eckd_read_features(device);
+</span>
+	/* Read Volume Information */
+	dasd_eckd_read_vol_info(device);
+
+	/* Read Extent Pool Information */
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(35, true)">✓ True Positive</button>
+            <button onclick="markItem(35, false)">✗ False Positive</button>
+            <span id="status-35"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-36">
+        <div class="metadata">
+            <strong>Item #36</strong> |
+            linux-v6.0 |
+            drivers/s390/block/dasd_eckd.c:2118:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'dasd_eckd_read_ext_pool_info' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	/* Read Volume Information */
+	dasd_eckd_read_vol_info(device);
+
+	/* Read Extent Pool Information */
+<span class="issue-line">&gt;&gt;&gt; 	dasd_eckd_read_ext_pool_info(device);
+</span>
+	/* Read Device Characteristics */
+	rc = dasd_generic_read_dev_chars(device, DASD_ECKD_MAGIC,
+					 &private->rdc_data, 64);
+	if (rc) {
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(36, true)">✓ True Positive</button>
+            <button onclick="markItem(36, false)">✗ False Positive</button>
+            <span id="status-36"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-37">
+        <div class="metadata">
+            <strong>Item #37</strong> |
+            linux-v6.0 |
+            drivers/s390/block/dasd_eckd.c:6419:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'dasd_eckd_psf_cuir_response' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		dasd_eckd_cuir_resume(device, lpum, cuir);
+		response = PSF_CUIR_COMPLETED;
+	} else
+		response = PSF_CUIR_NOT_SUPPORTED;
+
+<span class="issue-line">&gt;&gt;&gt; 	dasd_eckd_psf_cuir_response(device, response,
+</span>				    cuir->message_id, lpum);
+	DBF_DEV_EVENT(DBF_WARNING, device,
+		      "CUIR response: %d on message ID %08x", response,
+		      cuir->message_id);
+	/* to make sure there is no attention left schedule work again */
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(37, true)">✓ True Positive</button>
+            <button onclick="markItem(37, false)">✗ False Positive</button>
+            <span id="status-37"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-38">
+        <div class="metadata">
+            <strong>Item #38</strong> |
+            linux-v6.0 |
+            drivers/s390/block/dasd_eckd.c:6489:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'dasd_eckd_read_ext_pool_info' is unused but represents an error value</div>
+        <div class="code">
+            <pre>			 "Extent pool physical space constraint has been relieved\n");
+		break;
+	}
+
+	/* In any case, update related data */
+<span class="issue-line">&gt;&gt;&gt; 	dasd_eckd_read_ext_pool_info(device);
+</span>
+	/* to make sure there is no attention left schedule work again */
+	device->discipline->check_attention(device, lpum);
+}
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(38, true)">✓ True Positive</button>
+            <button onclick="markItem(38, false)">✗ False Positive</button>
+            <span id="status-38"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-39">
+        <div class="metadata">
+            <strong>Item #39</strong> |
+            linux-v6.0 |
+            drivers/s390/char/tape_3590.c:1546:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'tape_3592_disable_crypt' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	rc = tape_std_assign(device);
+	if (rc)
+		goto fail_rdc_data;
+	if (rdc_data->data[31] == 0x13) {
+		data->crypt_info.capability |= TAPE390_CRYPT_SUPPORTED_MASK;
+<span class="issue-line">&gt;&gt;&gt; 		tape_3592_disable_crypt(device);
+</span>	} else {
+		DBF_EVENT(6, "Device has NO crypto support\n");
+	}
+	/* Try to find out if medium is loaded */
+	rc = tape_3590_sense_medium(device);
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(39, true)">✓ True Positive</button>
+            <button onclick="markItem(39, false)">✗ False Positive</button>
+            <span id="status-39"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-40">
+        <div class="metadata">
+            <strong>Item #40</strong> |
+            linux-v6.0 |
+            drivers/bluetooth/btintel.c:2295:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'btintel_configure_offload' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	 * fails to load the file, no need to fail the setup.
+	 */
+	btintel_load_ddc_config(hdev, ddcname);
+
+	/* Read supported use cases and set callbacks to fetch datapath id */
+<span class="issue-line">&gt;&gt;&gt; 	btintel_configure_offload(hdev);
+</span>
+	hci_dev_clear_flag(hdev, HCI_QUALITY_REPORT);
+
+	/* Read the Intel version information after loading the FW  */
+	err = btintel_read_version_tlv(hdev, &new_ver);
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(40, true)">✓ True Positive</button>
+            <button onclick="markItem(40, false)">✗ False Positive</button>
+            <span id="status-40"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-41">
+        <div class="metadata">
+            <strong>Item #41</strong> |
+            linux-v6.0 |
+            drivers/nfc/pn533/pn533.c:2700:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'pn533_pasori_fw_reset' is unused but represents an error value</div>
+        <div class="code">
+            <pre>			nfc_err(dev->dev,
+				"Error while settings PASORI config\n");
+			return rc;
+		}
+
+<span class="issue-line">&gt;&gt;&gt; 		pn533_pasori_fw_reset(dev);
+</span>
+		break;
+	}
+
+	return 0;
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(41, true)">✓ True Positive</button>
+            <button onclick="markItem(41, false)">✗ False Positive</button>
+            <span id="status-41"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-42">
+        <div class="metadata">
+            <strong>Item #42</strong> |
+            linux-v6.0 |
+            drivers/vfio/pci/vfio_pci_intrs.c:230:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'vfio_intx_set_signal' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+static void vfio_intx_disable(struct vfio_pci_core_device *vdev)
+{
+	vfio_virqfd_disable(&vdev->ctx[0].unmask);
+	vfio_virqfd_disable(&vdev->ctx[0].mask);
+<span class="issue-line">&gt;&gt;&gt; 	vfio_intx_set_signal(vdev, -1);
+</span>	vdev->irq_type = VFIO_PCI_NUM_IRQS;
+	vdev->num_ctx = 0;
+	kfree(vdev->ctx);
+}
+
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(42, true)">✓ True Positive</button>
+            <button onclick="markItem(42, false)">✗ False Positive</button>
+            <span id="status-42"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-43">
+        <div class="metadata">
+            <strong>Item #43</strong> |
+            linux-v6.0 |
+            drivers/platform/mellanox/mlxreg-hotplug.c:437:5 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'mlxreg_hotplug_device_create' is unused but represents an error value</div>
+        <div class="code">
+            <pre>			if (!data->attached) {
+				/*
+				 * ASIC is in steady state. Connect associated
+				 * device, if configured.
+				 */
+<span class="issue-line">&gt;&gt;&gt; 				mlxreg_hotplug_device_create(priv, data, item->kind);
+</span>				data->attached = true;
+			}
+		} else {
+			if (data->attached) {
+				/*
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(43, true)">✓ True Positive</button>
+            <button onclick="markItem(43, false)">✗ False Positive</button>
+            <span id="status-43"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-44">
+        <div class="metadata">
+            <strong>Item #44</strong> |
+            linux-v6.0 |
+            drivers/net/wireless/broadcom/brcm80211/brcmfmac/chip.c:1008:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'brcmf_chip_dmp_erom_scan' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	} else if (socitype == SOCI_AI) {
+		ci->iscoreup = brcmf_chip_ai_iscoreup;
+		ci->coredisable = brcmf_chip_ai_coredisable;
+		ci->resetcore = brcmf_chip_ai_resetcore;
+
+<span class="issue-line">&gt;&gt;&gt; 		brcmf_chip_dmp_erom_scan(ci);
+</span>	} else {
+		brcmf_err("chip backplane type %u is not supported\n",
+			  socitype);
+		return -ENODEV;
+	}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(44, true)">✓ True Positive</button>
+            <button onclick="markItem(44, false)">✗ False Positive</button>
+            <span id="status-44"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-45">
+        <div class="metadata">
+            <strong>Item #45</strong> |
+            linux-v6.0 |
+            drivers/net/wireless/ath/ath10k/core.c:2157:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'ath10k_fetch_cal_file' is unused but represents an error value</div>
+        <div class="code">
+            <pre>{
+	int ret, i;
+	char fw_name[100];
+
+	/* calibration file is optional, don't check for any errors */
+<span class="issue-line">&gt;&gt;&gt; 	ath10k_fetch_cal_file(ar);
+</span>
+	for (i = ATH10K_FW_API_MAX; i >= ATH10K_FW_API_MIN; i--) {
+		ar->fw_api = i;
+		ath10k_dbg(ar, ATH10K_DBG_BOOT, "trying fw api %d\n",
+			   ar->fw_api);
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(45, true)">✓ True Positive</button>
+            <button onclick="markItem(45, false)">✗ False Positive</button>
+            <span id="status-45"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-46">
+        <div class="metadata">
+            <strong>Item #46</strong> |
+            linux-v6.0 |
+            drivers/net/ethernet/netronome/nfp/flower/conntrack.c:1107:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'nfp_ct_do_nft_merge' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	zt->tc_merge_count++;
+
+	/* Merge with existing nft flows */
+	list_for_each_entry_safe(nft_entry, nft_tmp, &zt->nft_flows_list,
+				 list_node) {
+<span class="issue-line">&gt;&gt;&gt; 		nfp_ct_do_nft_merge(zt, nft_entry, m_entry);
+</span>	}
+
+	return 0;
+
+err_ct_tc_merge_insert:
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(46, true)">✓ True Positive</button>
+            <button onclick="markItem(46, false)">✗ False Positive</button>
+            <span id="status-46"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-47">
+        <div class="metadata">
+            <strong>Item #47</strong> |
+            linux-v6.0 |
+            drivers/net/ethernet/netronome/nfp/flower/conntrack.c:1463:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'nfp_ct_do_tc_merge' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	else
+		return;
+
+	list_for_each_entry_safe(ct_entry2, ct_tmp, ct_list,
+				 list_node) {
+<span class="issue-line">&gt;&gt;&gt; 		nfp_ct_do_tc_merge(zt_dst, ct_entry2, ct_entry1);
+</span>	}
+}
+
+static void
+nfp_ct_merge_nft_with_tc(struct nfp_fl_ct_flow_entry *nft_entry,
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(47, true)">✓ True Positive</button>
+            <button onclick="markItem(47, false)">✗ False Positive</button>
+            <span id="status-47"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-48">
+        <div class="metadata">
+            <strong>Item #48</strong> |
+            linux-v6.0 |
+            drivers/net/ethernet/netronome/nfp/flower/conntrack.c:1480:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'nfp_ct_do_nft_merge' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	rhashtable_walk_start(&iter);
+	while ((tc_merge_entry = rhashtable_walk_next(&iter)) != NULL) {
+		if (IS_ERR(tc_merge_entry))
+			continue;
+		rhashtable_walk_stop(&iter);
+<span class="issue-line">&gt;&gt;&gt; 		nfp_ct_do_nft_merge(zt, nft_entry, tc_merge_entry);
+</span>		rhashtable_walk_start(&iter);
+	}
+	rhashtable_walk_stop(&iter);
+	rhashtable_walk_exit(&iter);
+}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(48, true)">✓ True Positive</button>
+            <button onclick="markItem(48, false)">✗ False Positive</button>
+            <span id="status-48"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-49">
+        <div class="metadata">
+            <strong>Item #49</strong> |
+            linux-v6.0 |
+            drivers/net/ethernet/marvell/octeontx2/nic/otx2_ethtool.c:1241:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'otx2_get_link_ksettings' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	if (cmd->base.autoneg != AUTONEG_ENABLE &&
+	    cmd->base.autoneg != AUTONEG_DISABLE)
+		return -EINVAL;
+
+<span class="issue-line">&gt;&gt;&gt; 	otx2_get_link_ksettings(netdev, &cur_ks);
+</span>
+	/* Check requested modes against supported modes by hardware */
+	if (!linkmode_subset(cmd->link_modes.advertising,
+			     cur_ks.link_modes.supported))
+		return -EINVAL;
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(49, true)">✓ True Positive</button>
+            <button onclick="markItem(49, false)">✗ False Positive</button>
+            <span id="status-49"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-50">
+        <div class="metadata">
+            <strong>Item #50</strong> |
+            linux-v6.0 |
+            drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c:4995:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'mvpp2_bm_init' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	for (i = 0; i < numbufs; i++)
+		mvpp2_bm_pool_destroy(port->dev->dev.parent, priv, &priv->bm_pools[i]);
+
+	devm_kfree(port->dev->dev.parent, priv->bm_pools);
+	priv->percpu_pools = percpu;
+<span class="issue-line">&gt;&gt;&gt; 	mvpp2_bm_init(port->dev->dev.parent, priv);
+</span>
+	for (i = 0; i < priv->port_count; i++) {
+		port = priv->port_list[i];
+		mvpp2_swf_bm_pool_init(port);
+		if (status[i])
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(50, true)">✓ True Positive</button>
+            <button onclick="markItem(50, false)">✗ False Positive</button>
+            <span id="status-50"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-51">
+        <div class="metadata">
+            <strong>Item #51</strong> |
+            linux-v6.0 |
+            drivers/net/ethernet/asix/ax88796c_main.c:1034:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'ax88796c_hard_reset' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	ndev->needed_tailroom = TX_EOP_SIZE;
+
+	mutex_lock(&ax_local->spi_lock);
+
+	/* ax88796c gpio reset */
+<span class="issue-line">&gt;&gt;&gt; 	ax88796c_hard_reset(ax_local);
+</span>
+	/* Reset AX88796C */
+	ret = ax88796c_soft_reset(ax_local);
+	if (ret < 0) {
+		ret = -ENODEV;
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(51, true)">✓ True Positive</button>
+            <button onclick="markItem(51, false)">✗ False Positive</button>
+            <span id="status-51"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-52">
+        <div class="metadata">
+            <strong>Item #52</strong> |
+            linux-v6.0 |
+            drivers/misc/lis3lv02d/lis3lv02d.c:1187:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'lis3lv02d_add_fs' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		return -ENOMEM;
+
+	mutex_init(&lis3->mutex);
+	atomic_set(&lis3->wake_thread, 0);
+
+<span class="issue-line">&gt;&gt;&gt; 	lis3lv02d_add_fs(lis3);
+</span>	err = lis3lv02d_poweron(lis3);
+	if (err) {
+		lis3lv02d_remove_fs(lis3);
+		return err;
+	}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(52, true)">✓ True Positive</button>
+            <button onclick="markItem(52, false)">✗ False Positive</button>
+            <span id="status-52"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-53">
+        <div class="metadata">
+            <strong>Item #53</strong> |
+            linux-v6.0 |
+            drivers/usb/typec/tcpm/tcpm.c:2438:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'tcpm_register_source_caps' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		tcpm_log_source_caps(port);
+
+		tcpm_validate_caps(port, port->source_caps,
+				   port->nr_source_caps);
+
+<span class="issue-line">&gt;&gt;&gt; 		tcpm_register_source_caps(port);
+</span>
+		/*
+		 * Adjust revision in subsequent message headers, as required,
+		 * to comply with 6.2.1.1.5 of the USB PD 3.0 spec. We don't
+		 * support Rev 1.0 so just do nothing in that scenario.
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(53, true)">✓ True Positive</button>
+            <button onclick="markItem(53, false)">✗ False Positive</button>
+            <span id="status-53"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-54">
+        <div class="metadata">
+            <strong>Item #54</strong> |
+            linux-v6.0 |
+            drivers/usb/typec/tcpm/tcpm.c:2547:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'tcpm_register_sink_caps' is unused but represents an error value</div>
+        <div class="code">
+            <pre>			tcpm_log(port, "Enable FRS %s, ret:%d\n", ret ? "fail" : "success", ret);
+		}
+
+		port->nr_sink_caps = cnt;
+		port->sink_cap_done = true;
+<span class="issue-line">&gt;&gt;&gt; 		tcpm_register_sink_caps(port);
+</span>
+		if (port->ams == GET_SINK_CAPABILITIES)
+			tcpm_set_state(port, ready_state(port), 0);
+		/* Unexpected Sink Capabilities */
+		else
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(54, true)">✓ True Positive</button>
+            <button onclick="markItem(54, false)">✗ False Positive</button>
+            <span id="status-54"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-55">
+        <div class="metadata">
+            <strong>Item #55</strong> |
+            linux-v6.0 |
+            drivers/usb/typec/ucsi/ucsi.c:807:4 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'ucsi_register_partner' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		typec_set_pwr_role(con->port, role);
+		ucsi_port_psy_changed(con);
+		ucsi_partner_change(con);
+
+		if (con->status.flags & UCSI_CONSTAT_CONNECTED) {
+<span class="issue-line">&gt;&gt;&gt; 			ucsi_register_partner(con);
+</span>			ucsi_partner_task(con, ucsi_check_connection, 1, HZ);
+		} else {
+			ucsi_unregister_partner(con);
+		}
+	}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(55, true)">✓ True Positive</button>
+            <button onclick="markItem(55, false)">✗ False Positive</button>
+            <span id="status-55"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-56">
+        <div class="metadata">
+            <strong>Item #56</strong> |
+            linux-v6.0 |
+            drivers/usb/typec/ucsi/ucsi.c:1164:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'ucsi_register_partner' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	/* Check if there is already something connected */
+	if (con->status.flags & UCSI_CONSTAT_CONNECTED) {
+		typec_set_pwr_role(con->port,
+				  !!(con->status.flags & UCSI_CONSTAT_PWR_DIR));
+		ucsi_pwr_opmode_change(con);
+<span class="issue-line">&gt;&gt;&gt; 		ucsi_register_partner(con);
+</span>		ucsi_port_psy_changed(con);
+	}
+
+	/* Only notify USB controller if partner supports USB data */
+	if (!(UCSI_CONSTAT_PARTNER_FLAGS(con->status.flags) & UCSI_CONSTAT_PARTNER_FLAG_USB))
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(56, true)">✓ True Positive</button>
+            <button onclick="markItem(56, false)">✗ False Positive</button>
+            <span id="status-56"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-57">
+        <div class="metadata">
+            <strong>Item #57</strong> |
+            linux-v6.0 |
+            drivers/clk/clk-bm1880.c:911:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'bm1880_clk_register_plls' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	for (i = 0; i < num_clks; i++)
+		clk_data->hw_data.hws[i] = ERR_PTR(-ENOENT);
+
+	clk_data->hw_data.num = num_clks;
+
+<span class="issue-line">&gt;&gt;&gt; 	bm1880_clk_register_plls(bm1880_pll_clks,
+</span>				 ARRAY_SIZE(bm1880_pll_clks),
+				 clk_data);
+
+	bm1880_clk_register_divs(bm1880_div_clks,
+				 ARRAY_SIZE(bm1880_div_clks),
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(57, true)">✓ True Positive</button>
+            <button onclick="markItem(57, false)">✗ False Positive</button>
+            <span id="status-57"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-58">
+        <div class="metadata">
+            <strong>Item #58</strong> |
+            linux-v6.0 |
+            drivers/clk/clk-bm1880.c:915:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'bm1880_clk_register_divs' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	bm1880_clk_register_plls(bm1880_pll_clks,
+				 ARRAY_SIZE(bm1880_pll_clks),
+				 clk_data);
+
+<span class="issue-line">&gt;&gt;&gt; 	bm1880_clk_register_divs(bm1880_div_clks,
+</span>				 ARRAY_SIZE(bm1880_div_clks),
+				 clk_data);
+
+	bm1880_clk_register_mux(bm1880_mux_clks,
+				ARRAY_SIZE(bm1880_mux_clks),
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(58, true)">✓ True Positive</button>
+            <button onclick="markItem(58, false)">✗ False Positive</button>
+            <span id="status-58"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-59">
+        <div class="metadata">
+            <strong>Item #59</strong> |
+            linux-v6.0 |
+            drivers/clk/clk-bm1880.c:919:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'bm1880_clk_register_mux' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	bm1880_clk_register_divs(bm1880_div_clks,
+				 ARRAY_SIZE(bm1880_div_clks),
+				 clk_data);
+
+<span class="issue-line">&gt;&gt;&gt; 	bm1880_clk_register_mux(bm1880_mux_clks,
+</span>				ARRAY_SIZE(bm1880_mux_clks),
+				clk_data);
+
+	bm1880_clk_register_composites(bm1880_composite_clks,
+				       ARRAY_SIZE(bm1880_composite_clks),
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(59, true)">✓ True Positive</button>
+            <button onclick="markItem(59, false)">✗ False Positive</button>
+            <span id="status-59"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-60">
+        <div class="metadata">
+            <strong>Item #60</strong> |
+            linux-v6.0 |
+            drivers/clk/clk-bm1880.c:923:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'bm1880_clk_register_composites' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	bm1880_clk_register_mux(bm1880_mux_clks,
+				ARRAY_SIZE(bm1880_mux_clks),
+				clk_data);
+
+<span class="issue-line">&gt;&gt;&gt; 	bm1880_clk_register_composites(bm1880_composite_clks,
+</span>				       ARRAY_SIZE(bm1880_composite_clks),
+				       clk_data);
+
+	bm1880_clk_register_gate(bm1880_gate_clks,
+				 ARRAY_SIZE(bm1880_gate_clks),
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(60, true)">✓ True Positive</button>
+            <button onclick="markItem(60, false)">✗ False Positive</button>
+            <span id="status-60"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-61">
+        <div class="metadata">
+            <strong>Item #61</strong> |
+            linux-v6.0 |
+            drivers/clk/clk-bm1880.c:927:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'bm1880_clk_register_gate' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	bm1880_clk_register_composites(bm1880_composite_clks,
+				       ARRAY_SIZE(bm1880_composite_clks),
+				       clk_data);
+
+<span class="issue-line">&gt;&gt;&gt; 	bm1880_clk_register_gate(bm1880_gate_clks,
+</span>				 ARRAY_SIZE(bm1880_gate_clks),
+				 clk_data);
+
+	return devm_of_clk_add_hw_provider(dev, of_clk_hw_onecell_get,
+				      &clk_data->hw_data);
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(61, true)">✓ True Positive</button>
+            <button onclick="markItem(61, false)">✗ False Positive</button>
+            <span id="status-61"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-62">
+        <div class="metadata">
+            <strong>Item #62</strong> |
+            linux-v6.0 |
+            net/bluetooth/msft.c:352:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'msft_remove_monitor_sync' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	while (1) {
+		monitor = idr_get_next(&hdev->adv_monitors_idr, &handle);
+		if (!monitor)
+			break;
+
+<span class="issue-line">&gt;&gt;&gt; 		msft_remove_monitor_sync(hdev, monitor);
+</span>
+		handle++;
+	}
+
+	/* All monitors have been removed */
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(62, true)">✓ True Positive</button>
+            <button onclick="markItem(62, false)">✗ False Positive</button>
+            <span id="status-62"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-63">
+        <div class="metadata">
+            <strong>Item #63</strong> |
+            linux-v6.0 |
+            net/bluetooth/msft.c:468:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'msft_add_monitor_sync' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	while (1) {
+		monitor = idr_get_next(&hdev->adv_monitors_idr, &handle);
+		if (!monitor)
+			break;
+
+<span class="issue-line">&gt;&gt;&gt; 		msft_add_monitor_sync(hdev, monitor);
+</span>
+		handle++;
+	}
+
+	/* All monitors have been reregistered */
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(63, true)">✓ True Positive</button>
+            <button onclick="markItem(63, false)">✗ False Positive</button>
+            <span id="status-63"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-64">
+        <div class="metadata">
+            <strong>Item #64</strong> |
+            linux-v6.0 |
+            net/ipv6/calipso.c:1167:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'calipso_opt_update' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		goto done;
+
+	if (calipso_opt_del(txopts->hopopt, &new_hop))
+		goto done;
+
+<span class="issue-line">&gt;&gt;&gt; 	calipso_opt_update(sk, new_hop);
+</span>	kfree(new_hop);
+
+done:
+	txopt_put(txopts);
+}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(64, true)">✓ True Positive</button>
+            <button onclick="markItem(64, false)">✗ False Positive</button>
+            <span id="status-64"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-65">
+        <div class="metadata">
+            <strong>Item #65</strong> |
+            linux-v6.0 |
+            fs/gfs2/ops_fstype.c:922:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'init_journal' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	iput(sdp->sd_quota_inode);
+fail_rindex:
+	gfs2_clear_rgrpd(sdp);
+	iput(sdp->sd_rindex);
+fail_journal:
+<span class="issue-line">&gt;&gt;&gt; 	init_journal(sdp, UNDO);
+</span>fail:
+	return error;
+}
+
+static int init_per_node(struct gfs2_sbd *sdp, int undo)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(65, true)">✓ True Positive</button>
+            <button onclick="markItem(65, false)">✗ False Positive</button>
+            <span id="status-65"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-66">
+        <div class="metadata">
+            <strong>Item #66</strong> |
+            linux-v6.0 |
+            fs/hfs/brec.c:438:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'hfs_brec_insert' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		/* create index key and entry */
+		hfs_bnode_read_key(new_node, fd->search_key, 14);
+		cnid = cpu_to_be32(new_node->this);
+
+		__hfs_brec_find(fd->bnode, fd);
+<span class="issue-line">&gt;&gt;&gt; 		hfs_brec_insert(fd, &cnid, sizeof(cnid));
+</span>		hfs_bnode_put(fd->bnode);
+		hfs_bnode_put(new_node);
+
+		if (!rec) {
+			if (new_node == node)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(66, true)">✓ True Positive</button>
+            <button onclick="markItem(66, false)">✗ False Positive</button>
+            <span id="status-66"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-67">
+        <div class="metadata">
+            <strong>Item #67</strong> |
+            linux-v6.0 |
+            fs/afs/file.c:331:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'afs_fetch_data' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	iov_iter_xarray(&fsreq->def_iter, READ,
+			&fsreq->vnode->netfs.inode.i_mapping->i_pages,
+			fsreq->pos, fsreq->len);
+
+<span class="issue-line">&gt;&gt;&gt; 	afs_fetch_data(fsreq->vnode, fsreq);
+</span>	afs_put_read(fsreq);
+}
+
+static int afs_symlink_read_folio(struct file *file, struct folio *folio)
+{
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(67, true)">✓ True Positive</button>
+            <button onclick="markItem(67, false)">✗ False Positive</button>
+            <span id="status-67"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-68">
+        <div class="metadata">
+            <strong>Item #68</strong> |
+            linux-v6.0 |
+            fs/afs/dir_silly.c:277:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'afs_do_silly_unlink' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	spin_lock(&vnode->lock);
+	vnode->lock_state = AFS_VNODE_LOCK_DELETED;
+	trace_afs_flock_ev(vnode, NULL, afs_flock_silly_delete, 0);
+	spin_unlock(&vnode->lock);
+
+<span class="issue-line">&gt;&gt;&gt; 	afs_do_silly_unlink(dvnode, vnode, dentry, dvnode->silly_key);
+</span>	up_read(&dvnode->rmdir_lock);
+	d_lookup_done(alias);
+	dput(alias);
+	return 1;
+}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(68, true)">✓ True Positive</button>
+            <button onclick="markItem(68, false)">✗ False Positive</button>
+            <span id="status-68"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-69">
+        <div class="metadata">
+            <strong>Item #69</strong> |
+            linux-v6.0 |
+            fs/hfsplus/brec.c:442:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'hfsplus_brec_insert' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		/* create index key and entry */
+		hfs_bnode_read_key(new_node, fd->search_key, 14);
+		cnid = cpu_to_be32(new_node->this);
+
+		__hfs_brec_find(fd->bnode, fd, hfs_find_rec_by_key);
+<span class="issue-line">&gt;&gt;&gt; 		hfs_brec_insert(fd, &cnid, sizeof(cnid));
+</span>		hfs_bnode_put(fd->bnode);
+		hfs_bnode_put(new_node);
+
+		if (!rec) {
+			if (new_node == node)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(69, true)">✓ True Positive</button>
+            <button onclick="markItem(69, false)">✗ False Positive</button>
+            <span id="status-69"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-70">
+        <div class="metadata">
+            <strong>Item #70</strong> |
+            linux-v6.0 |
+            arch/x86/kernel/cpu/resctrl/rdtgroup.c:2580:3 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'mkdir_mondata_subdir' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	if (!r->mon_enabled)
+		return;
+
+	list_for_each_entry(prgrp, &rdt_all_groups, rdtgroup_list) {
+		parent_kn = prgrp->mon.mon_data_kn;
+<span class="issue-line">&gt;&gt;&gt; 		mkdir_mondata_subdir(parent_kn, d, r, prgrp);
+</span>
+		head = &prgrp->mon.crdtgrp_list;
+		list_for_each_entry(crgrp, head, mon.crdtgrp_list) {
+			parent_kn = crgrp->mon.mon_data_kn;
+			mkdir_mondata_subdir(parent_kn, d, r, crgrp);
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(70, true)">✓ True Positive</button>
+            <button onclick="markItem(70, false)">✗ False Positive</button>
+            <span id="status-70"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-71">
+        <div class="metadata">
+            <strong>Item #71</strong> |
+            linux-v6.0 |
+            arch/x86/kernel/cpu/resctrl/rdtgroup.c:2585:4 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'mkdir_mondata_subdir' is unused but represents an error value</div>
+        <div class="code">
+            <pre>		mkdir_mondata_subdir(parent_kn, d, r, prgrp);
+
+		head = &prgrp->mon.crdtgrp_list;
+		list_for_each_entry(crgrp, head, mon.crdtgrp_list) {
+			parent_kn = crgrp->mon.mon_data_kn;
+<span class="issue-line">&gt;&gt;&gt; 			mkdir_mondata_subdir(parent_kn, d, r, crgrp);
+</span>		}
+	}
+}
+
+static int mkdir_mondata_subdir_alldom(struct kernfs_node *parent_kn,
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(71, true)">✓ True Positive</button>
+            <button onclick="markItem(71, false)">✗ False Positive</button>
+            <span id="status-71"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-72">
+        <div class="metadata">
+            <strong>Item #72</strong> |
+            linux-v6.0 |
+            arch/sh/kernel/ptrace_32.c:116:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'set_single_step' is unused but represents an error value</div>
+        <div class="code">
+            <pre>{
+	unsigned long pc = get_stack_long(child, offsetof(struct pt_regs, pc));
+
+	set_tsk_thread_flag(child, TIF_SINGLESTEP);
+
+<span class="issue-line">&gt;&gt;&gt; 	set_single_step(child, pc);
+</span>}
+
+void user_disable_single_step(struct task_struct *child)
+{
+	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(72, true)">✓ True Positive</button>
+            <button onclick="markItem(72, false)">✗ False Positive</button>
+            <span id="status-72"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-73">
+        <div class="metadata">
+            <strong>Item #73</strong> |
+            linux-v6.0 |
+            arch/mips/pci/pci-lantiq.c:223:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'ltq_pci_startup' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	res_cfg = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	ltq_pci_mapped_cfg = devm_ioremap_resource(&pdev->dev, res_cfg);
+	if (IS_ERR(ltq_pci_mapped_cfg))
+		return PTR_ERR(ltq_pci_mapped_cfg);
+
+<span class="issue-line">&gt;&gt;&gt; 	ltq_pci_startup(pdev);
+</span>
+	pci_load_of_ranges(&pci_controller, pdev->dev.of_node);
+	register_pci_controller(&pci_controller);
+	return 0;
+}
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(73, true)">✓ True Positive</button>
+            <button onclick="markItem(73, false)">✗ False Positive</button>
+            <span id="status-73"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-74">
+        <div class="metadata">
+            <strong>Item #74</strong> |
+            linux-v6.0 |
+            virt/kvm/eventfd.c:971:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'kvm_deassign_ioeventfd_idx' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	}
+
+	return 0;
+
+fast_fail:
+<span class="issue-line">&gt;&gt;&gt; 	kvm_deassign_ioeventfd_idx(kvm, bus_idx, args);
+</span>fail:
+	return ret;
+}
+
+int
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(74, true)">✓ True Positive</button>
+            <button onclick="markItem(74, false)">✗ False Positive</button>
+            <span id="status-74"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-75">
+        <div class="metadata">
+            <strong>Item #75</strong> |
+            linux-v6.0 |
+            sound/soc/qcom/qdsp6/q6apm.c:741:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'q6apm_get_apm_state' is unused but represents an error value</div>
+        <div class="code">
+            <pre>	idr_init(&apm->sub_graphs_idr);
+	idr_init(&apm->containers_idr);
+
+	idr_init(&apm->modules_idr);
+
+<span class="issue-line">&gt;&gt;&gt; 	q6apm_get_apm_state(apm);
+</span>
+	ret = devm_snd_soc_register_component(dev, &q6apm_audio_component, NULL, 0);
+	if (ret < 0) {
+		dev_err(dev, "failed to get register q6apm: %d\n", ret);
+		return ret;
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(75, true)">✓ True Positive</button>
+            <button onclick="markItem(75, false)">✗ False Positive</button>
+            <span id="status-75"></span>
+        </div>
+    </div>
+
+    <div class="item" id="item-76">
+        <div class="metadata">
+            <strong>Item #76</strong> |
+            linux-v6.0 |
+            sound/soc/ti/davinci-mcasp.c:2417:2 |
+            Checker: linuxkernel-must-check-errs
+        </div>
+        <div class="message"><strong>Issue:</strong> result from function 'mcasp_reparent_fck' is unused but represents an error value</div>
+        <div class="code">
+            <pre>
+	ret = davinci_mcasp_set_ch_constraints(mcasp);
+	if (ret)
+		goto err;
+
+<span class="issue-line">&gt;&gt;&gt; 	mcasp_reparent_fck(pdev);
+</span>
+	ret = devm_snd_soc_register_component(&pdev->dev, &davinci_mcasp_component,
+					      &davinci_mcasp_dai[mcasp->op_mode], 1);
+
+	if (ret != 0)
+</pre>
+        </div>
+        <div class="verdict">
+            <button onclick="markItem(76, true)">✓ True Positive</button>
+            <button onclick="markItem(76, false)">✗ False Positive</button>
+            <span id="status-76"></span>
+        </div>
+    </div>
+
+    <script>
+        function markItem(id, isTrue) {
+            document.getElementById('status-' + id).innerHTML =
+                isTrue ? '<span class="true-positive">Marked as TRUE POSITIVE</span>' :
+                         '<span class="false-positive">Marked as FALSE POSITIVE</span>';
+            // Store in localStorage for later export
+            localStorage.setItem('item-' + id, isTrue);
+        }
+
+        function exportResults() {
+            let results = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('item-')) {
+                    results[key] = localStorage.getItem(key) === 'true';
+                }
+            }
+            console.log(JSON.stringify(results, null, 2));
+            alert('Results exported to console (F12)');
+        }
+    </script>
+    <hr>
+    <button onclick="exportResults()">Export Results to Console</button>
+</body>
+</html>
