@@ -1,138 +1,134 @@
-- # Project Setup Prompt
+# Agent Guide – Linux Kernel Anti-Pattern Pipeline
 
-## Project: Linux Kernel Anti-Pattern Detection Pipeline
+Repository root: `/nvme/write/mac/private/linux-guard`
 
-### Overview
+This document summarizes how the pipeline is organized, which script is responsible for each phase, and where artifacts are stored. All paths in scripts should be relative to the repository root so the project stays portable.
 
-This project implements an automated pipeline for detecting security anti-patterns in the Linux kernel by generating custom clang-tidy static analysis checkers using LLMs. The system learns from historical bug fixes to proactively identify similar vulnerabilities across different kernel versions.
-
-### Project Structure
+## End-to-End Flow
 
 ```
-linux-guard/
-├── llvm-project/                 # LLVM/Clang build with clang-tidy
-│   ├── build/
-│   │   └── bin/clang-tidy       # Built binary with custom checkers
-│   └── clang-tools-extra/
-│       └── clang-tidy/
-│           └── linuxkernel/      # Custom kernel checker module
-│               ├── MustCheckErrsCheck.cpp
-│               ├── MustCheckErrsCheck.h
-│               └── LinuxKernelTidyModule.cpp
-├── kernels/                      # Linux kernel versions for analysis
-│   ├── linux-v3.0/
-│   ├── linux-v4.0/
-│   ├── linux-v5.0/
-│   └── linux-v6.0/
-├── checkers/                     # Generated checkers
-│   ├── templates/
-│   └── generated/
-├── results/                      # Scan results and analysis
-│   └── summary_report.md
-└── scripts/                      # Automation scripts
+Module 1 (pattern extraction)
+ → Module 2 (checker synthesis)
+ → Module 3 (integration + build/verify)
+ → Module 4 (multi-version validation)
+ → Results saved per checker generation
 ```
 
-### Key Components
+The orchestrator (`scripts/orchestrator.py`) stitches these phases together but delegates actual work to the individual modules. It also ensures the clang-tidy source tree is restored before and after every run, preventing lingering checker files.
 
-#### 1. Custom Clang-Tidy Checker
+## Modules at a Glance
 
-- **Location**: `~/private/linux-guard/llvm-project/build/bin/clang-tidy`
-- **Module**: `linuxkernel-must-check-errs` - Detects unchecked error pointers in kernel code
-- **Technology**: C++ AST matchers using Clang's LibTooling
+| Module | Script | Output |
+| ------ | ------ | ------ |
+| 1 | `module1_pattern_extraction.py` | `results/…/checker_guidance.json` |
+| 2 | `module2_checker_synthesis.py` | Checker sources in `checkers/generated/<anti-pattern>/<generation_id>/` (header, cpp, metadata) |
+| 3 | `module3_integration.py` | Builds clang-tidy with a selected checker, updates metadata, optional restore via `--restore` |
+| 4 | `module4_validation.py` | JSON/markdown scan reports per kernel version |
 
-#### 2. Kernel Versions
+## Repository Layout (high level)
 
-- **Downloaded**: v3.0, v4.0, v5.0, v6.0 (major versions spanning 2011-2024)
-- **Setup**: Each has `compile_commands.json` for clang-tidy analysis
-- **Purpose**: Track evolution of anti-patterns across kernel history
+```
+llvm-project/                       # LLVM/Clang checkout + build tree
+  build/bin/clang-tidy              # Binary used for validation
+  clang-tools-extra/clang-tidy/linuxkernel/
+    LinuxKernelTidyModule.cpp       # Updated by Module 3
+kernels/                            # Local Linux kernel snapshots (with compile_commands.json)
+checkers/
+  templates/                        # Seed templates used by Module 2
+  generated/<anti-pattern>/<generation_id>/
+results/
+  <anti-pattern>/<generation_id>/   # Orchestrator + validation artifacts
+scripts/                            # Pipeline modules & helpers
+```
 
-#### 3. Analysis Pipeline
+Each checker generation folder contains:
+
+```
+BufferOverflowCheck.cpp / .h
+metadata.json
+```
+
+The orchestrator mirrors every generation’s outputs under `results/<anti-pattern>/<generation_id>/`:
+
+```
+orchestrator_result.json
+validation_report.json
+validation_report.md
+```
+
+## Orchestrator Usage
+
+Activate the virtual environment first:
 
 ```bash
-Historical Bug Fix → LLM Analysis → Generate Checker → Build into clang-tidy → Scan Kernels → Report Vulnerabilities
+source LinuxGuard/bin/activate
 ```
 
-### Technical Details
-
-#### Build Configuration
-
-- **LLVM Version**: 22.0.0git
-- **Build Type**: Release, minimal (only clang and clang-tools-extra)
-- **Target**: X86 only
-- **Location**: User space only (`~/private/`), no system modifications
-
-#### Checker Implementation
-
-The checker uses AST pattern matching to find bugs:
-
-```cpp
-// Matches unchecked calls to error functions
-auto ErrFn = functionDecl(hasAnyName("ERR_PTR", "IS_ERR", ...));
-auto NonCheckingStmts = stmt(anyOf(compoundStmt(), labelStmt()));
-Finder->addMatcher(callExpr(callee(ErrFn), hasParent(NonCheckingStmts)), this);
-```
-
-### Usage Commands
-
-#### Run Checker on Single File
+Run the pipeline for a given commit:
 
 ```bash
-~/private/linux-guard/llvm-project/build/bin/clang-tidy \
-    -checks="-*,linuxkernel-must-check-errs" \
-    -p ~/private/linux-guard/kernels/linux-v6.0 \
-    test.c
+python3 scripts/orchestrator.py \
+  --commit <commit_hash> \
+  --max-iterations 5 \
+  --max-repairs 10 \
+  [--validation-kernel linux-v3.0]
 ```
 
-#### Scan Entire Kernel Version
+Key behaviors:
+
+* Automatically restores `clang-tools-extra/clang-tidy/linuxkernel/` at the start and end of the run.
+* On success/failure it writes results to `results/<anti-pattern>/<generation_id>/` using metadata from `checkers/generated/...`.
+* Leaving `--validation-kernel` unset makes Module 4 scan every kernel in `kernels/` using parallel worker processes.
+
+## Running Modules Individually
 
 ```bash
-cd ~/private/linux-guard/kernels/linux-v6.0
-python3 ~/private/linux-guard/llvm-project/clang-tools-extra/clang-tidy/tool/run-clang-tidy.py \
-    -clang-tidy-binary=~/private/linux-guard/llvm-project/build/bin/clang-tidy \
-    -checks="-*,linuxkernel-must-check-errs" \
-    -p . -j 4
+# Module 1 – Extract guidance for a commit
+python3 scripts/module1_pattern_extraction.py --commit-hash <hash>
+
+# Module 2 – Generate checker sources (uses latest guidance by default)
+python3 scripts/module2_checker_synthesis.py --single
+
+# Module 3 – Integrate a specific generation
+python3 scripts/module3_integration.py \
+  --checker-metadata checkers/generated/<anti-pattern>/<generation_id>/metadata.json \
+  --jobs $(nproc)
+
+# Module 4 – Validate the currently integrated checker
+python3 scripts/module4_validation.py \
+  --checker-pattern linuxkernel-<checker-name> \
+  --anti-pattern-type <anti-pattern> \
+  --output results/<anti-pattern>/<generation_id>/validation_report.json \
+  --processes 4
 ```
 
-### Research Goals
+Module 3 accepts `--persist` when you want to keep checker files in the clang-tidy directory for inspection; the orchestrator never uses `--persist` so it can clean up automatically. Run `python3 scripts/module3_integration.py --restore` at any time to reset clang-tidy sources.
 
-1. **Temporal Analysis**: Find unfixed vulnerabilities in older kernel versions
-2. **Spatial Analysis**: Detect similar anti-patterns across different subsystems
-3. **Pattern Learning**: Generate new checkers from recent CVE fixes
-4. **Proactive Prevention**: Identify bugs before they become security issues
+## Parallel Validation
 
-### Current Status
+`module4_validation.py` uses a multiprocessing pool to fan out scans across kernel versions. Use `--processes <N>` to control the number of workers (default: CPU count). Within each kernel the scan iterates batch by batch; reduce runtime by setting `--sample-size` during experiments.
 
-- ✅ LLVM/clang-tidy built with custom kernel module
-- ✅ Linux kernels v3.0, v4.0, v5.0, v6.0 downloaded
-- ✅ Compilation databases generated
-- ✅ MustCheckErrsCheck implemented and integrated
+## Git Hygiene
 
-### Key Insights
+* Do **not** stage the kernel sources or other nested Git repositories (e.g., `kernels/linux.git`). Add them to `.gitignore` if necessary.
+* Generated checkers and results should be tracked only when you explicitly want to commit them.
 
-- Each kernel scan reveals 200+ instances of unchecked error values
-- Anti-patterns persist across versions, indicating systemic issues
-- Automated detection scales better than manual code review
-- LLM-generated checkers can encode complex security patterns
-
-### Environment Variables
+## Quick Reference
 
 ```bash
-export CLANG_TIDY=$HOME/private/linux-guard/llvm-project/build/bin/clang-tidy
-export KERNELS_DIR=$HOME/private/linux-guard/kernels
-export RESULTS_DIR=$HOME/private/linux-guard/results
+# Integrate but skip rebuilding
+python3 scripts/module3_integration.py --no-build --checker-metadata <metadata.json>
+
+# Scan only linux-v5.0 with 8 workers
+python3 scripts/module4_validation.py \
+  --checker-pattern linuxkernel-buffer-overflow \
+  --anti-pattern-type buffer-overflow \
+  --kernel-version linux-v5.0 \
+  --processes 8 \
+  --output results/buffer-overflow/<generation_id>/validation_report.json
+
+# Restore clang-tidy sources
+python3 scripts/module3_integration.py --restore
 ```
 
-### Important Notes
-
-- This is on a shared lab server - all installations are in user space
-- No sudo/root access used or required
-- Resource-conscious: uses `nice` and limited cores for builds
-- Disk usage: ~3.4GB for LLVM build, ~1GB per kernel
-
-### Contact/User
-
-- User: Xuming (Mac)
-- Location: `/nvme/write/mac/private/linux-guard/`
-- Server: Shared lab environment (bumble)
-- My methodology is to utilizing the commits from current version, which means such specific bug mentioned in these commits have a high chance not been found from the previous versions, thus build the pipeline to automate such process to detect similar anti-patterns.
-- The main path of this project is `/nvme/write/mac/private/linux-guard`. All the path written in the code should be the relative one.
+Following these conventions keeps the orchestrator lightweight, ensures modules stay single-purpose, and makes the results easy to navigate for each generated checker.

@@ -1,0 +1,8 @@
+{
+  "checker_name": "UseAfterFreeCheck",
+  "anti_pattern_type": "use-after-free",
+  "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+  "generation_id": "80af3745ca46_20251022150651",
+  "generated_at": "2025-10-22T15:06:51.769725",
+  "status": "generated"
+}

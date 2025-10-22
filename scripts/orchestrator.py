@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 import time
 from datetime import datetime
+from prompt_library import build_repair_prompt
 
 # Load environment variables
 load_dotenv()
@@ -261,9 +262,9 @@ class PipelineOrchestrator:
                     self.display.success("Build successful!")
                     break
 
-                if attempt == 1 and errors:
+                if errors:
                     preview = '\n'.join(errors.splitlines()[:15])
-                    print("  --- Build output (truncated) ---")
+                    print(f"  --- Build output (truncated, attempt {attempt}/{self.max_repair_attempts}) ---")
                     print('\n'.join(f"    {line}" for line in preview.splitlines()))
                     if len(errors.splitlines()) > 15:
                         print("    ...")
@@ -505,47 +506,14 @@ class PipelineOrchestrator:
             h_code = f.read()
 
         # Create repair prompt
-        prompt = f"""Fix the compilation errors in this clang-tidy checker.
-
-HEADER FILE ({checker_info['checker_name']}.h):
-```cpp
-{h_code}
-```
-
-IMPLEMENTATION FILE ({checker_info['checker_name']}.cpp):
-```cpp
-{cpp_code}
-```
-
-COMPILATION ERRORS:
-```
-{errors}
-```
-
-CONTEXT:
-- This checker detects: {pattern.get('anti_pattern_type', 'unknown')}
-- It should identify: {pattern.get('vulnerable_pattern', {}).get('description', '')}
-
-Fix the compilation errors by correcting the API usage. Common issues:
-- Use dyn_cast<T> instead of getAs<T> for AST nodes
-- CompoundStmt::body() returns an iterator range, not a container
-- Use proper clang AST API methods
-- Ensure all matcher constructs are valid
-
-Respond with two code blocks:
-1. The complete fixed header file
-2. The complete fixed implementation file
-
-Respond ONLY with the two code blocks labeled:
-HEADER:
-```cpp
-...
-```
-
-IMPLEMENTATION:
-```cpp
-...
-```"""
+        prompt = build_repair_prompt(
+            checker_info['checker_name'],
+            h_code,
+            cpp_code,
+            errors,
+            pattern.get('anti_pattern_type', 'unknown'),
+            pattern.get('vulnerable_pattern', {}).get('description', '')
+        )
 
         try:
             response = self.repair_model.generate_content(prompt)

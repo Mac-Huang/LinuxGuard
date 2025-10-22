@@ -1,0 +1,88 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-10-22T00:34:25.274242",
+    "clang_tidy_binary": "/nvme/write/mac/private/linux-guard/llvm-project/build/bin/clang-tidy",
+    "kernels_scanned": 4,
+    "anti_pattern_type": "buffer-overflow"
+  },
+  "results_by_version": {
+    "linux-v3.0": {
+      "total_issues": 0,
+      "files_scanned": 16201,
+      "scan_time": "2025-10-21T22:14:25.969832",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    },
+    "linux-v4.0": {
+      "total_issues": 0,
+      "files_scanned": 20985,
+      "scan_time": "2025-10-21T22:14:27.019879",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    },
+    "linux-v5.0": {
+      "total_issues": 1,
+      "files_scanned": 26665,
+      "scan_time": "2025-10-21T22:14:28.457838",
+      "issues": [
+        {
+          "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/target/target_core_configfs.c",
+          "line": 2442,
+          "column": 13,
+          "message": "Potential buffer overflow in target_lu_gp_members_show due to missing check of snprintf return value or inadequate size check.",
+          "checker": "linuxkernel-buffer-overflow",
+          "subsystem": "drivers"
+        }
+      ],
+      "analysis": {
+        "summary": {
+          "total_issues": 1,
+          "unique_files_affected": 1
+        },
+        "by_subsystem": {
+          "drivers": 1
+        },
+        "by_checker": {
+          "linuxkernel-buffer-overflow": 1
+        },
+        "hotspots": []
+      }
+    },
+    "linux-v6.0": {
+      "total_issues": 0,
+      "files_scanned": 31809,
+      "scan_time": "2025-10-21T22:14:30.052078",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    }
+  },
+  "cross_version_analysis": {
+    "temporal_trends": {},
+    "persistent_issues": [],
+    "evolution": {}
+  }
+}

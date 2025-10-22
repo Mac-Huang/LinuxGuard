@@ -12,6 +12,7 @@ from typing import Dict, List, Optional
 from datetime import datetime
 from dotenv import load_dotenv
 import google.generativeai as genai
+from prompt_library import build_header_generation_prompt, build_implementation_prompt
 
 # Load environment variables
 load_dotenv()
@@ -99,26 +100,12 @@ class CheckerSynthesizer:
     def generate_header(self, checker_name: str, guidance: Dict) -> str:
         """Generate header file for the checker."""
 
-        prompt = f"""Generate a clang-tidy checker header file based on this template and requirements.
-
-Template structure to follow:
-```cpp
-{self.templates['header']}
-```
-
-Requirements:
-- Checker name: {checker_name}
-- Anti-pattern type: {guidance['anti_pattern_type']}
-- Description: Detect {guidance['pattern_description']['vulnerable'].get('description', '')}
-
-Generate a header file that:
-1. Uses the same structure as the template
-2. Replaces MustCheckErrsCheck with {checker_name}
-3. Updates the class documentation to describe what this checker detects
-4. Maintains the same namespace (clang::tidy::linuxkernel)
-5. Uses proper include guards with the new checker name
-
-Respond with ONLY the complete C++ header code, no explanations."""
+        prompt = build_header_generation_prompt(
+            self.templates['header'],
+            checker_name,
+            guidance['anti_pattern_type'],
+            guidance['pattern_description']['vulnerable'].get('description', '')
+        )
 
         try:
             response = self.model.generate_content(prompt)
@@ -141,58 +128,22 @@ Respond with ONLY the complete C++ header code, no explanations."""
             "relationships": guidance["checker_requirements"].get("relationships", [])
         }
 
-        prompt = f"""Generate a clang-tidy checker implementation file that detects the EXACT pattern from this bug fix.
-
-Template structure to follow:
-```cpp
-{self.templates['cpp']}
-```
-
-CRITICAL REQUIREMENTS - This checker must find the EXACT bug pattern:
-- Checker Name: {checker_name}
-- Bug Type: {guidance['anti_pattern_type']}
-
-EXACT VULNERABILITY PATTERN TO DETECT:
-{guidance['pattern_description']['vulnerable'].get('description', '')}
-
-Code context showing the EXACT bug:
-{guidance['pattern_description']['vulnerable'].get('code_context', '')}
-
-SPECIFIC indicators that MUST be matched:
-{json.dumps(guidance['pattern_description']['vulnerable'].get('key_indicators', []), indent=2)}
-
-The fix that was applied:
-{guidance['pattern_description']['fixed'].get('description', '')}
-
-IMPORTANT - BE SPECIFIC:
-- If the bug involves specific function names (like "of_changeset_add_property", "__of_prop_free"), use THOSE EXACT names
-- If the bug involves specific variable names or patterns, match those EXACTLY
-- This is NOT about finding general patterns - we want to find THIS EXACT bug in older kernels
-
-AST Matching Strategy:
-- Node types involved: {ast_requirements['node_types']}
-- Specific conditions: {ast_requirements['conditions']}
-- Control flow relationships: {ast_requirements['relationships']}
-
-For {guidance['anti_pattern_type']}, create matchers that:
-{self.get_pattern_specific_hints(guidance['anti_pattern_type'])}
-
-BUT prioritize matching the EXACT pattern described above over general patterns.
-
-Common AST matchers to use:
-- callExpr(callee(functionDecl(hasName("exact_function_name")))): Match specific function calls
-- ifStmt(): Match if statements and their branches
-- returnStmt(): Match return statements (or lack thereof)
-- compoundStmt(): Match code blocks
-- hasDescendant(): Check for patterns within blocks
-- unless(hasDescendant(returnStmt())): Check for missing returns
-
-Structure your implementation:
-1. In registerMatchers(): Set up matchers for the EXACT pattern described
-2. In check(): Report when the exact vulnerable pattern is found
-3. Use the template structure but replace MustCheckErrsCheck with {checker_name}
-
-Respond with ONLY the complete C++ implementation code, no explanations."""
+        pattern_hints = self.get_pattern_specific_hints(guidance['anti_pattern_type'])
+        key_indicators_json = json.dumps(
+            guidance['pattern_description']['vulnerable'].get('key_indicators', []),
+            indent=2
+        )
+        prompt = build_implementation_prompt(
+            self.templates['cpp'],
+            checker_name,
+            guidance['anti_pattern_type'],
+            guidance['pattern_description']['vulnerable'].get('description', ''),
+            guidance['pattern_description']['vulnerable'].get('code_context', ''),
+            key_indicators_json,
+            guidance['pattern_description']['fixed'].get('description', ''),
+            ast_requirements,
+            pattern_hints
+        )
 
         try:
             response = self.model.generate_content(prompt)

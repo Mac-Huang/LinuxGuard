@@ -12,6 +12,7 @@ from typing import Dict, List, Tuple
 from datetime import datetime
 import textwrap
 import re
+from prompt_library import build_verification_prompt
 
 class ResultsEvaluator:
     """Evaluates scan results for precision and recall analysis."""
@@ -202,27 +203,7 @@ class ResultsEvaluator:
 
     def _create_verification_prompt(self, context: Dict) -> str:
         """Create a prompt for LLM verification of the issue."""
-        prompt = f"""Analyze the following code for a potential bug:
-
-Issue reported by checker '{context['checker']}':
-"{context['message']}"
-
-Code context (issue is at marked line):
-```c
-{context['code_before']}
->>> {context['issue_code'].rstrip()}  // <-- ISSUE REPORTED HERE
-{context['code_after']}
-```
-
-Questions:
-1. Is this a real bug/vulnerability? (YES/NO)
-2. What is the potential impact if this is a bug?
-3. Could this lead to security issues?
-4. Confidence level (0-100%)?
-
-Please provide a brief analysis."""
-
-        return prompt
+        return build_verification_prompt(context)
 
     def create_manual_verification_helper(self, dataset: Dict):
         """Create helper files for manual verification."""

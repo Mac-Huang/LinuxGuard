@@ -219,5 +219,83 @@
     },
     "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
     "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "80af3745ca46_20251022145846",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/80af3745ca46_20251022145846/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/80af3745ca46_20251022145846/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/80af3745ca46_20251022145846/metadata.json"
+    },
+    "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "80af3745ca46_20251022150048",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/80af3745ca46_20251022150048/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/80af3745ca46_20251022150048/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/80af3745ca46_20251022150048/metadata.json"
+    },
+    "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "80af3745ca46_20251022150247",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/80af3745ca46_20251022150247/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/80af3745ca46_20251022150247/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/80af3745ca46_20251022150247/metadata.json"
+    },
+    "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "80af3745ca46_20251022150452",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/80af3745ca46_20251022150452/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/80af3745ca46_20251022150452/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/80af3745ca46_20251022150452/metadata.json"
+    },
+    "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "80af3745ca46_20251022150651",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/80af3745ca46_20251022150651/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/80af3745ca46_20251022150651/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/80af3745ca46_20251022150651/metadata.json"
+    },
+    "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "80af3745ca46_20251022150848",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/80af3745ca46_20251022150848/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/80af3745ca46_20251022150848/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/80af3745ca46_20251022150848/metadata.json"
+    },
+    "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
+    "status": "generated"
   }
 ]

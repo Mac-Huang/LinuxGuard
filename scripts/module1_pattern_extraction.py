@@ -15,6 +15,7 @@ from typing import Dict, Optional, Any
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
+from prompt_library import build_pattern_extraction_prompt
 
 # --- Constants ---
 PROJECT_ROOT = Path(__file__).parent.parent 
@@ -47,7 +48,6 @@ class RichCommitAnalyzer:
     def __init__(self):
         """Initializes the analyzer and the Gemini model."""
         self.model = self._initialize_model()
-        self.prompt_template = self._load_prompt_template()
 
     def _initialize_model(self) -> genai.GenerativeModel:
         """Configures and returns the Gemini generative model."""
@@ -60,16 +60,6 @@ class RichCommitAnalyzer:
         model_name = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
         logging.info(f"Initializing Gemini model: {model_name}")
         return genai.GenerativeModel(model_name)
-
-    def _load_prompt_template(self) -> str:
-        """Loads the LLM prompt from an external file."""
-        template_path = Path(__file__).parent / "prompt_template.txt"
-        try:
-            with open(template_path, 'r') as f:
-                return f.read()
-        except FileNotFoundError:
-            logging.error(f"Prompt template file not found at {template_path}")
-            raise
 
     def analyze_commit(self, commit_data: Dict[str, Any], patch_content: str) -> Optional[Dict[str, Any]]:
         """
@@ -130,7 +120,7 @@ class RichCommitAnalyzer:
         Sends the context to the LLM for analysis with retry logic.
         Parses and validates the JSON response.
         """
-        prompt = self.prompt_template.replace("{context}", context)
+        prompt = build_pattern_extraction_prompt(context)
         
         for attempt in range(API_RETRY_ATTEMPTS):
             try:
