@@ -114,11 +114,12 @@ class StatusDisplay:
 class PipelineOrchestrator:
     """Orchestrates the complete pipeline with iterative generation and repair."""
 
-    def __init__(self, base_dir: str = "/home/mac/private/linux-guard"):
-        self.base_dir = Path(base_dir)
+    def __init__(self, base_dir: Optional[str] = None):
+        self.base_dir = Path(base_dir) if base_dir else Path(__file__).resolve().parent.parent
         self.max_iterations = 3
         self.max_repair_attempts = 5
         self.validation_sample = None
+        self.validation_kernel = None
         self.display = StatusDisplay()
 
         # Initialize Gemini for repairs
@@ -136,6 +137,69 @@ class PipelineOrchestrator:
         self.llvm_dir = self.base_dir / "llvm-project"
         self.build_dir = self.llvm_dir / "build"
 
+    def _restore_clang_environment(self):
+        """Ensure clang-tidy sources are reset to their backups."""
+        subprocess.run([
+            "python3", str(self.scripts_dir / "module3_integration.py"),
+            "--restore"
+        ], capture_output=True, text=True)
+
+    def _resolve_project_path(self, path_str: str) -> Path:
+        path = Path(path_str)
+        if not path.is_absolute():
+            path = self.base_dir / path
+        return path
+
+    def _ensure_checker_paths(self, checker: Dict) -> Optional[Dict]:
+        files = checker.get('files') or {}
+        required = ('header_path', 'cpp_path', 'metadata_path')
+        if all(files.get(key) for key in required):
+            return checker
+
+        checker_name = checker.get('checker_name')
+        anti_pattern_folder = checker.get('anti_pattern_folder')
+        if not anti_pattern_folder:
+            anti_type = checker.get('anti_pattern_type')
+            if anti_type:
+                anti_pattern_folder = anti_type.lower().replace('_', '-')
+
+        generation_id = checker.get('generation_id')
+        if not checker_name or not anti_pattern_folder or not generation_id:
+            return None
+
+        base_dir = self.checkers_dir / anti_pattern_folder / generation_id
+        header_path = base_dir / f"{checker_name}.h"
+        cpp_path = base_dir / f"{checker_name}.cpp"
+        metadata_path = base_dir / 'metadata.json'
+
+        if not (header_path.exists() and cpp_path.exists() and metadata_path.exists()):
+            return None
+
+        try:
+            rel_header = header_path.relative_to(self.base_dir)
+            rel_cpp = cpp_path.relative_to(self.base_dir)
+            rel_meta = metadata_path.relative_to(self.base_dir)
+        except ValueError:
+            rel_header, rel_cpp, rel_meta = header_path, cpp_path, metadata_path
+
+        checker['anti_pattern_folder'] = anti_pattern_folder
+        checker['files'] = {
+            'header_path': str(rel_header),
+            'cpp_path': str(rel_cpp),
+            'metadata_path': str(rel_meta)
+        }
+        return checker
+
+    def _count_error_lines(self, output: str) -> int:
+        if not output:
+            return 0
+        count = 0
+        for line in output.splitlines():
+            lower = line.lower()
+            if 'error' in lower or 'failed' in lower:
+                count += 1
+        return count
+
     def generate_checker(self, commit_hash: str) -> Optional[Dict]:
         """Main orchestration function implementing the iterative generation algorithm."""
 
@@ -143,6 +207,9 @@ class PipelineOrchestrator:
         print(f"\n  Commit: {Colors.BOLD}{commit_hash[:12]}{Colors.ENDC}")
         print(f"  Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print()
+
+        # Start from a clean integration state
+        self._restore_clang_environment()
 
         for iteration in range(1, self.max_iterations + 1):
             # Display iteration header prominently
@@ -167,7 +234,7 @@ class PipelineOrchestrator:
             # Stage 3: Checker Implementation
             print(f"\n{Colors.BOLD}Stage 3:{Colors.ENDC} Implementation")
             self.display.status("Generation", "Creating checker code...")
-            checker_info = self.implement_checker(pattern)
+            checker_info = self.implement_checker(pattern, commit_hash)
 
             if not checker_info:
                 self.display.error("Failed to generate checker")
@@ -185,7 +252,7 @@ class PipelineOrchestrator:
 
                 # Try to build first to see if there are errors
                 build_result, errors = self.build_checker(checker_info)
-                error_count = errors.count('error:') if errors else 0
+                error_count = self._count_error_lines(errors)
 
                 # Display status with error count if any
                 self.display.compilation_status(attempt, self.max_repair_attempts, error_count, clear_previous=clear_prev)
@@ -194,8 +261,22 @@ class PipelineOrchestrator:
                     self.display.success("Build successful!")
                     break
 
-                if attempt < self.max_repair_attempts and error_count > 0:
-                    print(f"  🔧 Attempting repair ({error_count} error{'s' if error_count > 1 else ''})...")
+                if attempt == 1 and errors:
+                    preview = '\n'.join(errors.splitlines()[:15])
+                    print("  --- Build output (truncated) ---")
+                    print('\n'.join(f"    {line}" for line in preview.splitlines()))
+                    if len(errors.splitlines()) > 15:
+                        print("    ...")
+
+                fatal_messages = ('metadata path is missing', 'checker metadata path is missing')
+                fatal_error = errors and any(msg in errors.lower() for msg in fatal_messages)
+
+                if fatal_error:
+                    self.display.error('Integration failed: checker metadata is missing')
+                    break
+
+                if attempt < self.max_repair_attempts and errors:
+                    print(f"  🔧 Attempting repair ({max(error_count,1)} error{'s' if max(error_count,1) > 1 else ''})...")
                     repaired = self.repair_checker(checker_info, errors, pattern)
 
                     if not repaired:
@@ -221,6 +302,7 @@ class PipelineOrchestrator:
                 print(f"  Checker: {checker_info['checker_name']}")
                 print(f"  Iteration: {iteration}")
                 print(f"{Colors.GREEN}{'='*80}{Colors.ENDC}")
+                self._restore_clang_environment()
                 return checker_info
             else:
                 self.display.warning("Validation failed, trying next iteration...")
@@ -228,6 +310,7 @@ class PipelineOrchestrator:
         print(f"\n{Colors.FAIL}{'='*80}{Colors.ENDC}")
         print(f"{Colors.FAIL}  ✗ Failed to generate valid checker after {self.max_iterations} iterations{Colors.ENDC}")
         print(f"{Colors.FAIL}{'='*80}{Colors.ENDC}")
+        self._restore_clang_environment()
         return None
 
     def analyze_patch(self, commit_hash: str) -> Optional[Dict]:
@@ -260,50 +343,119 @@ class PipelineOrchestrator:
 
         return None
 
-    def implement_checker(self, pattern: Dict) -> Optional[Dict]:
+    def implement_checker(self, pattern: Dict, commit_hash: str) -> Optional[Dict]:
         """Stage 3: Implement checker from pattern."""
 
-        # Use Module 2 to generate checker
         result = subprocess.run([
             "python3", str(self.scripts_dir / "module2_checker_synthesis.py"),
             "--single"
         ], capture_output=True, text=True)
 
-        # Load generated checker info
+        if result.returncode != 0:
+            self.display.error("Module 2 synthesis failed")
+            return None
+
         checker_meta = self.checkers_dir / "generated_checkers.json"
-        if checker_meta.exists():
+        if not checker_meta.exists():
+            return None
+
+        try:
             with open(checker_meta, 'r') as f:
                 checkers = json.load(f)
-                if checkers:
-                    return checkers[0]
+        except json.JSONDecodeError:
+            return None
 
-        return None
+        if isinstance(checkers, dict):
+            checkers = [checkers]
+
+        if not checkers:
+            return None
+
+        selected = None
+        for entry in reversed(checkers):
+            if entry.get("commit_hash") == commit_hash:
+                selected = entry
+                break
+
+        if selected is None:
+            selected = checkers[-1]
+
+        ensured = self._ensure_checker_paths(selected)
+        if not ensured:
+            self.display.error('Unable to locate generated checker files')
+            return None
+
+        return ensured
 
     def build_checker(self, checker_info: Dict) -> Tuple[bool, str]:
         """Try to build the checker and return success status and error messages."""
 
-        # Integrate into clang-tidy
-        result = subprocess.run([
-            "python3", str(self.scripts_dir / "module3_integration.py"),
-            "--no-build"
+        files = checker_info.get('files', {})
+        metadata_rel = files.get('metadata_path')
+
+        if not metadata_rel:
+            anti_pattern_folder = checker_info.get('anti_pattern_folder')
+            generation_id = checker_info.get('generation_id')
+            if anti_pattern_folder and generation_id:
+                metadata_path = self.checkers_dir / anti_pattern_folder / generation_id / 'metadata.json'
+            else:
+                return False, 'Checker metadata path is missing'
+        else:
+            metadata_path = self._resolve_project_path(metadata_rel)
+
+        if not metadata_path.exists():
+            return False, f'Metadata file not found: {metadata_path}'
+
+        # Ensure we start from a clean integration state
+        subprocess.run([
+            'python3', str(self.scripts_dir / 'module3_integration.py'),
+            '--restore'
         ], capture_output=True, text=True)
 
-        # Try to build
-        build_cmd = [
-            "ninja", "-C", str(self.build_dir),
-            "-j2", "clang-tidy"
+        integration_cmd = [
+            'python3', str(self.scripts_dir / 'module3_integration.py'),
+            '--checker-metadata', str(metadata_path),
+            '--no-build',
+            '--persist'
         ]
 
-        result = subprocess.run(build_cmd, capture_output=True, text=True)
+        clang_tidy_dir = self.llvm_dir / 'clang-tools-extra' / 'clang-tidy' / 'linuxkernel'
+        staged_files = [
+            clang_tidy_dir / f"{checker_info['checker_name']}.h",
+            clang_tidy_dir / f"{checker_info['checker_name']}.cpp"
+        ]
 
-        if result.returncode == 0:
-            return True, ""
+        integration_result = subprocess.run(integration_cmd, capture_output=True, text=True)
 
-        # Extract compilation errors
-        errors = result.stderr if result.stderr else result.stdout
-        relevant_errors = self.extract_relevant_errors(errors, checker_info['checker_name'])
+        if integration_result.returncode != 0:
+            output = integration_result.stderr or integration_result.stdout
+            return False, output
 
-        return False, relevant_errors
+        build_cmd = [
+            'ninja', '-C', str(self.build_dir),
+            '-j2', 'clang-tidy'
+        ]
+
+        try:
+            result = subprocess.run(build_cmd, capture_output=True, text=True)
+            if result.returncode == 0:
+                return True, ''
+
+            errors = result.stderr if result.stderr else result.stdout
+            relevant_errors = self.extract_relevant_errors(errors, checker_info['checker_name'])
+            return False, relevant_errors or errors
+        finally:
+            subprocess.run([
+                'python3', str(self.scripts_dir / 'module3_integration.py'),
+                '--restore'
+            ], capture_output=True, text=True)
+
+            for path in staged_files:
+                try:
+                    if path.exists():
+                        path.unlink()
+                except OSError:
+                    pass
 
     def extract_relevant_errors(self, error_output: str, checker_name: str) -> str:
         """Extract only the relevant compilation errors for the checker."""
@@ -330,9 +482,21 @@ class PipelineOrchestrator:
     def repair_checker(self, checker_info: Dict, errors: str, pattern: Dict) -> bool:
         """Use LLM to repair compilation errors in the checker."""
 
-        # Load current checker code
-        cpp_file = self.checkers_dir / f"{checker_info['checker_name']}.cpp"
-        h_file = self.checkers_dir / f"{checker_info['checker_name']}.h"
+        files = checker_info.get('files', {})
+        header_rel = files.get('header_path')
+        cpp_rel = files.get('cpp_path')
+
+        if header_rel and cpp_rel:
+            h_file = self._resolve_project_path(header_rel)
+            cpp_file = self._resolve_project_path(cpp_rel)
+        else:
+            anti_pattern_folder = checker_info.get('anti_pattern_folder')
+            pattern_dir = self.checkers_dir / anti_pattern_folder if anti_pattern_folder else self.checkers_dir
+            cpp_file = pattern_dir / f"{checker_info['checker_name']}.cpp"
+            h_file = pattern_dir / f"{checker_info['checker_name']}.h"
+
+        if not cpp_file.exists() or not h_file.exists():
+            return False
 
         with open(cpp_file, 'r') as f:
             cpp_code = f.read()
@@ -437,6 +601,15 @@ IMPLEMENTATION:
         # Convert checker name to pattern
         checker_pattern = self.get_checker_pattern(checker_info['checker_name'])
 
+        # Get anti-pattern type for organized output
+        anti_pattern_type = checker_info.get("anti_pattern_type", "unknown")
+        anti_pattern_folder = checker_info.get("anti_pattern_folder") or anti_pattern_type.lower().replace('_', '-')
+        generation_id = checker_info.get("generation_id", datetime.now().strftime("%Y%m%d%H%M%S"))
+
+        validation_dir = self.base_dir / "results" / anti_pattern_folder / generation_id
+        output_path = validation_dir / "validation_report.json"
+        validation_dir.mkdir(parents=True, exist_ok=True)
+
         # Show scanning progress
         if self.validation_sample:
             total_files = self.validation_sample
@@ -446,18 +619,26 @@ IMPLEMENTATION:
         # Run Module 4 - scan files in kernel
         cmd = [
             "python3", str(self.scripts_dir / "module4_validation.py"),
-            "--kernel-version", "linux-v3.0",
             "--checker-pattern", checker_pattern,
-            "--output", str(self.base_dir / "results" / "validation_report.json")
+            "--output", str(output_path),
+            "--anti-pattern-type", anti_pattern_type
         ]
+
+        if self.validation_kernel:
+            cmd.extend(["--kernel-version", self.validation_kernel])
 
         if self.validation_sample:
             cmd.extend(["--sample-size", str(self.validation_sample)])
 
         result = subprocess.run(cmd, capture_output=True, text=True)
 
-        # Load and check results
-        report_file = self.base_dir / "results" / "validation_report.json"
+        # Load and check results from anti-pattern specific folder
+        folder_name = anti_pattern_type.lower().replace('_', '-')
+        report_file = self.base_dir / "results" / folder_name / "validation_report.json"
+
+        # Fallback to old location if not found
+        if not report_file.exists():
+            report_file = self.base_dir / "results" / "validation_report.json"
 
         if not report_file.exists():
             return False
@@ -498,15 +679,20 @@ def main():
                       help='Maximum generation iterations')
     parser.add_argument('--max-repairs', type=int, default=5,
                       help='Maximum repair attempts per iteration')
+    parser.add_argument('--base-dir', default=None,
+                      help='Project root directory (defaults to repository root)')
+    parser.add_argument('--validation-kernel', default=None,
+                      help='Limit validation to a specific kernel version (scan all by default)')
     parser.add_argument('--validation-sample', type=int, default=None,
                       help='Number of files to scan for validation')
 
     args = parser.parse_args()
 
-    orchestrator = PipelineOrchestrator()
+    orchestrator = PipelineOrchestrator(base_dir=args.base_dir)
     orchestrator.max_iterations = args.max_iterations
     orchestrator.max_repair_attempts = args.max_repairs
     orchestrator.validation_sample = args.validation_sample
+    orchestrator.validation_kernel = args.validation_kernel
 
     # Run the orchestrated pipeline
     start_time = time.time()
@@ -514,6 +700,25 @@ def main():
     elapsed = time.time() - start_time
 
     if checker:
+        # Save orchestrator result to anti-pattern folder
+        anti_pattern_type = checker.get("anti_pattern_type", "unknown")
+        folder_name = anti_pattern_type.lower().replace('_', '-')
+
+        generation_id = checker.get("generation_id", datetime.now().strftime("%Y%m%d%H%M%S"))
+        results_dir = orchestrator.base_dir / "results" / folder_name / generation_id
+        results_dir.mkdir(parents=True, exist_ok=True)
+
+        result_file = results_dir / "orchestrator_result.json"
+        with open(result_file, 'w') as f:
+            json.dump({
+                "success": True,
+                "checker": checker,
+                "commit": args.commit,
+                "elapsed_time": elapsed,
+                "completed_at": datetime.now().isoformat()
+            }, f, indent=2)
+
+        print(f"\n{Colors.GREEN}✓ Saved pipeline result to {result_file}{Colors.ENDC}")
         print(f"\n{Colors.BOLD}Pipeline completed in {elapsed:.1f} seconds{Colors.ENDC}")
         return 0
     else:

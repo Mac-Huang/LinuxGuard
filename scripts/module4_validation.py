@@ -198,14 +198,15 @@ class KernelScanner:
 
         return analysis
 
-    def generate_report(self, all_results: List[Dict], output_path: Path):
+    def generate_report(self, all_results: List[Dict], output_path: Path, anti_pattern_type: Optional[str] = None):
         """Generate comprehensive vulnerability report."""
 
         report = {
                 "scan_metadata": {
                     "timestamp": datetime.now().isoformat(),
                     "clang_tidy_binary": str(self.clang_tidy_path),
-                    "kernels_scanned": len(all_results)
+                    "kernels_scanned": len(all_results),
+                    "anti_pattern_type": anti_pattern_type
                     },
                 "results_by_version": {},
                 "cross_version_analysis": {}
@@ -226,15 +227,27 @@ class KernelScanner:
         if len(all_results) > 1:
             report["cross_version_analysis"] = self.cross_version_analysis(all_results)
 
+        # Organize output based on anti-pattern type
+        final_output_path = output_path
+        if anti_pattern_type:
+            folder_name = anti_pattern_type.lower().replace('_', '-')
+            if folder_name not in [p.name for p in final_output_path.parents]:
+                output_dir = output_path.parent / folder_name
+                final_output_path = output_dir / output_path.name
+            else:
+                final_output_path = output_path
+
+        final_output_path.parent.mkdir(parents=True, exist_ok=True)
+
         # Save report
-        with open(output_path, 'w') as f:
+        with open(final_output_path, 'w') as f:
             json.dump(report, f, indent=2)
 
         # Generate markdown summary
-        self.generate_markdown_summary(report, output_path.with_suffix('.md'))
+        self.generate_markdown_summary(report, final_output_path.with_suffix('.md'))
 
-        print(f"\n✓ Report saved to {output_path}")
-        print(f"✓ Summary saved to {output_path.with_suffix('.md')}")
+        print(f"\n✓ Report saved to {final_output_path}")
+        print(f"✓ Summary saved to {final_output_path.with_suffix('.md')}")
 
     def cross_version_analysis(self, all_results: List[Dict]) -> Dict:
         """Analyze patterns across kernel versions."""
@@ -329,6 +342,9 @@ def main():
     parser.add_argument('--kernel-version', help='Scan specific kernel version only')
     parser.add_argument('--sample-size', type=int,
             help='Limit number of files to scan per kernel')
+    parser.add_argument('--anti-pattern-type', help='Anti-pattern type being validated (for organized output)')
+    parser.add_argument('--processes', type=int, default=None,
+            help='Number of worker processes for parallel kernel scans')
 
     args = parser.parse_args()
 
@@ -366,7 +382,7 @@ def main():
     all_results = []
     # Use a multiprocessing Pool to scan kernels concurrently
     # The number of processes will default to the number of CPUs on the machine
-    with mp.Pool() as pool:
+    with mp.Pool(processes=args.processes) as pool:
         results_from_pool = pool.map(run_scan_for_kernel, scan_args)
         # Filter out any None or empty dict results from failed/empty scans
         all_results = [r for r in results_from_pool if r]
@@ -378,9 +394,8 @@ def main():
     # Generate report
     print("\nGenerating report...")
     output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    scanner.generate_report(all_results, output_path)
+    scanner.generate_report(all_results, output_path, args.anti_pattern_type)
 
     # Print summary
     print("\n=== Summary ===")
@@ -395,6 +410,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

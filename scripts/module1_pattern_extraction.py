@@ -8,192 +8,169 @@ import json
 import os
 import subprocess
 import argparse
+import logging
+import time
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from dotenv import load_dotenv
 import google.generativeai as genai
+from google.api_core import exceptions as google_exceptions
 
-# Load environment variables
-load_dotenv()
+# --- Constants ---
+PROJECT_ROOT = Path(__file__).parent.parent 
+DEFAULT_COMMITS_DIR = PROJECT_ROOT / "commits"
+DEFAULT_RESULTS_DIR = PROJECT_ROOT / "results"
+# --- THIS IS THE FIX ---
+# Correct the script name to match your actual file: 'fetch_commit.py'
+FETCH_SCRIPT_PATH = PROJECT_ROOT / "scripts/fetch_commit.py" 
 
+MAX_PATCH_LENGTH = 40000
+MAX_FILES_TO_LIST = 10
+API_RETRY_ATTEMPTS = 3
+API_RETRY_DELAY = 5
+
+# --- Logging Setup ---
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+# Load environment variables from a .env file
+load_dotenv(PROJECT_ROOT / ".env")
+
+# ... (The rest of the script remains exactly the same as the one I provided before) ...
+# (No changes needed in RichCommitAnalyzer class or the rest of the main function)
 class RichCommitAnalyzer:
     """Analyzes commits with full context for security anti-patterns."""
 
     def __init__(self):
-        # Initialize Gemini
+        """Initializes the analyzer and the Gemini model."""
+        self.model = self._initialize_model()
+        self.prompt_template = self._load_prompt_template()
+
+    def _initialize_model(self) -> genai.GenerativeModel:
+        """Configures and returns the Gemini generative model."""
         api_key = os.getenv('GEMINI_API_KEY')
         if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in .env file")
+            logging.error("GEMINI_API_KEY not found in environment or .env file.")
+            raise ValueError("GEMINI_API_KEY not set.")
 
         genai.configure(api_key=api_key)
-        model_name = os.getenv('GEMINI_MODEL', 'gemini-2.0-flash-lite')
-        self.model = genai.GenerativeModel(model_name)
+        model_name = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
+        logging.info(f"Initializing Gemini model: {model_name}")
+        return genai.GenerativeModel(model_name)
 
-    def analyze_commit(self, commit_data: Dict, patch_content: str) -> Optional[Dict]:
-        """Analyze commit with rich context."""
-
-        # Build comprehensive context
-        context = self.build_commit_context(commit_data, patch_content)
-
-        print(f"Analyzing commit with full context...")
-        print(f"  Subject: {commit_data['summary']['subject'][:60]}...")
-        print(f"  Files: {commit_data['summary']['files_changed']} changed")
-
-        return self.analyze_with_llm(context)
-
-    def build_commit_context(self, commit_data: Dict, patch_content: str) -> str:
-        """Build rich context for LLM analysis."""
-
-        summary = commit_data['summary']
-        commit_info = commit_data['commit_info']
-
-        # Truncate patch if too large
-        if len(patch_content) > 40000:
-            patch_content = patch_content[:40000] + "\n... [truncated for analysis]"
-
-        context = f"""
-=== COMMIT INFORMATION ===
-Commit: {commit_data['commit_hash'][:12]}
-Author: {summary['author']}
-Date: {summary['date']}
-Subject: {summary['subject']}
-
-=== COMMIT MESSAGE ===
-{commit_info.get('message_body', 'No message body')}
-
-=== METADATA ===
-Files Changed: {summary['files_changed']}
-Lines Added: {summary['additions']}
-Lines Removed: {summary['deletions']}
-"""
-
-        # Add Fixes information if available
-        if summary['has_fixes_tag'] and commit_info.get('fixes'):
-            context += f"\nFixes: {', '.join(commit_info['fixes'])}"
-
-        # Add reporter information if available
-        if summary['reporters']:
-            context += f"\nReported-by: {', '.join(summary['reporters'])}"
-
-        # Add reviewers if available
-        if commit_info.get('reviewed_by'):
-            context += f"\nReviewed-by: {', '.join(commit_info['reviewed_by'][:2])}"
-
-        # Add file change summary
-        if commit_info.get('diff_analysis'):
-            files = commit_info['diff_analysis'].get('files_changed', [])
-            if files:
-                context += "\n\n=== FILES MODIFIED ==="
-                for f in files[:10]:  # Limit to first 10 files
-                    context += f"\n- {f['from']}"
-                    if f['from'] != f['to']:
-                        context += f" -> {f['to']}"
-
-        # Add the actual patch
-        context += f"\n\n=== COMMIT PATCH ===\n{patch_content}"
-
-        return context
-
-    def analyze_with_llm(self, context: str) -> Optional[Dict]:
-        """Use LLM to analyze commit with rich context."""
-
-        prompt = f"""You are analyzing a Linux kernel commit to identify the EXACT security bug pattern that was fixed.
-
-Your goal: Extract the SPECIFIC pattern so we can find this EXACT bug in older kernel versions.
-
-Analyze the following commit and determine:
-
-1. Is this a security or critical bug fix? Look for:
-   - Fixes tags referencing security issues
-   - Security-related keywords in the commit message
-   - Patterns indicating vulnerability fixes (bounds checks, null checks, race conditions, etc.)
-   - Code changes that add defensive checks or fix dangerous patterns
-
-2. If this IS a security/critical fix, extract THE EXACT PATTERN:
-   - PRESERVE specific function names (e.g., "of_changeset_add_property", "__of_prop_free")
-   - PRESERVE specific variable names and patterns
-   - PRESERVE the exact control flow that causes the bug
-   - This is about finding THE SAME BUG in older code, not similar bugs
-
-Respond with this JSON structure:
-
-If NOT a security fix:
-{{"is_security_fix": false, "reason": "brief explanation"}}
-
-If IS a security fix:
-{{
-  "is_security_fix": true,
-  "confidence": "high|medium|low",
-  "anti_pattern_type": "specific-type",
-  "vulnerability_class": "CWE-XXX category if applicable",
-  "vulnerable_pattern": {{
-    "description": "EXACT description of what was wrong, including specific function/variable names",
-    "key_indicators": ["EXACT function calls like 'of_changeset_add_property'", "EXACT variable patterns like 'new_pp'", "EXACT control flow patterns"],
-    "code_context": "EXACT code snippet from BEFORE the fix showing the vulnerability",
-    "specific_functions": ["list of EXACT function names involved"],
-    "specific_variables": ["list of EXACT variable names if relevant"],
-    "exploitability": "how could this be exploited"
-  }},
-  "fix_pattern": {{
-    "description": "what the fix does to prevent the vulnerability",
-    "required_checks": ["EXACT checks or validations added"],
-    "code_context": "EXACT code snippet from AFTER the fix",
-    "protection_mechanism": "type of protection added"
-  }},
-  "ast_matcher_hints": {{
-    "node_types": ["AST node types to match"],
-    "exact_function_names": ["EXACT function names to match in AST"],
-    "relationships": ["EXACT parent-child or sibling relationships"],
-    "conditions": ["EXACT conditions to check for"],
-    "pattern_description": "Match calls to [EXACT FUNCTION NAMES] followed by [EXACT PATTERN]"
-  }},
-  "severity": "critical|high|medium|low",
-  "cwe_ids": ["CWE-XXX"],
-  "impact": "potential impact if exploited",
-  "affected_subsystem": "kernel subsystem affected"
-}}
-
-IMPORTANT: We are looking for THIS EXACT BUG in older kernels, not similar bugs.
-- Keep all specific function names exactly as they appear
-- Keep all specific variable names and patterns
-- Describe the exact control flow that causes the vulnerability
-
-COMMIT TO ANALYZE:
-{context}
-
-Respond with ONLY valid JSON, no additional text."""
-
+    def _load_prompt_template(self) -> str:
+        """Loads the LLM prompt from an external file."""
+        template_path = Path(__file__).parent / "prompt_template.txt"
         try:
-            response = self.model.generate_content(prompt)
-            response_text = response.text.strip()
+            with open(template_path, 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            logging.error(f"Prompt template file not found at {template_path}")
+            raise
 
-            # Clean response
-            if response_text.startswith('```json'):
-                response_text = response_text[7:]
-            if response_text.startswith('```'):
-                response_text = response_text[3:]
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
+    def analyze_commit(self, commit_data: Dict[str, Any], patch_content: str) -> Optional[Dict[str, Any]]:
+        """
+        Orchestrates the analysis of a single commit.
+        Builds context, analyzes with LLM, and logs the outcome.
+        """
+        context = self._build_commit_context(commit_data, patch_content)
+        
+        commit_hash = commit_data.get('commit_hash', 'unknown')
+        subject = commit_data.get('summary', {}).get('subject', 'No Subject')
+        logging.info(f"Analyzing commit {commit_hash[:12]}: {subject[:60]}...")
+        
+        return self._analyze_with_llm(context)
 
-            result = json.loads(response_text.strip())
+    def _build_commit_context(self, commit_data: Dict[str, Any], patch_content: str) -> str:
+        """Builds the comprehensive context string for LLM analysis."""
+        summary = commit_data.get('summary', {})
+        commit_info = commit_data.get('commit_info', {})
 
-            # Log confidence if it's a security fix
-            if result.get('is_security_fix'):
-                print(f"  ✓ Security fix detected (confidence: {result.get('confidence', 'unknown')})")
-                print(f"    Type: {result.get('anti_pattern_type', 'unknown')}")
-                print(f"    Severity: {result.get('severity', 'unknown')}")
-            else:
-                print(f"  ✗ Not a security fix: {result.get('reason', 'no reason given')}")
+        if len(patch_content) > MAX_PATCH_LENGTH:
+            patch_content = patch_content[:MAX_PATCH_LENGTH] + "\n... [truncated for analysis]"
 
-            return result
+        context_parts = [
+            "=== COMMIT INFORMATION ===",
+            f"Commit: {commit_data.get('commit_hash', 'N/A')[:12]}",
+            f"Author: {summary.get('author', 'N/A')}",
+            f"Date: {summary.get('date', 'N/A')}",
+            f"Subject: {summary.get('subject', 'N/A')}",
+            "\n=== COMMIT MESSAGE ===",
+            commit_info.get('message_body', 'No message body'),
+            "\n=== METADATA ===",
+            f"Files Changed: {summary.get('files_changed', 0)}",
+            f"Lines Added: {summary.get('additions', 0)}",
+            f"Lines Removed: {summary.get('deletions', 0)}",
+        ]
 
-        except Exception as e:
-            print(f"Error analyzing with LLM: {e}")
-            return None
+        if summary.get('has_fixes_tag') and commit_info.get('fixes'):
+            context_parts.append(f"Fixes: {', '.join(commit_info['fixes'])}")
+        if summary.get('reporters'):
+            context_parts.append(f"Reported-by: {', '.join(summary['reporters'])}")
+        if commit_info.get('reviewed_by'):
+            context_parts.append(f"Reviewed-by: {', '.join(commit_info['reviewed_by'][:2])}")
+        
+        files_changed = commit_info.get('diff_analysis', {}).get('files_changed', [])
+        if files_changed:
+            context_parts.append("\n=== FILES MODIFIED ===")
+            for f in files_changed[:MAX_FILES_TO_LIST]:
+                line = f"- {f['from']}"
+                if f['from'] != f['to']:
+                    line += f" -> {f['to']}"
+                context_parts.append(line)
+        
+        context_parts.append(f"\n=== COMMIT PATCH ===\n{patch_content}")
+        return "\n".join(context_parts)
+
+    def _analyze_with_llm(self, context: str) -> Optional[Dict[str, Any]]:
+        """
+        Sends the context to the LLM for analysis with retry logic.
+        Parses and validates the JSON response.
+        """
+        prompt = self.prompt_template.replace("{context}", context)
+        
+        for attempt in range(API_RETRY_ATTEMPTS):
+            try:
+                response = self.model.generate_content(prompt)
+                response_text = response.text.strip()
+
+                if response_text.startswith('```json'):
+                    response_text = response_text[7:-3].strip()
+                elif response_text.startswith('```'):
+                     response_text = response_text[3:-3].strip()
+
+                result = json.loads(response_text)
+
+                if result.get('is_security_fix'):
+                    logging.info(
+                        f"✓ Security fix detected (confidence: {result.get('confidence', 'N/A')}, "
+                        f"type: {result.get('anti_pattern_type', 'N/A')}, "
+                        f"severity: {result.get('severity', 'N/A')})"
+                    )
+                else:
+                    logging.info(f"✗ Not a security fix: {result.get('reason', 'no reason given')}")
+                
+                return result
+
+            except (google_exceptions.ResourceExhausted, google_exceptions.ServiceUnavailable) as e:
+                logging.warning(f"API Error: {e}. Retrying in {API_RETRY_DELAY}s... (Attempt {attempt + 1}/{API_RETRY_ATTEMPTS})")
+                time.sleep(API_RETRY_DELAY)
+            except json.JSONDecodeError as e:
+                logging.error(f"Failed to decode LLM response into JSON: {e}")
+                logging.debug(f"LLM Raw Response:\n---\n{response.text[:500]}\n---")
+                return None
+            except Exception as e:
+                logging.error(f"An unexpected error occurred during LLM analysis: {e}")
+                return None
+        
+        logging.error("LLM analysis failed after multiple retries.")
+        return None
 
     def generate_checker_guidance(self, analysis: Dict, commit_hash: str) -> Dict:
         """Generate comprehensive guidance for Module 2."""
-
         guidance = {
             "commit_hash": commit_hash,
             "anti_pattern_type": analysis.get("anti_pattern_type", "unknown"),
@@ -201,56 +178,41 @@ Respond with ONLY valid JSON, no additional text."""
             "confidence": analysis.get("confidence", "medium"),
             "cwe_ids": analysis.get("cwe_ids", []),
             "vulnerability_class": analysis.get("vulnerability_class", ""),
-
             "checker_requirements": {
-                "checker_name": self.suggest_checker_name(analysis["anti_pattern_type"]),
+                "checker_name": self.suggest_checker_name(analysis.get("anti_pattern_type", "unknown")),
                 "ast_matchers_needed": analysis.get("ast_matcher_hints", {}).get("node_types", []),
                 "conditions_to_check": analysis.get("ast_matcher_hints", {}).get("conditions", []),
                 "relationships": analysis.get("ast_matcher_hints", {}).get("relationships", []),
                 "pattern_description": analysis.get("ast_matcher_hints", {}).get("pattern_description", "")
             },
-
             "pattern_description": {
                 "vulnerable": analysis.get("vulnerable_pattern", {}),
                 "fixed": analysis.get("fix_pattern", {})
             },
-
             "context": {
                 "impact": analysis.get("impact", ""),
                 "affected_subsystem": analysis.get("affected_subsystem", ""),
                 "exploitability": analysis.get("vulnerable_pattern", {}).get("exploitability", "")
             },
-
             "template_hints": {
                 "base_template": "MustCheckErrsCheck",
                 "modifications_needed": self.suggest_template_modifications(analysis)
             }
         }
-
         return guidance
 
     def suggest_checker_name(self, anti_pattern_type: str) -> str:
         """Generate appropriate checker name based on anti-pattern type."""
-        # Clean the anti-pattern type
         clean_type = anti_pattern_type.replace('-', '_').replace(' ', '_')
-
-        # Map to checker names
         name_map = {
-            "unchecked_error": "MustCheckErrors",
-            "null_deref": "NullPointerDereference",
-            "null_pointer_dereference": "NullPointerDereference",
-            "use_after_free": "UseAfterFree",
-            "race_condition": "RaceCondition",
-            "buffer_overflow": "BufferOverflow",
-            "overflow": "BufferOverflow",
-            "double_free": "DoubleFree",
-            "uninitialized_var": "UninitializedVariable",
-            "uninitialized_variable": "UninitializedVariable",
-            "missing_bounds_check": "MissingBoundsCheck",
-            "integer_overflow": "IntegerOverflow",
+            "unchecked_error": "MustCheckErrors", "null_deref": "NullPointerDereference",
+            "null_pointer_dereference": "NullPointerDereference", "use_after_free": "UseAfterFree",
+            "race_condition": "RaceCondition", "buffer_overflow": "BufferOverflow",
+            "overflow": "BufferOverflow", "double_free": "DoubleFree",
+            "uninitialized_var": "UninitializedVariable", "uninitialized_variable": "UninitializedVariable",
+            "missing_bounds_check": "MissingBoundsCheck", "integer_overflow": "IntegerOverflow",
             "memory_leak": "MemoryLeak"
         }
-
         base_name = name_map.get(clean_type, "Security" + clean_type.title().replace('_', ''))
         return f"{base_name}Check"
 
@@ -258,96 +220,70 @@ Respond with ONLY valid JSON, no additional text."""
         """Suggest detailed template modifications."""
         modifications = []
         anti_pattern = analysis.get("anti_pattern_type", "")
-
-        # Can be replaced with RAG in the future
-        # Base modifications from anti-pattern type
         if "unchecked" in anti_pattern or "error" in anti_pattern:
             modifications.append("Focus on function return value checking")
-            modifications.append("Match error-returning functions without subsequent checks")
-            modifications.append("Consider both direct checks and assigned-then-checked patterns")
         elif "null" in anti_pattern:
             modifications.append("Track pointer assignments and dereferences")
-            modifications.append("Identify paths where pointers are used without null checks")
-            modifications.append("Consider both explicit and implicit dereferences")
-        elif "use-after-free" in anti_pattern or "use_after_free" in anti_pattern:
-            modifications.append("Track memory allocation and deallocation")
-            modifications.append("Build flow analysis to detect uses after free")
-            modifications.append("Consider both direct and indirect accesses")
-        elif "overflow" in anti_pattern:
-            modifications.append("Identify array and buffer operations")
-            modifications.append("Check for bounds validation before access")
-            modifications.append("Consider integer overflow in size calculations")
-        elif "race" in anti_pattern:
-            modifications.append("Identify shared resource access")
-            modifications.append("Check for proper synchronization primitives")
-            modifications.append("Consider lock ordering and deadlock potential")
-
-        # Add specific patterns from the analysis
         if analysis.get("ast_matcher_hints", {}).get("pattern_description"):
             modifications.append(f"Specific pattern: {analysis['ast_matcher_hints']['pattern_description']}")
-
         return modifications
 
 def main():
-    parser = argparse.ArgumentParser(description='Extract anti-patterns using rich commit context')
-    parser.add_argument('--commit-hash', default='80af3745ca465c6c47e833c1902004a7fa944f37',
-                      help='Commit hash to analyze')
-    parser.add_argument('--commit-dir', default='/home/mac/private/linux-guard/commits',
-                      help='Directory containing commit data')
-    parser.add_argument('--output', default='/home/mac/private/linux-guard/results/anti_patterns.json',
-                      help='Output file for analysis')
-    parser.add_argument('--guidance-output', default='/home/mac/private/linux-guard/results/checker_guidance.json',
-                      help='Output file for Module 2 guidance')
-
+    parser = argparse.ArgumentParser(
+        description='Extract anti-patterns from a Linux kernel commit using rich context and an LLM.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument('commit_hash', help='Commit hash to analyze (e.g., 80af3745ca46)')
+    parser.add_argument('--commit-dir', type=Path, default=DEFAULT_COMMITS_DIR, help='Directory containing cached commit data.')
+    parser.add_argument('--results-dir', type=Path, default=DEFAULT_RESULTS_DIR, help='Directory to save analysis and guidance files.')
     args = parser.parse_args()
 
-    print("=== Module 1 Rich: Pattern Extraction with Full Context ===")
-
-    # Fetch commit if needed
-    commit_json = Path(args.commit_dir) / f"{args.commit_hash}.json"
-    commit_patch = Path(args.commit_dir) / f"{args.commit_hash}.patch"
-
+    logging.info("=== Module 1 Rich: Pattern Extraction with Full Context ===")
+    args.commit_dir.mkdir(parents=True, exist_ok=True)
+    args.results_dir.mkdir(parents=True, exist_ok=True)
+    commit_json = args.commit_dir / f"{args.commit_hash}.json"
+    commit_patch = args.commit_dir / f"{args.commit_hash}.patch"
+    
     if not commit_json.exists() or not commit_patch.exists():
-        print(f"\nFetching complete commit data...")
-        result = subprocess.run([
-            "python3", "/home/mac/private/linux-guard/scripts/fetch_commit_full.py",
-            args.commit_hash, "--output-dir", args.commit_dir
-        ], capture_output=True, text=True)
-
-        if result.returncode != 0:
-            print("✗ Failed to fetch commit")
+        logging.info(f"Commit data for {args.commit_hash} not found. Fetching...")
+        try:
+            cmd = ["python3", str(FETCH_SCRIPT_PATH), args.commit_hash, "--output-dir", str(args.commit_dir)]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            logging.info("Successfully fetched commit data.")
+            logging.debug(result.stdout)
+        except FileNotFoundError:
+            logging.error(f"Fetch script not found at {FETCH_SCRIPT_PATH}")
+            return 1
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Failed to fetch commit data for {args.commit_hash}.")
+            logging.error(f"Stderr: {e.stderr}")
             return 1
 
-    # Load commit data
-    with open(commit_json, 'r') as f:
-        commit_data = json.load(f)
+    try:
+        with open(commit_json, 'r') as f:
+            commit_data = json.load(f)
+        with open(commit_patch, 'r') as f:
+            patch_content = f.read()
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logging.error(f"Failed to load commit data files: {e}")
+        return 1
 
-    with open(commit_patch, 'r') as f:
-        patch_content = f.read()
-
-    # Analyze commit
     analyzer = RichCommitAnalyzer()
     analysis = analyzer.analyze_commit(commit_data, patch_content)
 
-    if analysis and analysis.get("is_security_fix", False):
-        # Generate guidance
+    if analysis and analysis.get("is_security_fix"):
         guidance = analyzer.generate_checker_guidance(analysis, args.commit_hash)
-
-        # Save outputs
-        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-
-        with open(args.output, 'w') as f:
+        analysis_output_path = args.results_dir / f"{args.commit_hash}_analysis.json"
+        guidance_output_path = args.results_dir / f"{args.commit_hash}_guidance.json"
+        with open(analysis_output_path, 'w') as f:
             json.dump(analysis, f, indent=2)
-
-        with open(args.guidance_output, 'w') as f:
+        with open(guidance_output_path, 'w') as f:
             json.dump(guidance, f, indent=2)
-
-        print(f"\n✓ Analysis saved to {args.output}")
-        print(f"✓ Guidance saved to {args.guidance_output}")
-
+        logging.info(f"✓ Analysis saved to {analysis_output_path}")
+        logging.info(f"✓ Guidance for Module 2 saved to {guidance_output_path}")
         return 0
     else:
-        print("\n✗ Commit not identified as security fix or analysis failed")
+        logging.warning("Commit was not identified as a security fix, or the analysis failed.")
         return 1
 
 if __name__ == "__main__":

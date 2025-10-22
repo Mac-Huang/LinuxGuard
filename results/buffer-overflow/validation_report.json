@@ -1,0 +1,26 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-10-21T18:43:37.852596",
+    "clang_tidy_binary": "/nvme/write/mac/private/linux-guard/llvm-project/build/bin/clang-tidy",
+    "kernels_scanned": 1,
+    "anti_pattern_type": "buffer-overflow"
+  },
+  "results_by_version": {
+    "linux-v3.0": {
+      "total_issues": 0,
+      "files_scanned": 16201,
+      "scan_time": "2025-10-21T18:43:30.063238",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    }
+  },
+  "cross_version_analysis": {}
+}

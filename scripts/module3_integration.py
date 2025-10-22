@@ -11,6 +11,7 @@ import os
 import argparse
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from datetime import datetime
 
 class CheckerIntegrator:
     """Manages integration of checkers into clang-tidy build system."""
@@ -54,7 +55,18 @@ class CheckerIntegrator:
                 shutil.copy2(backup_file, dst)
                 print(f"  ✓ Restored {original_name}")
 
-    def integrate_checker(self, checker_info: Dict) -> bool:
+    def cleanup_integrated_files(self, files: List[Path]):
+        """Remove checker files that were copied into the clang-tidy directory."""
+        for file_path in files:
+            try:
+                path = Path(file_path)
+                if path.exists():
+                    path.unlink()
+                    print(f"  - Removed {path.name}")
+            except Exception as exc:
+                print(f"  ⚠ Warning: Could not remove {file_path}: {exc}")
+        
+    def integrate_checker(self, checker_info: Dict) -> Tuple[bool, List[Path]]:
         """Integrate a single checker into the clang-tidy module."""
 
         checker_name = checker_info["checker_name"]
@@ -63,16 +75,20 @@ class CheckerIntegrator:
 
         print(f"\nIntegrating {checker_name}...")
 
+        copied_files: List[Path] = []
+
         # Copy checker files to clang-tidy module
         try:
             # Copy header file
             dst_header = self.clang_tidy_dir / f"{checker_name}.h"
             shutil.copy2(header_path, dst_header)
+            copied_files.append(dst_header)
             print(f"  ✓ Copied {checker_name}.h")
 
             # Copy implementation file
             dst_cpp = self.clang_tidy_dir / f"{checker_name}.cpp"
             shutil.copy2(cpp_path, dst_cpp)
+            copied_files.append(dst_cpp)
             print(f"  ✓ Copied {checker_name}.cpp")
 
             # Update CMakeLists.txt
@@ -81,11 +97,27 @@ class CheckerIntegrator:
             # Update LinuxKernelTidyModule.cpp
             self.update_module_registration(checker_name)
 
-            return True
+            return True, copied_files
 
         except Exception as e:
             print(f"  ✗ Error integrating checker: {e}")
-            return False
+            return False, copied_files
+
+    def mark_checker_as_integrated(self, checker_info: Dict):
+        """Update checker metadata to mark it as successfully integrated."""
+
+        metadata_path = Path(checker_info["files"].get("metadata_path"))
+        if metadata_path and metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+
+            metadata["status"] = "integrated"
+            metadata["integrated_at"] = datetime.now().isoformat()
+
+            with open(metadata_path, 'w') as f:
+                json.dump(metadata, f, indent=2)
+
+            print(f"  ✓ Updated metadata: marked as integrated")
 
     def update_cmake_lists(self, checker_name: str):
         """Update CMakeLists.txt to include the new checker."""
@@ -255,11 +287,26 @@ class CheckerIntegrator:
                 return True
             else:
                 print("  ✗ Build failed")
-                print("Error output:")
-                print(result.stderr[-2000:])  # Show last 2000 chars of error
+                print(f"  Exit code: {result.returncode}")
+
+                stderr_output = result.stderr.strip() if result.stderr else ""
+                stdout_output = result.stdout.strip() if result.stdout else ""
+
+                print("\n  stderr:")
+                if stderr_output:
+                    print(stderr_output)
+                else:
+                    print("  (empty)")
+
+                print("\n  stdout:")
+                if stdout_output:
+                    print(stdout_output)
+                else:
+                    print("  (empty)")
 
                 # Try to extract specific error
-                self.diagnose_build_error(result.stderr)
+                diagnostic_input = '\n'.join(filter(None, [result.stderr, result.stdout]))
+                self.diagnose_build_error(diagnostic_input)
                 return False
 
         except subprocess.CalledProcessError as e:
@@ -347,7 +394,9 @@ def main():
     parser.add_argument('--jobs', type=int, default=4,
                       help='Number of parallel build jobs')
     parser.add_argument('--single', action='store_true',
-                      help='Integrate only the first checker')
+                      help='Integrate only the most recent checker in metadata')
+    parser.add_argument('--persist', action='store_true',
+                      help='Keep integrated checker files in clang-tidy after the run')
     parser.add_argument('--no-build', action='store_true',
                       help='Skip the build step')
     parser.add_argument('--restore', action='store_true',
@@ -374,58 +423,147 @@ def main():
         print("  Run Module 2 first to generate checkers")
         return
 
+    metadata_source = Path(args.checker_metadata)
     with open(args.checker_metadata, 'r') as f:
-        checkers = json.load(f)
+        raw_checkers = json.load(f)
+
+    if isinstance(raw_checkers, dict):
+        checker_entry = raw_checkers.copy()
+        checker_dir = metadata_source.parent
+        anti_pattern_folder = checker_dir.parent.name if checker_dir.parent else None
+        if anti_pattern_folder and not checker_entry.get('anti_pattern_folder'):
+            checker_entry['anti_pattern_folder'] = anti_pattern_folder
+
+        files = dict(checker_entry.get('files', {}))
+        checker_name = checker_entry.get('checker_name')
+        if not checker_name:
+            print('✗ Invalid metadata: missing checker_name')
+            return
+
+        default_header = checker_dir / f"{checker_name}.h"
+        default_cpp = checker_dir / f"{checker_name}.cpp"
+
+        files.setdefault('header_path', str(default_header))
+        files.setdefault('cpp_path', str(default_cpp))
+        files['metadata_path'] = str(metadata_source)
+        checker_entry['files'] = files
+
+        missing_files = [Path(files[key]) for key in ('header_path', 'cpp_path') if not Path(files[key]).exists()]
+        if missing_files:
+            print('✗ Missing checker files:')
+            for missing in missing_files:
+                print(f'  - {missing}')
+            return
+
+        raw_checkers = [checker_entry]
+        print('\nLoaded single-checker metadata: inferred file paths from metadata location')
+    elif isinstance(raw_checkers, list):
+        pass
+    else:
+        print('✗ Unsupported metadata format: expected list or dict')
+        return
+
+    checkers = raw_checkers
 
     if not checkers:
-        print("✗ No checkers found in metadata")
+        print('✗ No checkers found in metadata')
         return
 
-    # Integrate checkers
-    successful_integrations = []
+    all_copied_files: List[Path] = []
 
-    for i, checker in enumerate(checkers):
-        if args.single and i > 0:
-            break
+    try:
+        # Integrate checkers
+        successful_integrations = []
+        integration_details = []  # Track details for each integrated checker
 
-        if integrator.integrate_checker(checker):
-            successful_integrations.append(checker["checker_name"])
-
-    if not successful_integrations:
-        print("\n✗ No checkers were successfully integrated")
-        return
-
-    print(f"\n✓ Integrated {len(successful_integrations)} checkers:")
-    for name in successful_integrations:
-        print(f"  - {name}")
-
-    # Build if requested
-    if not args.no_build:
-        print("\n" + "="*50)
-        if integrator.build_clang_tidy(args.jobs):
-            print("\n✓ Build completed successfully")
-
-            # Verify integration with expected checkers
-            if integrator.verify_integration(successful_integrations):
-                print("\n✓ Integration verified - checkers are available")
-
-                # Save integration status
-                status_file = Path(args.checker_metadata).parent / "integration_status.json"
-                with open(status_file, 'w') as f:
-                    json.dump({
-                        "integrated_checkers": successful_integrations,
-                        "clang_tidy_binary": str(integrator.build_dir / "bin" / "clang-tidy"),
-                        "status": "success"
-                    }, f, indent=2)
-
-                print(f"\n✓ Saved integration status to {status_file}")
-            else:
-                print("\n✗ Integration verification failed")
+        if args.single:
+            checkers_to_integrate = [checkers[-1]]
+            print("\n--single flag set: integrating only the most recent checker from metadata")
         else:
-            print("\n✗ Build failed - check error messages above")
-            print("\nTo restore original files, run: python3 module3_integration.py --restore")
-    else:
-        print("\n  Skipped build step (--no-build flag)")
+            checkers_to_integrate = checkers
+
+        for checker in checkers_to_integrate:
+            success, copied_paths = integrator.integrate_checker(checker)
+            all_copied_files.extend(copied_paths)
+
+            if success:
+                successful_integrations.append(checker["checker_name"])
+                checker_with_files = checker.copy()
+                checker_with_files["__copied_files"] = [str(path) for path in copied_paths]
+                integration_details.append(checker_with_files)
+
+        if not successful_integrations:
+            print("\n✗ No checkers were successfully integrated")
+            return
+
+        print(f"\n✓ Integrated {len(successful_integrations)} checkers:")
+        for name in successful_integrations:
+            print(f"  - {name}")
+
+        # Build if requested
+        if not args.no_build:
+            print("\n" + "=" * 50)
+            if integrator.build_clang_tidy(args.jobs):
+                print("\n✓ Build completed successfully")
+
+                # Verify integration with expected checkers
+                if integrator.verify_integration(successful_integrations):
+                    print("\n✓ Integration verified - checkers are available")
+
+                    # Mark each checker as integrated and save status
+                    for checker in integration_details:
+                        integrator.mark_checker_as_integrated(checker)
+
+                        # Save integration status in anti-pattern folder
+                        anti_pattern_folder = checker.get("anti_pattern_folder")
+                        if anti_pattern_folder:
+                            metadata_record = checker.get('files', {}).get('metadata_path')
+                            metadata_path = Path(metadata_record) if metadata_record else Path(args.checker_metadata)
+                            pattern_dir = metadata_path.parent
+                            if pattern_dir.name != anti_pattern_folder and pattern_dir.parent:
+                                pattern_dir = pattern_dir.parent
+                            status_file = pattern_dir / "integration_status.json"
+                            status_file.parent.mkdir(parents=True, exist_ok=True)
+
+                            with open(status_file, 'w') as f:
+                                json.dump({
+                                    "checker_name": checker["checker_name"],
+                                    "anti_pattern_type": checker["anti_pattern_type"],
+                                    "integrated_at": datetime.now().isoformat(),
+                                    "clang_tidy_binary": str(integrator.build_dir / "bin" / "clang-tidy"),
+                                    "status": "success"
+                                }, f, indent=2)
+
+                            print(f"  ✓ Saved integration status to {status_file}")
+
+                    # Also save global integration status
+                    global_status_file = Path(args.checker_metadata).parent / "integration_status.json"
+                    with open(global_status_file, 'w') as f:
+                        json.dump({
+                            "integrated_checkers": successful_integrations,
+                            "clang_tidy_binary": str(integrator.build_dir / "bin" / "clang-tidy"),
+                            "integration_count": len(successful_integrations),
+                            "last_integration": datetime.now().isoformat(),
+                            "status": "success"
+                        }, f, indent=2)
+
+                    print(f"\n✓ Saved global integration status to {global_status_file}")
+                else:
+                    print("\n✗ Integration verification failed")
+            else:
+                print("\n✗ Build failed - check error messages above")
+                if args.persist:
+                    print("\nTo restore original files, run: python3 scripts/module3_integration.py --restore")
+        else:
+            print("\n  Skipped build step (--no-build flag)")
+
+    finally:
+        if not args.persist:
+            print("\nCleaning up integration artifacts...")
+            integrator.restore_from_backup()
+            integrator.cleanup_integrated_files(all_copied_files)
+        else:
+            print("\n--persist flag set: keeping integrated files in clang-tidy directory")
 
 if __name__ == "__main__":
     main()

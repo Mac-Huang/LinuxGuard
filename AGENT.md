@@ -1,4 +1,4 @@
-- # Claude Project Setup Prompt
+- # Project Setup Prompt
 
 ## Project: Linux Kernel Anti-Pattern Detection Pipeline
 
@@ -9,7 +9,7 @@ This project implements an automated pipeline for detecting security anti-patter
 ### Project Structure
 
 ```
-~/private/linux-guard/
+linux-guard/
 ├── llvm-project/                 # LLVM/Clang build with clang-tidy
 │   ├── build/
 │   │   └── bin/clang-tidy       # Built binary with custom checkers

@@ -9,19 +9,23 @@ import os
 import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
+from datetime import datetime
 from dotenv import load_dotenv
 import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 class CheckerSynthesizer:
     """Synthesizes clang-tidy checkers using LLM and templates."""
 
-    def __init__(self, template_dir: str = "/home/mac/private/linux-guard/checkers/templates"):
-        self.template_dir = Path(template_dir)
+    def __init__(self, template_dir: str = None):
+        template_path = Path(template_dir) if template_dir else PROJECT_ROOT / "checkers" / "templates"
+        self.template_dir = template_path
         if not self.template_dir.exists():
-            raise ValueError(f"Template directory {template_dir} does not exist")
+            raise ValueError(f"Template directory {self.template_dir} does not exist")
 
         # Initialize Gemini
         api_key = os.getenv('GEMINI_API_KEY')
@@ -52,6 +56,24 @@ class CheckerSynthesizer:
                 templates['cpp'] = f.read()
 
         return templates
+
+    def _strip_code_fences(self, content: str) -> str:
+        """Remove Markdown code fences from model output if present."""
+        if not content:
+            return content
+
+        stripped = content.strip()
+        if stripped.startswith('```'):
+            newline_index = stripped.find('\n')
+            if newline_index != -1:
+                stripped = stripped[newline_index + 1:]
+            else:
+                stripped = ''
+        if stripped.endswith('```'):
+            stripped = stripped[:-3]
+        return stripped.strip()
+
+
 
     def synthesize_checker(self, guidance: Dict) -> Dict[str, str]:
         """Generate checker code based on guidance from Module 1."""
@@ -100,7 +122,10 @@ Respond with ONLY the complete C++ header code, no explanations."""
 
         try:
             response = self.model.generate_content(prompt)
-            return response.text.strip()
+            code = self._strip_code_fences(getattr(response, 'text', ''))
+            if not code:
+                raise ValueError('Empty header code generated')
+            return code
         except Exception as e:
             print(f"Error generating header: {e}")
             # Fallback to template-based generation
@@ -171,17 +196,10 @@ Respond with ONLY the complete C++ implementation code, no explanations."""
 
         try:
             response = self.model.generate_content(prompt)
-            code = response.text.strip()
-
-            # Clean up response if needed
-            if code.startswith('```cpp'):
-                code = code[6:]
-            if code.startswith('```'):
-                code = code[3:]
-            if code.endswith('```'):
-                code = code[:-3]
-
-            return code.strip()
+            code = self._strip_code_fences(getattr(response, 'text', ''))
+            if not code:
+                raise ValueError('Empty implementation code generated')
+            return code
         except Exception as e:
             print(f"Error generating implementation: {e}")
             # Fallback to template-based generation
@@ -268,37 +286,62 @@ Respond with ONLY the complete C++ implementation code, no explanations."""
 
         return impl
 
-    def save_checker(self, checker_code: Dict, output_dir: str):
-        """Save generated checker to files."""
+    def save_checker(self, checker_code: Dict, output_dir: str, commit_hash: str):
+        """Save generated checker to files organized by anti-pattern type."""
 
-        output_path = Path(output_dir)
+        anti_pattern_type = checker_code["anti_pattern_type"]
+        folder_name = anti_pattern_type.lower().replace('_', '-')
+
+        output_base = Path(output_dir)
+        generation_id = f"{commit_hash[:12]}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        output_path = output_base / folder_name / generation_id
         output_path.mkdir(parents=True, exist_ok=True)
 
-        # Save header file
         header_path = output_path / checker_code["header_file"]
         with open(header_path, 'w') as f:
             f.write(checker_code["header_code"])
 
-        # Save implementation file
         cpp_path = output_path / checker_code["cpp_file"]
         with open(cpp_path, 'w') as f:
             f.write(checker_code["cpp_code"])
 
-        print(f"✓ Saved {checker_code['header_file']} to {header_path}")
-        print(f"✓ Saved {checker_code['cpp_file']} to {cpp_path}")
+        metadata = {
+            "checker_name": checker_code["checker_name"],
+            "anti_pattern_type": anti_pattern_type,
+            "commit_hash": commit_hash,
+            "generation_id": generation_id,
+            "generated_at": datetime.now().isoformat(),
+            "status": "generated"
+        }
+        metadata_path = output_path / "metadata.json"
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+
+        def rel(path: Path) -> Path:
+            try:
+                return path.relative_to(PROJECT_ROOT)
+            except ValueError:
+                return path
+
+        print(f"✓ Saved {checker_code['header_file']} to {rel(header_path)}")
+        print(f"✓ Saved {checker_code['cpp_file']} to {rel(cpp_path)}")
+        print(f"✓ Saved metadata to {rel(metadata_path)}")
 
         return {
-            "header_path": str(header_path),
-            "cpp_path": str(cpp_path)
+            "header_path": str(rel(header_path)),
+            "cpp_path": str(rel(cpp_path)),
+            "metadata_path": str(rel(metadata_path)),
+            "anti_pattern_folder": folder_name,
+            "generation_id": generation_id
         }
 
 def main():
     parser = argparse.ArgumentParser(description='Synthesize clang-tidy checkers using LLM')
-    parser.add_argument('--guidance', default='/home/mac/private/linux-guard/results/checker_guidance.json',
+    parser.add_argument('--guidance', default=str(PROJECT_ROOT / 'results' / 'checker_guidance.json'),
                       help='Input file with checker guidance from Module 1')
-    parser.add_argument('--output-dir', default='/home/mac/private/linux-guard/checkers/generated',
+    parser.add_argument('--output-dir', default=str(PROJECT_ROOT / 'checkers' / 'generated'),
                       help='Output directory for generated checkers')
-    parser.add_argument('--template-dir', default='/home/mac/private/linux-guard/checkers/templates',
+    parser.add_argument('--template-dir', default=str(PROJECT_ROOT / 'checkers' / 'templates'),
                       help='Directory containing checker templates')
     parser.add_argument('--single', action='store_true',
                       help='Process only the first guidance entry')
@@ -337,14 +380,20 @@ def main():
             checker_code = synthesizer.synthesize_checker(guidance)
 
             # Save to files
-            file_paths = synthesizer.save_checker(checker_code, args.output_dir)
+            file_paths = synthesizer.save_checker(checker_code, args.output_dir, guidance["commit_hash"])
 
-            # Record generated checker info
             generated_checkers.append({
                 "checker_name": checker_code["checker_name"],
                 "anti_pattern_type": checker_code["anti_pattern_type"],
-                "files": file_paths,
-                "commit_hash": guidance["commit_hash"]
+                "anti_pattern_folder": file_paths["anti_pattern_folder"],
+                "generation_id": file_paths["generation_id"],
+                "files": {
+                    "header_path": file_paths["header_path"],
+                    "cpp_path": file_paths["cpp_path"],
+                    "metadata_path": file_paths["metadata_path"]
+                },
+                "commit_hash": guidance["commit_hash"],
+                "status": "generated"
             })
 
             print(f"    ✓ Successfully generated {checker_code['checker_name']}")
@@ -355,15 +404,24 @@ def main():
     # Save metadata about generated checkers
     if generated_checkers:
         metadata_path = Path(args.output_dir) / "generated_checkers.json"
-        with open(metadata_path, 'w') as f:
-            json.dump(generated_checkers, f, indent=2)
+        existing_entries = []
+        if metadata_path.exists():
+            try:
+                with open(metadata_path, 'r') as f:
+                    existing_entries = json.load(f)
+            except json.JSONDecodeError:
+                existing_entries = []
 
-        print(f"\n=== Summary ===")
+        combined = existing_entries + generated_checkers
+        with open(metadata_path, 'w') as f:
+            json.dump(combined, f, indent=2)
+
+        print("\n=== Summary ===")
         print(f"✓ Generated {len(generated_checkers)} checkers")
-        print(f"✓ Saved metadata to {metadata_path}")
-        print(f"\nGenerated checkers:")
+        print(f"✓ Updated metadata at {metadata_path}")
+        print("\nGenerated checkers:")
         for checker in generated_checkers:
-            print(f"  - {checker['checker_name']}: {checker['anti_pattern_type']}")
+            print(f"  - {checker['checker_name']}: {checker['anti_pattern_type']} ({checker['generation_id']})")
     else:
         print("\n✗ No checkers were generated")
 

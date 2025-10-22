@@ -1,6 +1,6 @@
 # Linux Kernel Vulnerability Scan Report
 
-Generated: 2025-10-16T18:17:59.622975
+Generated: 2025-10-21T21:09:34.868222
 
 Kernels Scanned: 4
 
@@ -13,19 +13,11 @@ Kernels Scanned: 4
 - **Total Issues**: 0
 - **Files Scanned**: 20985
 ### linux-v5.0
-- **Total Issues**: 8
+- **Total Issues**: 1
 - **Files Scanned**: 26665
 
 **Issues by Subsystem:**
-- drivers: 5
-- architecture: 3
+- drivers: 1
 ### linux-v6.0
-- **Total Issues**: 68
+- **Total Issues**: 0
 - **Files Scanned**: 31809
-
-**Issues by Subsystem:**
-- drivers: 53
-- filesystem: 5
-- networking: 3
-- core-kernel: 3
-- sound: 2
