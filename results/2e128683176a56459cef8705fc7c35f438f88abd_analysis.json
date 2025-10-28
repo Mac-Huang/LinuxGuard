@@ -1,0 +1,67 @@
+{
+  "is_security_fix": true,
+  "confidence": "high",
+  "anti_pattern_type": "race condition",
+  "vulnerability_class": "CWE-362",
+  "vulnerable_pattern": {
+    "description": "A use-after-free vulnerability occurs in `hci_conn_tx_dequeue` due to a missing lock in `hci_num_comp_pkts_evt` when processing `HCI_EV_NUM_COMP_PKTS`.  The `hdev` (hci_dev) is not locked before accessing connection data, which could lead to race conditions when other threads are modifying the connections. The `hci_conn` objects can be freed by another thread before being accessed by `hci_conn_tx_dequeue`, leading to UAF. Specifically, the vulnerability exists in the loop iterating through `ev->handles[]` within `hci_num_comp_pkts_evt` where connection information is accessed without proper locking. The KASAN report confirms the UAF within `hci_conn_tx_dequeue`.",
+    "key_indicators": [
+      "Missing `hci_dev_lock(hdev)` and `hci_dev_unlock(hdev)`",
+      "Access to `struct hci_conn` elements within the loop in `hci_num_comp_pkts_evt`",
+      "HCI_EV_NUM_COMP_PKTS event processing",
+      "Calling `hci_conn_tx_dequeue` without locking"
+    ],
+    "code_context": "```c\nstatic void hci_num_comp_pkts_evt(struct hci_dev *hdev, void *data,\n\t\t\t\t\t  u8 event, u8 *param, int param_len)\n{\n\tstruct hci_num_comp_pkts_evt *ev = (void *)param;\n\tint i;\n\n\tbt_dev_dbg(hdev, \"num %d\", ev->num);\n\n\tfor (i = 0; i < ev->num; i++) {\n\t\tstruct hci_comp_pkts_info *info = &ev->handles[i];\n\t\tstruct hci_conn *conn;\n\n\t\tif (!info->handle)\n\t\t\tcontinue;\n\n\t\tconn = hci_conn_hash_lookup_handle(hdev, info->handle);\n\t\tif (!conn)\n\t\t\tcontinue;\n\n\t\tbt_dev_dbg(hdev, \"handle 0x%2.2x num_pkts %d\",\n\t\t\t   info->handle, info->num_pkts);\n\n\t\thci_conn_tx_dequeue(conn, info->num_pkts);\n\t}\n\n\tqueue_work(hdev->workqueue, &hdev->tx_work);\n}\n```",
+    "specific_functions": [
+      "hci_num_comp_pkts_evt",
+      "hci_conn_tx_dequeue",
+      "hci_conn_hash_lookup_handle"
+    ],
+    "specific_variables": [
+      "hdev",
+      "ev",
+      "i",
+      "info",
+      "conn"
+    ],
+    "exploitability": "The vulnerability could be exploited by causing a `HCI_EV_NUM_COMP_PKTS` event and triggering the UAF. This involves manipulating the Bluetooth stack to send a crafted event that causes a connection to be freed while it's being accessed in hci_conn_tx_dequeue. This can lead to arbitrary code execution or denial of service."
+  },
+  "fix_pattern": {
+    "description": "The fix adds `hci_dev_lock(hdev)` before accessing connection data within the loop in `hci_num_comp_pkts_evt` and `hci_dev_unlock(hdev)` after the loop, protecting the data from race conditions.",
+    "required_checks": [
+      "hci_dev_lock(hdev)",
+      "hci_dev_unlock(hdev)"
+    ],
+    "code_context": "```c\nstatic void hci_num_comp_pkts_evt(struct hci_dev *hdev, void *data,\n\t\t\t\t\t  u8 event, u8 *param, int param_len)\n{\n\tstruct hci_num_comp_pkts_evt *ev = (void *)param;\n\tint i;\n\n\tbt_dev_dbg(hdev, \"num %d\", ev->num);\n\n\thci_dev_lock(hdev);\n\n\tfor (i = 0; i < ev->num; i++) {\n\t\tstruct hci_comp_pkts_info *info = &ev->handles[i];\n\t\tstruct hci_conn *conn;\n\n\t\tif (!info->handle)\n\t\t\tcontinue;\n\n\t\tconn = hci_conn_hash_lookup_handle(hdev, info->handle);\n\t\tif (!conn)\n\t\t\tcontinue;\n\n\t\tbt_dev_dbg(hdev, \"handle 0x%2.2x num_pkts %d\",\n\t\t\t   info->handle, info->num_pkts);\n\n\t\thci_conn_tx_dequeue(conn, info->num_pkts);\n\t}\n\n\tqueue_work(hdev->workqueue, &hdev->tx_work);\n\n\thci_dev_unlock(hdev);\n}\n```",
+    "protection_mechanism": "Mutex lock to protect concurrent access to shared resources."
+  },
+  "ast_matcher_hints": {
+    "node_types": [
+      "FunctionDecl",
+      "CompoundStmt",
+      "ForStmt",
+      "CallExpr"
+    ],
+    "exact_function_names": [
+      "hci_num_comp_pkts_evt",
+      "hci_conn_tx_dequeue",
+      "hci_conn_hash_lookup_handle",
+      "hci_dev_lock",
+      "hci_dev_unlock"
+    ],
+    "relationships": [
+      "CallExpr inside ForStmt, ForStmt inside FunctionDecl"
+    ],
+    "conditions": [
+      "Check for absence of hci_dev_lock(hdev) before the loop and absence of hci_dev_unlock(hdev) after the loop."
+    ],
+    "pattern_description": "Match calls to hci_conn_tx_dequeue within the hci_num_comp_pkts_evt function without proper locking, specifically missing hci_dev_lock and hci_dev_unlock."
+  },
+  "severity": "critical",
+  "cwe_ids": [
+    "CWE-362",
+    "CWE-416"
+  ],
+  "impact": "Denial of Service, potentially leading to arbitrary code execution",
+  "affected_subsystem": "Bluetooth"
+}

@@ -1,0 +1,55 @@
+{
+  "commit_hash": "4de37a48b6b58faaded9eb765047cf0d8785ea18",
+  "fetch_date": "2025-10-23T21:27:15.471676",
+  "commit_info": {
+    "subject": "",
+    "author": {
+      "name": "Johan Hovold",
+      "email": "johan@kernel.org",
+      "date": "2025-08-29T09:03:44Z"
+    },
+    "date": "Fri Aug 29 11:03:44 2025 +0200",
+    "message_body": "",
+    "signed_off_by": [],
+    "reviewed_by": [],
+    "reported_by": [],
+    "fixes": [],
+    "cc": [],
+    "sha": "4de37a48b6b58faaded9eb765047cf0d8785ea18",
+    "committer": {
+      "name": "Chun-Kuang Hu",
+      "email": "chunkuang.hu@kernel.org",
+      "date": "2025-09-10T12:49:37Z"
+    },
+    "message": "drm/mediatek: fix potential OF node use-after-free\n\nThe for_each_child_of_node() helper drops the reference it takes to each\nnode as it iterates over children and an explicit of_node_put() is only\nneeded when exiting the loop early.\n\nDrop the recently introduced bogus additional reference count decrement\nat each iteration that could potentially lead to a use-after-free.\n\nFixes: 1f403699c40f (\"drm/mediatek: Fix device/node reference count leaks in mtk_drm_get_all_drm_priv\")\nCc: Ma Ke <make24@iscas.ac.cn>\nCc: stable@vger.kernel.org\nSigned-off-by: Johan Hovold <johan@kernel.org>\nReviewed-by: CK Hu <ck.hu@mediatek.com>\nReviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>\nLink: https://patchwork.kernel.org/project/dri-devel/patch/20250829090345.21075-2-johan@kernel.org/\nSigned-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>",
+    "stats": {
+      "total": 11,
+      "additions": 5,
+      "deletions": 6
+    },
+    "files": [
+      {
+        "filename": "drivers/gpu/drm/mediatek/mtk_drm_drv.c",
+        "status": "modified",
+        "additions": 5,
+        "deletions": 6,
+        "changes": 11
+      }
+    ]
+  },
+  "patch_file": "commits/4de37a48b6b58faaded9eb765047cf0d8785ea18.patch",
+  "summary": {
+    "subject": "",
+    "author": {
+      "name": "Johan Hovold",
+      "email": "johan@kernel.org",
+      "date": "2025-08-29T09:03:44Z"
+    },
+    "date": "Fri Aug 29 11:03:44 2025 +0200",
+    "files_changed": 1,
+    "additions": 5,
+    "deletions": 6,
+    "has_fixes_tag": false,
+    "reporters": []
+  }
+}

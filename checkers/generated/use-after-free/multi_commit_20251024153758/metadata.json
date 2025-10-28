@@ -1,0 +1,8 @@
+{
+  "checker_name": "UseAfterFreeCheck",
+  "anti_pattern_type": "use-after-free",
+  "commit_hash": "multi_commit",
+  "generation_id": "multi_commit_20251024153758",
+  "generated_at": "2025-10-24T15:37:58.704799",
+  "status": "generated"
+}

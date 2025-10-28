@@ -7,7 +7,9 @@ This document summarizes how the pipeline is organized, which script is responsi
 ## End-to-End Flow
 
 ```
-Module 1 (pattern extraction)
+Candidate selection (10 commits for a single anti-pattern)
+ → Module 1 (pattern extraction per commit)
+ → Multi-commit guidance integration (LLM synthesis step)
  → Module 2 (checker synthesis)
  → Module 3 (integration + build/verify)
  → Module 4 (multi-version validation)
@@ -20,10 +22,20 @@ The orchestrator (`scripts/orchestrator.py`) stitches these phases together but 
 
 | Module | Script | Output |
 | ------ | ------ | ------ |
-| 1 | `module1_pattern_extraction.py` | `results/…/checker_guidance.json` |
+| 1 | `module1_pattern_extraction.py` | `results/<commit_hash>_analysis.json`, `results/<commit_hash>_guidance.json` |
+| Multi-commit integration | Orchestrator step | `results/multi_commit_prompt_payload.json`, `results/checker_guidance.json` |
 | 2 | `module2_checker_synthesis.py` | Checker sources in `checkers/generated/<anti-pattern>/<generation_id>/` (header, cpp, metadata) |
 | 3 | `module3_integration.py` | Builds clang-tidy with a selected checker, updates metadata, optional restore via `--restore` |
 | 4 | `module4_validation.py` | JSON/markdown scan reports per kernel version |
+
+### Multi-Commit Workflow
+
+1. Provide at least **10 commit hashes** that fix the same anti-pattern. Pass them with `--commit-file <path>` (JSON array or newline separated) or `--commits <hash1> <hash2> …`. The orchestrator writes the resolved list to `results/candidate_commits.json`.
+2. The orchestrator runs Module 1 against every commit, producing `results/<hash>_analysis.json` and `results/<hash>_guidance.json`.
+3. A new LLM integration step fuses those ten reports into generalized guidance. The trimmed payload used for the prompt is saved at `results/multi_commit_prompt_payload.json`, and the aggregated summary lives in `results/multi_commit_summary.json`.
+4. The generalized pattern (`results/anti_patterns.json`) and checker guidance (`results/checker_guidance.json`) feed Module 2 as before, allowing synthesis/validation to proceed unchanged.
+
+If fewer than 10 commits are supplied the orchestrator aborts early, so populate the list before launching the pipeline.
 
 ## Repository Layout (high level)
 
@@ -64,15 +76,19 @@ Activate the virtual environment first:
 source LinuxGuard/bin/activate
 ```
 
-Run the pipeline for a given commit:
+Run the pipeline with a prepared commit list:
 
 ```bash
 python3 scripts/orchestrator.py \
-  --commit <commit_hash> \
+  --commit-file configs/use-after-free.txt \
   --max-iterations 5 \
   --max-repairs 10 \
   [--validation-kernel linux-v3.0]
 ```
+
+* `--commit-file` accepts either a JSON array (`["hash1", "hash2", …]`) or a newline separated text file.
+* Alternatively pass commits inline: `--commits <hash1> <hash2> …`.
+* The legacy `--commit` flag is still accepted as a fallback seed, but the orchestrator will stop if the overall set contains fewer than 10 unique commits.
 
 Key behaviors:
 
@@ -84,7 +100,7 @@ Key behaviors:
 
 ```bash
 # Module 1 – Extract guidance for a commit
-python3 scripts/module1_pattern_extraction.py --commit-hash <hash>
+python3 scripts/module1_pattern_extraction.py <hash>
 
 # Module 2 – Generate checker sources (uses latest guidance by default)
 python3 scripts/module2_checker_synthesis.py --single

@@ -1,0 +1,64 @@
+{
+  "commit_hash": "5feef67b646d8f5064bac288e22204ffba2b9a4a",
+  "anti_pattern_type": "use-after-free",
+  "severity": "high",
+  "confidence": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "vulnerability_class": "CWE-416",
+  "checker_requirements": {
+    "checker_name": "UseAfterFreeCheck",
+    "ast_matchers_needed": [
+      "FunctionDecl",
+      "CallExpr"
+    ],
+    "conditions_to_check": [
+      "devlink_free(adapter->devlink) is called before other operations, like ixgbe_clear_interrupt_scheme"
+    ],
+    "relationships": [
+      "CallExpr: Inside FunctionDecl: ixgbe_remove",
+      "CallExpr: devlink_free BEFORE other operations on the adapter"
+    ],
+    "pattern_description": "Match calls to devlink_free within ixgbe_remove function before other adapter operations"
+  },
+  "pattern_description": {
+    "vulnerable": {
+      "description": "The `ixgbe_remove` function prematurely calls `devlink_free(adapter->devlink)`, potentially leading to a Use-After-Free (UAF) condition. Later calls, such as `ixgbe_clear_interrupt_scheme` and other functions, could operate on the freed memory if called after `devlink_free` but before the adapter is fully cleaned up, which can happen if the `ixgbe_remove` function continues to use adapter->devlink after freeing it.",
+      "key_indicators": [
+        "Premature call to `devlink_free(adapter->devlink)` within `ixgbe_remove`.",
+        "The `ixgbe_remove` function continues to use `adapter->devlink` after the premature `devlink_free` call",
+        "KASAN reports a UAF in `ixgbe_reset_interrupt_capability`",
+        "Control flow: `ixgbe_remove` calls `devlink_free` then continues with other operations using related data."
+      ],
+      "code_context": "```c\nstatic void ixgbe_remove(struct pci_dev *pdev)\n{\n\t...\n\tdevl_port_unregister(&adapter->devlink_port);\n\tdevl_unlock(adapter->devlink);\n\tdevlink_free(adapter->devlink);\n\t...\n\tixgbe_clear_interrupt_scheme(adapter);\n\t...\n}\n```",
+      "specific_functions": [
+        "ixgbe_remove",
+        "devlink_free",
+        "ixgbe_clear_interrupt_scheme",
+        "ixgbe_reset_interrupt_capability"
+      ],
+      "specific_variables": [
+        "adapter->devlink"
+      ],
+      "exploitability": "An attacker could trigger the UAF by causing the `ixgbe_remove` function to be called, then manipulating the system to access the freed memory region via functions such as `ixgbe_clear_interrupt_scheme` or others that use the freed data."
+    },
+    "fixed": {
+      "description": "The fix moves the call to `devlink_free(adapter->devlink)` to the end of the `ixgbe_remove` function to ensure that no subsequent code attempts to use the freed memory. This prevents the Use-After-Free condition.",
+      "required_checks": [],
+      "code_context": "```c\nstatic void ixgbe_remove(struct pci_dev *pdev)\n{\n\t...\n\tdevl_port_unregister(&adapter->devlink_port);\n\tdevl_unlock(adapter->devlink);\n\n\t...\n\tif (disable_dev)\n\t\tpci_disable_device(pdev);\n\n\tdevlink_free(adapter->devlink);\n}\n```",
+      "protection_mechanism": "Memory management adjustment"
+    }
+  },
+  "context": {
+    "impact": "Denial of service, potential for arbitrary code execution if memory is controlled.",
+    "affected_subsystem": "ixgbe network driver",
+    "exploitability": "An attacker could trigger the UAF by causing the `ixgbe_remove` function to be called, then manipulating the system to access the freed memory region via functions such as `ixgbe_clear_interrupt_scheme` or others that use the freed data."
+  },
+  "template_hints": {
+    "base_template": "MustCheckErrsCheck",
+    "modifications_needed": [
+      "Specific pattern: Match calls to devlink_free within ixgbe_remove function before other adapter operations"
+    ]
+  }
+}

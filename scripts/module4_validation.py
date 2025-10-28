@@ -8,8 +8,10 @@ import json
 import subprocess
 import argparse
 import re
+import sys
+import threading
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 from datetime import datetime
 import multiprocessing as mp
 
@@ -40,19 +42,24 @@ class KernelScanner:
         return sorted(versions)
 
     def scan_kernel(self, kernel_path: Path, checker_pattern: str = "linuxkernel-*",
-                    sample_size: Optional[int] = None) -> Dict:
+                    sample_size: Optional[int] = None,
+                    progress_callback: Optional[Callable[[int, int, str], None]] = None) -> Dict:
         """Scan a kernel version with specified checkers."""
 
-        print(f"\nScanning {kernel_path.name}...")
+        log = print if progress_callback is None else (lambda *args, **kwargs: None)
+
+        log(f"\nScanning {kernel_path.name}...")
 
         # Get list of C files to scan
         c_files = self.get_kernel_c_files(kernel_path, sample_size)
 
         if not c_files:
-            print("  ✗ No C files found to scan")
+            log("  ✗ No C files found to scan")
+            if progress_callback:
+                progress_callback(0, 1, "skipped")
             return {}
 
-        print(f"  Found {len(c_files)} C files to scan")
+        log(f"  Found {len(c_files)} C files to scan")
 
         # Prepare clang-tidy command
         cmd = [
@@ -70,9 +77,16 @@ class KernelScanner:
 
         # Scan files in batches for better progress tracking
         batch_size = 10
+        total_batches = max(1, (len(c_files) + batch_size - 1) // batch_size)
+        current_batch = 0
+
+        if progress_callback:
+            progress_callback(0, total_batches, "running")
+
         for i in range(0, len(c_files), batch_size):
             batch = c_files[i:i+batch_size]
-            print(f"  Scanning batch {i//batch_size + 1}/{(len(c_files) + batch_size - 1)//batch_size}...")
+            current_batch = (i // batch_size) + 1
+            log(f"  Scanning batch {current_batch}/{total_batches}...")
 
             batch_cmd = cmd + batch
 
@@ -85,12 +99,22 @@ class KernelScanner:
                 results["issues"].extend(issues)
 
             except subprocess.TimeoutExpired:
-                print(f"    ⚠ Timeout scanning batch")
+                log(f"    ⚠ Timeout scanning batch")
+                if progress_callback:
+                    progress_callback(current_batch, total_batches, "error")
             except Exception as e:
-                print(f"    ⚠ Error scanning batch: {e}")
+                log(f"    ⚠ Error scanning batch: {e}")
+                if progress_callback:
+                    progress_callback(current_batch, total_batches, "error")
+
+            if progress_callback:
+                progress_callback(min(current_batch, total_batches), total_batches, "running")
 
         results["total_issues"] = len(results["issues"])
-        print(f"  ✓ Found {results['total_issues']} issues")
+        log(f"  ✓ Found {results['total_issues']} issues")
+
+        if progress_callback:
+            progress_callback(total_batches, total_batches, "done")
 
         return results
 
@@ -320,10 +344,102 @@ class KernelScanner:
 
 def run_scan_for_kernel(args_tuple):
     """Helper function for multiprocessing pool to scan a single kernel."""
-    clang_tidy_path, kernels_dir, kernel_path, checker_pattern, sample_size = args_tuple
+    (clang_tidy_path, kernels_dir, kernel_path, checker_pattern,
+     sample_size, progress_key, progress_data) = args_tuple
     # We instantiate the scanner in the worker process to avoid pickling issues
     scanner = KernelScanner(str(clang_tidy_path), str(kernels_dir))
-    return scanner.scan_kernel(kernel_path, checker_pattern, sample_size)
+    def update_progress(current: int, total: int, status: str):
+        try:
+            progress_data[progress_key] = {
+                "current": current,
+                "total": total,
+                "status": status
+            }
+        except Exception:
+            pass
+
+    progress_cb = update_progress if progress_data is not None else None
+    return scanner.scan_kernel(kernel_path, checker_pattern, sample_size, progress_cb)
+
+
+def render_progress_bar(current: int, total: int, width: int = 28) -> str:
+    """Create an ASCII progress bar for display."""
+    total = max(total, 1)
+    ratio = min(max(current / total, 0.0), 1.0)
+    filled = int(width * ratio)
+    return '█' * filled + '░' * (width - filled)
+
+
+def render_progress_bars(progress_data, total_kernels: int, stop_event: threading.Event,
+                         display_limit: int = 4, refresh_interval: float = 0.2) -> None:
+    """Continuously render up to display_limit progress bars for kernel scans."""
+
+    lines_printed = 0
+
+    while True:
+        statuses = sorted(list(progress_data.items()), key=lambda item: item[0])
+
+        completed = sum(
+            1 for _, info in statuses
+            if info.get("status") in {"done", "error", "skipped"}
+        )
+
+        if statuses:
+            if lines_printed:
+                sys.stdout.write(f"\033[{lines_printed}F")
+
+            lines: List[str] = []
+            for kernel, info in statuses[:display_limit]:
+                current = int(info.get("current", 0))
+                total = int(info.get("total", 1))
+                status = info.get("status", "queued")
+                bar = render_progress_bar(current, total)
+                lines.append(f"  {kernel:<20} [{bar}] {current}/{total} {status}")
+
+            remaining = len(statuses) - display_limit
+            if remaining > 0:
+                pending = sum(
+                    1 for _, info in statuses[display_limit:]
+                    if info.get("status") not in {"done", "error", "skipped"}
+                )
+                lines.append(f"  … {remaining} more kernels ({pending} pending)")
+
+            for line in lines:
+                sys.stdout.write("\033[2K" + line + "\n")
+            sys.stdout.flush()
+            lines_printed = len(lines)
+
+        if completed >= total_kernels and statuses:
+            break
+
+        if stop_event.wait(refresh_interval):
+            break
+
+    if lines_printed:
+        sys.stdout.write(f"\033[{lines_printed}F")
+        statuses = sorted(list(progress_data.items()), key=lambda item: item[0])
+        lines: List[str] = []
+        for kernel, info in statuses[:display_limit]:
+            current = int(info.get("current", 0))
+            total = int(info.get("total", 1))
+            status = info.get("status", "queued")
+            bar = render_progress_bar(current, total)
+            lines.append(f"  {kernel:<20} [{bar}] {current}/{total} {status}")
+
+        remaining = len(statuses) - display_limit
+        if remaining > 0:
+            pending = sum(
+                1 for _, info in statuses[display_limit:]
+                if info.get("status") not in {"done", "error", "skipped"}
+            )
+            lines.append(f"  … {remaining} more kernels ({pending} pending)")
+
+        for line in lines:
+            sys.stdout.write("\033[2K" + line + "\n")
+        sys.stdout.flush()
+
+    if lines_printed:
+        print()
 
 def main():
     script_dir = Path(__file__).parent.resolve()
@@ -339,6 +455,8 @@ def main():
             help='Output file for scan report')
     parser.add_argument('--checker-pattern', default='linuxkernel-*',
             help='Pattern for checkers to use')
+    parser.add_argument('--anti-pattern',
+            help='Specific checker name to validate (e.g., UseAfterFreeCheck)')
     parser.add_argument('--kernel-version', help='Scan specific kernel version only')
     parser.add_argument('--sample-size', type=int,
             help='Limit number of files to scan per kernel')
@@ -353,6 +471,17 @@ def main():
     scanner = KernelScanner(args.clang_tidy, args.kernels_dir)
 
     # Get kernel versions to scan
+    checker_pattern = args.checker_pattern
+    if args.anti_pattern:
+        # Convert CheckerName to clang-tidy pattern (UseAfterFreeCheck -> linuxkernel-use-after-free)
+        name = args.anti_pattern.replace('Check', '')
+        pattern_parts = []
+        for index, char in enumerate(name):
+            if char.isupper() and index > 0:
+                pattern_parts.append('-')
+            pattern_parts.append(char.lower())
+        checker_pattern = f"linuxkernel-{''.join(pattern_parts)}"
+
     if args.kernel_version:
         kernel_path = scanner.kernels_dir / args.kernel_version
         if not kernel_path.exists():
@@ -371,21 +500,54 @@ def main():
         print(f"  - {kernel.name}")
 
     # Scan each kernel in parallel
-    print("\nStarting parallel scan...")
+    processes = args.processes or min(4, len(kernels_to_scan))
+    print(f"\nStarting parallel scan with {processes} worker(s)...")
+
+    manager = mp.Manager()
+    progress_data = manager.dict()
+    for kernel in kernels_to_scan:
+        progress_data[kernel.name] = {
+            "current": 0,
+            "total": 1,
+            "status": "queued"
+        }
+
+    stop_event = threading.Event()
+    progress_thread = threading.Thread(
+        target=render_progress_bars,
+        args=(progress_data, len(kernels_to_scan), stop_event),
+        daemon=True,
+    )
+    progress_thread.start()
 
     # Prepare arguments for each worker process
     scan_args = [
-        (args.clang_tidy, args.kernels_dir, kernel_path, args.checker_pattern, args.sample_size)
+        (
+            args.clang_tidy,
+            args.kernels_dir,
+            kernel_path,
+            checker_pattern,
+            args.sample_size,
+            kernel_path.name,
+            progress_data,
+        )
         for kernel_path in kernels_to_scan
     ]
 
     all_results = []
     # Use a multiprocessing Pool to scan kernels concurrently
-    # The number of processes will default to the number of CPUs on the machine
-    with mp.Pool(processes=args.processes) as pool:
-        results_from_pool = pool.map(run_scan_for_kernel, scan_args)
-        # Filter out any None or empty dict results from failed/empty scans
-        all_results = [r for r in results_from_pool if r]
+    try:
+        with mp.Pool(processes=processes) as pool:
+            results_from_pool = pool.map(run_scan_for_kernel, scan_args)
+            # Filter out any None or empty dict results from failed/empty scans
+            all_results = [r for r in results_from_pool if r]
+    finally:
+        stop_event.set()
+        progress_thread.join()
+        try:
+            manager.shutdown()
+        except Exception:
+            pass
 
     if not all_results:
         print("\n✗ No scan results obtained")

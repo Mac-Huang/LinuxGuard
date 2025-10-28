@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from textwrap import dedent
-from typing import Dict
+from typing import Any, Dict, List
 
 
 PATTERN_EXTRACTION_TEMPLATE = dedent(
@@ -79,6 +80,47 @@ Respond with ONLY valid JSON, no additional text.
 def build_pattern_extraction_prompt(context: str) -> str:
     """Build the Module 1 prompt from commit context."""
     return PATTERN_EXTRACTION_TEMPLATE.replace("{context}", context)
+
+
+def build_multi_commit_guidance_prompt(commit_bundles: List[Dict[str, Any]]) -> str:
+    """Create a prompt that asks the LLM to generalize multiple analyses into one plan."""
+
+    bundles_json = json.dumps(commit_bundles, indent=2)
+    return dedent(
+        f"""You are helping synthesize a GENERIC checker for the Linux kernel by combining
+insights gathered from multiple security-fix commits that address the SAME anti-pattern.
+
+Each entry includes the distilled analysis and checker guidance for one commit.
+You must produce a SINGLE JSON object with two top-level keys:
+1. "aggregated_pattern" – captures the generalized vulnerable/fix pattern information.
+2. "checker_guidance" – matches the schema produced by Module 1 guidance but is
+   broadened to cover the full set of commits. This must include:
+   - commit_hash: use "multi_commit" as the identifier
+   - commit_hashes: the list of all commit hashes considered
+   - anti_pattern_type, severity, confidence, vulnerability_class, cwe_ids
+   - checker_requirements (checker_name, ast_matchers_needed, conditions_to_check,
+     relationships, pattern_description) generalized across commits
+   - pattern_description (vulnerable + fixed views) generalized across commits
+   - context (impact, affected_subsystem, exploitability if provided)
+   - template_hints (base_template plus modifications that keep the checker on-scope)
+
+"aggregated_pattern" should mirror the schema produced by Module 1 analysis and
+must include: is_security_fix, anti_pattern_type, vulnerability_class, vulnerable_pattern,
+fix_pattern, ast_matcher_hints, severity, cwe_ids, impact, affected_subsystem,
+and the commit_hashes array.
+
+Rules:
+- Keep JSON strict and machine-readable with double quotes.
+- Preserve specific API/function/variable names that appear across commits.
+- Highlight the shared indicators/patterns that MUST be covered to avoid losing recall.
+- Do NOT invent data; when information disagrees, prefer the most commonly observed signal.
+
+Return ONLY the JSON object, no prose.
+
+Commit analyses to merge:
+{bundles_json}
+"""
+    ).strip()
 
 
 def build_header_generation_prompt(

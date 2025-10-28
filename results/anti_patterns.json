@@ -1,47 +1,105 @@
 {
   "is_security_fix": true,
-  "confidence": "high",
   "anti_pattern_type": "use-after-free",
   "vulnerability_class": "CWE-416",
   "vulnerable_pattern": {
-    "description": "The code frees a memory block (new_pp) and then immediately attempts to dereference it on the next line if of_changeset_add_property() fails.",
+    "description": "The code contains use-after-free vulnerabilities due to race conditions or incorrect memory management. The vulnerabilities involve accessing freed memory, often related to delayed work items, device removal, or incorrect reference counting.  The root cause is premature freeing of memory (e.g., structures, SKBs, or other kernel objects) while other parts of the system are still using or expecting access to this memory.",
     "key_indicators": [
-      "of_changeset_add_property() call",
-      "Freeing 'new_pp' on error path",
-      "Dereferencing 'new_pp' after being freed"
+      "Race conditions involving delayed work, device removal, or concurrent operations.",
+      "Calls to `cancel_delayed_work`, `destroy_workqueue`, or similar functions that can lead to race conditions.",
+      "Premature freeing of memory (e.g., `kfree`, `devlink_free`, `unregister_framebuffer`, `tb_tunnel_put`).",
+      "Accessing memory after it has been freed, through pointers or references (e.g., `q->task`,  `par->genpds`, `tunnel->callback`)."
     ],
-    "code_context": "if (ret)\n\t\t__of_prop_free(new_pp);\n\n\tnew_pp->next = np->deadprops;",
-    "exploitability": "An attacker could potentially trigger a crash by causing the function to fail, which would then allow them to access data that was in the freed memory location."
+    "code_context": "Varied, depending on the specific commit. Common functions: `cancel_delayed_work`, `destroy_workqueue`, `kfree`, `devlink_free`, `unregister_framebuffer`, `tb_tunnel_put`, `mvs_free`, `sco_sock_kill`, `wait_for_completion_timeout`, `hci_conn_hash_lookup_ba`, `hci_conn_hash_lookup_role`, `for_each_child_of_node`,  along with associated access to freed memory via pointers.",
+    "specific_functions": [
+      "cancel_delayed_work",
+      "destroy_workqueue",
+      "ocelot_stats_deinit",
+      "ocelot_check_stats_work",
+      "simplefb_detach_genpds",
+      "dev_pm_domain_detach",
+      "unregister_framebuffer",
+      "mvs_free",
+      "mvs_work_queue",
+      "sco_sock_kill",
+      "tb_dp_dprx_stop",
+      "tb_dp_dprx_work",
+      "wait_for_completion_timeout",
+      "hci_conn_hash_lookup_ba",
+      "hci_conn_hash_lookup_role",
+      "hci_conn_complete_evt",
+      "le_conn_complete_evt",
+      "devlink_free",
+      "ixgbe_clear_interrupt_scheme",
+      "ixgbe_reset_interrupt_capability",
+      "for_each_child_of_node",
+      "of_node_put",
+      "requeue_pi_wake_futex"
+    ],
+    "specific_variables": [
+      "ocelot->stats_work",
+      "ocelot->stats_queue",
+      "par->genpds",
+      "par->num_genpds",
+      "i",
+      "mvi",
+      "mwq",
+      "sk",
+      "sco_pi(sk)->conn",
+      "tunnel",
+      "skb_data",
+      "wait",
+      "conn",
+      "ev->link_type",
+      "ev->bdaddr",
+      "bdaddr",
+      "role",
+      "adapter->devlink",
+      "node",
+      "q->task"
+    ],
+    "exploitability": "Exploitation varies by commit but typically involves triggering race conditions through specific device operations, network configurations, or timing.  Success could lead to kernel crashes, information disclosure, or, in some cases, potential for arbitrary code execution."
   },
   "fix_pattern": {
-    "description": "The fix introduces a return statement after freeing 'new_pp' on error, preventing the use-after-free.",
+    "description": "The fixes involve synchronization mechanisms to prevent the use-after-free, including replacing `cancel_delayed_work` with `disable_delayed_work_sync`,  rearranging function calls to ensure resources are freed after use, adding checks to ensure correct object state before use, and using workqueues to manage delayed cleanup. The general strategy is to ensure memory is not accessed after it is freed.",
     "required_checks": [
-      "Check the return value of of_changeset_add_property()",
-      "Return the error code if the call fails."
+      "Use of synchronization primitives (e.g., `disable_delayed_work_sync`, `cancel_delayed_work_sync`, locking).",
+      "Correct ordering of function calls to prevent UAF.",
+      "Addition of checks to validate object state before use.",
+      "Employing delayed cleanup mechanisms (e.g., workqueues, RCU) to defer memory release until it's safe."
     ],
-    "code_context": "if (ret) {\n\t\t__of_prop_free(new_pp);\n\t\treturn ret;\n\t}",
-    "protection_mechanism": "Early return after freeing memory preventing access to freed memory."
+    "code_context": "Varied, with the application of specific synchronization functions and/or code restructuring.  Examples include replacing  `cancel_delayed_work` with `cancel_delayed_work_sync`, setting pointers to NULL to prevent access after the object is freed, and moving operations to safe points in the code. Also includes usage of `READ_ONCE()`.",
+    "protection_mechanism": "Synchronization to prevent UAF through correct memory management and ordering of operation."
   },
-  "ast_matcher_hints": {
-    "node_types": [
-      "IfStatement",
-      "FunctionCall",
-      "AssignmentExpression"
-    ],
-    "relationships": [
-      "Check the return value of a function, then free the return value, then use the return value in the subsequent line"
-    ],
-    "conditions": [
-      "Check if the return value of 'of_changeset_add_property' is non-zero",
-      "If so, '__of_prop_free' is called on the 'new_pp' pointer",
-      "The 'new_pp' pointer is accessed in the following line."
-    ],
-    "pattern_description": "Identify code that frees a dynamically allocated object and subsequently uses that object in the same function within an if statement branch."
-  },
+  "ast_matcher_hints": [
+    "CallExpr",
+    "FunctionDecl",
+    "IfStmt",
+    "MemberExpr",
+    "UnaryOperator",
+    "BinaryOperator",
+    "ReturnStmt",
+    "ForStmt",
+    "CompoundStmt",
+    "AssignmentExpression",
+    "Identifier"
+  ],
   "severity": "high",
   "cwe_ids": [
     "CWE-416"
   ],
-  "impact": "Crash, potential for information disclosure or further exploitation.",
-  "affected_subsystem": "of (Open Firmware)"
+  "impact": "Potential denial of service (system crash) or possible information leakage due to memory corruption.  In some cases, potential for arbitrary code execution.",
+  "affected_subsystem": "Varied:  net: mscc: ocelot, fbdev (framebuffer), SCSI, mvsas driver, Bluetooth SCO, thunderbolt, Wireless networking (Realtek rtw89 driver), futex, Bluetooth HCI, ixgbe network driver, drm/mediatek",
+  "commit_hashes": [
+    "bc9ea787079671cb19a8b25ff9f02be5ef6bfcf5",
+    "da1bb9135213744e7ec398826c8f2e843de4fb94",
+    "60cd16a3b7439ccb699d0bf533799eeb894fd217",
+    "ecb9a843be4d6fd710d7026e359f21015a062572",
+    "67600ccfc4f38ebd331b9332ac94717bfbc87ea7",
+    "3e31a6bc07312b448fad3b45de578471f86f0e77",
+    "b549113738e8c751b613118032a724b772aa83f2",
+    "9e622804d57e2d08f0271200606bd1270f75126f",
+    "5feef67b646d8f5064bac288e22204ffba2b9a4a",
+    "4de37a48b6b58faaded9eb765047cf0d8785ea18"
+  ]
 }

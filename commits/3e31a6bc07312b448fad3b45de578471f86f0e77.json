@@ -1,0 +1,76 @@
+{
+  "commit_hash": "3e31a6bc07312b448fad3b45de578471f86f0e77",
+  "fetch_date": "2025-10-23T21:27:10.307933",
+  "commit_info": {
+    "subject": "",
+    "author": {
+      "name": "Fedor Pchelkin",
+      "email": "pchelkin@ispras.ru",
+      "date": "2025-09-19T21:08:47Z"
+    },
+    "date": "Sat Sep 20 00:08:47 2025 +0300",
+    "message_body": "",
+    "signed_off_by": [],
+    "reviewed_by": [],
+    "reported_by": [],
+    "fixes": [],
+    "cc": [],
+    "sha": "3e31a6bc07312b448fad3b45de578471f86f0e77",
+    "committer": {
+      "name": "Ping-Ke Shih",
+      "email": "pkshih@realtek.com",
+      "date": "2025-09-22T05:55:05Z"
+    },
+    "message": "wifi: rtw89: fix use-after-free in rtw89_core_tx_kick_off_and_wait()\n\nThere is a bug observed when rtw89_core_tx_kick_off_and_wait() tries to\naccess already freed skb_data:\n\n BUG: KFENCE: use-after-free write in rtw89_core_tx_kick_off_and_wait drivers/net/wireless/realtek/rtw89/core.c:1110\n\n CPU: 6 UID: 0 PID: 41377 Comm: kworker/u64:24 Not tainted  6.17.0-rc1+ #1 PREEMPT(lazy)\n Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS edk2-20250523-14.fc42 05/23/2025\n Workqueue: events_unbound cfg80211_wiphy_work [cfg80211]\n\n Use-after-free write at 0x0000000020309d9d (in kfence-#251):\n rtw89_core_tx_kick_off_and_wait drivers/net/wireless/realtek/rtw89/core.c:1110\n rtw89_core_scan_complete drivers/net/wireless/realtek/rtw89/core.c:5338\n rtw89_hw_scan_complete_cb drivers/net/wireless/realtek/rtw89/fw.c:7979\n rtw89_chanctx_proceed_cb drivers/net/wireless/realtek/rtw89/chan.c:3165\n rtw89_chanctx_proceed drivers/net/wireless/realtek/rtw89/chan.h:141\n rtw89_hw_scan_complete drivers/net/wireless/realtek/rtw89/fw.c:8012\n rtw89_mac_c2h_scanofld_rsp drivers/net/wireless/realtek/rtw89/mac.c:5059\n rtw89_fw_c2h_work drivers/net/wireless/realtek/rtw89/fw.c:6758\n process_one_work kernel/workqueue.c:3241\n worker_thread kernel/workqueue.c:3400\n kthread kernel/kthread.c:463\n ret_from_fork arch/x86/kernel/process.c:154\n ret_from_fork_asm arch/x86/entry/entry_64.S:258\n\n kfence-#251: 0x0000000056e2393d-0x000000009943cb62, size=232, cache=skbuff_head_cache\n\n allocated by task 41377 on cpu 6 at 77869.159548s (0.009551s ago):\n __alloc_skb net/core/skbuff.c:659\n __netdev_alloc_skb net/core/skbuff.c:734\n ieee80211_nullfunc_get net/mac80211/tx.c:5844\n rtw89_core_send_nullfunc drivers/net/wireless/realtek/rtw89/core.c:3431\n rtw89_core_scan_complete drivers/net/wireless/realtek/rtw89/core.c:5338\n rtw89_hw_scan_complete_cb drivers/net/wireless/realtek/rtw89/fw.c:7979\n rtw89_chanctx_proceed_cb drivers/net/wireless/realtek/rtw89/chan.c:3165\n rtw89_chanctx_proceed drivers/net/wireless/realtek/rtw89/chan.c:3194\n rtw89_hw_scan_complete drivers/net/wireless/realtek/rtw89/fw.c:8012\n rtw89_mac_c2h_scanofld_rsp drivers/net/wireless/realtek/rtw89/mac.c:5059\n rtw89_fw_c2h_work drivers/net/wireless/realtek/rtw89/fw.c:6758\n process_one_work kernel/workqueue.c:3241\n worker_thread kernel/workqueue.c:3400\n kthread kernel/kthread.c:463\n ret_from_fork arch/x86/kernel/process.c:154\n ret_from_fork_asm arch/x86/entry/entry_64.S:258\n\n freed by task 1045 on cpu 9 at 77869.168393s (0.001557s ago):\n ieee80211_tx_status_skb net/mac80211/status.c:1117\n rtw89_pci_release_txwd_skb drivers/net/wireless/realtek/rtw89/pci.c:564\n rtw89_pci_release_tx_skbs.isra.0 drivers/net/wireless/realtek/rtw89/pci.c:651\n rtw89_pci_release_tx drivers/net/wireless/realtek/rtw89/pci.c:676\n rtw89_pci_napi_poll drivers/net/wireless/realtek/rtw89/pci.c:4238\n __napi_poll net/core/dev.c:7495\n net_rx_action net/core/dev.c:7557 net/core/dev.c:7684\n handle_softirqs kernel/softirq.c:580\n do_softirq.part.0 kernel/softirq.c:480\n __local_bh_enable_ip kernel/softirq.c:407\n rtw89_pci_interrupt_threadfn drivers/net/wireless/realtek/rtw89/pci.c:927\n irq_thread_fn kernel/irq/manage.c:1133\n irq_thread kernel/irq/manage.c:1257\n kthread kernel/kthread.c:463\n ret_from_fork arch/x86/kernel/process.c:154\n ret_from_fork_asm arch/x86/entry/entry_64.S:258\n\nIt is a consequence of a race between the waiting and the signaling side\nof the completion:\n\n            Waiting thread                            Completing thread\n\nrtw89_core_tx_kick_off_and_wait()\n  rcu_assign_pointer(skb_data->wait, wait)\n  /* start waiting */\n  wait_for_completion_timeout()\n                                                rtw89_pci_tx_status()\n                                                  rtw89_core_tx_wait_complete()\n                                                    rcu_read_lock()\n                                                    /* signals completion and\n                                                     * proceeds further\n                                                     */\n                                                    complete(&wait->completion)\n                                                    rcu_read_unlock()\n                                                  ...\n                                                  /* frees skb_data */\n                                                  ieee80211_tx_status_ni()\n  /* returns (exit status doesn't matter) */\n  wait_for_completion_timeout()\n  ...\n  /* accesses the already freed skb_data */\n  rcu_assign_pointer(skb_data->wait, NULL)\n\nThe completing side might proceed and free the underlying skb even before\nthe waiting side is fully awoken and run to execution.  Actually the race\nhappens regardless of wait_for_completion_timeout() exit status, e.g.\nthe waiting side may hit a timeout and the concurrent completing side is\nstill able to free the skb.\n\nSkbs which are sent by rtw89_core_tx_kick_off_and_wait() are owned by the\ndriver.  They don't come from core ieee80211 stack so no need to pass them\nto ieee80211_tx_status_ni() on completing side.\n\nIntroduce a work function which will act as a garbage collector for\nrtw89_tx_wait_info objects and the associated skbs.  Thus no potentially\nheavy locks are required on the completing side.\n\nFound by Linux Verification Center (linuxtesting.org).\n\nFixes: 1ae5ca615285 (\"wifi: rtw89: add function to wait for completion of TX skbs\")\nCc: stable@vger.kernel.org\nSuggested-by: Zong-Zhe Yang <kevin_yang@realtek.com>\nSigned-off-by: Fedor Pchelkin <pchelkin@ispras.ru>\nAcked-by: Ping-Ke Shih <pkshih@realtek.com>\nSigned-off-by: Ping-Ke Shih <pkshih@realtek.com>\nLink: https://patch.msgid.link/20250919210852.823912-2-pchelkin@ispras.ru",
+    "stats": {
+      "total": 70,
+      "additions": 61,
+      "deletions": 9
+    },
+    "files": [
+      {
+        "filename": "drivers/net/wireless/realtek/rtw89/core.c",
+        "status": "modified",
+        "additions": 24,
+        "deletions": 6,
+        "changes": 30
+      },
+      {
+        "filename": "drivers/net/wireless/realtek/rtw89/core.h",
+        "status": "modified",
+        "additions": 33,
+        "deletions": 2,
+        "changes": 35
+      },
+      {
+        "filename": "drivers/net/wireless/realtek/rtw89/pci.c",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 1,
+        "changes": 3
+      },
+      {
+        "filename": "drivers/net/wireless/realtek/rtw89/ser.c",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 0,
+        "changes": 2
+      }
+    ]
+  },
+  "patch_file": "commits/3e31a6bc07312b448fad3b45de578471f86f0e77.patch",
+  "summary": {
+    "subject": "",
+    "author": {
+      "name": "Fedor Pchelkin",
+      "email": "pchelkin@ispras.ru",
+      "date": "2025-09-19T21:08:47Z"
+    },
+    "date": "Sat Sep 20 00:08:47 2025 +0300",
+    "files_changed": 4,
+    "additions": 61,
+    "deletions": 9,
+    "has_fixes_tag": false,
+    "reporters": []
+  }
+}

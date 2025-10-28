@@ -297,5 +297,96 @@
     },
     "commit_hash": "80af3745ca465c6c47e833c1902004a7fa944f37",
     "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251023232315",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251023232315/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251023232315/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251023232315/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251023233449",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251023233449/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251023233449/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251023233449/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251024000050",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251024000050/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251024000050/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251024000050/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251024150150",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251024150150/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251024150150/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251024150150/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251024151442",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251024151442/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251024151442/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251024151442/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251024152552",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251024152552/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251024152552/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251024152552/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
+  },
+  {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251024153758",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251024153758/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251024153758/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251024153758/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
   }
 ]

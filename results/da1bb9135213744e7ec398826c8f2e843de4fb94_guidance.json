@@ -1,0 +1,63 @@
+{
+  "commit_hash": "da1bb9135213744e7ec398826c8f2e843de4fb94",
+  "anti_pattern_type": "use-after-free",
+  "severity": "critical",
+  "confidence": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "vulnerability_class": "CWE-416",
+  "checker_requirements": {
+    "checker_name": "UseAfterFreeCheck",
+    "ast_matchers_needed": [
+      "CallExpr"
+    ],
+    "conditions_to_check": [
+      "The function call should happen before the memory is freed by fb_destroy"
+    ],
+    "relationships": [
+      "inside of a CallExpr of simplefb_destroy"
+    ],
+    "pattern_description": "Match calls to `simplefb_detach_genpds` inside of `simplefb_destroy`"
+  },
+  "pattern_description": {
+    "vulnerable": {
+      "description": "The `simplefb_detach_genpds` function was called during device removal via `devres` management. However, the memory for `struct simplefb_par` was freed in `simplefb_remove()` by `unregister_framebuffer()` before the `devres` cleanup happened.  This resulted in a use-after-free when `simplefb_detach_genpds` tried to access the freed `struct simplefb_par` memory, specifically `par->genpds[i]` and `dev_pm_domain_detach(par->genpds[i], true)`.",
+      "key_indicators": [
+        "Call to `simplefb_detach_genpds`",
+        "Memory of `struct simplefb_par` freed by `unregister_framebuffer()`",
+        "The order of operations: `simplefb_detach_genpds` called after `simplefb_remove()`",
+        "Accessing `par->genpds` after the free"
+      ],
+      "code_context": "static void simplefb_destroy(struct fb_info *info) {\n\tsimplefb_regulators_destroy(info->par);\n\tsimplefb_clocks_destroy(info->par);\n\t//simplefb_detach_genpds(info->par); //  INCORRECT, as it runs after the framebuffer is unregistered and its memory freed\n\tif (info->screen_base)\n\t\tiounmap(info->screen_base);\n\tfb_dealloc_cmap(info);\n\tfb_destroy(info);\n}\n\nstatic void simplefb_detach_genpds(void *res)\n{\n\tstruct simplefb_par *par = res;\n\tunsigned int i;\n\n\tif (!par || !par->num_genpds) \n\t\treturn;\n\n\tfor (i = 0; i < par->num_genpds; i++) {\n\t\tif (!IS_ERR_OR_NULL(par->genpds[i]))\n\t\t\tdev_pm_domain_detach(par->genpds[i], true);\n\t}",
+      "specific_functions": [
+        "simplefb_detach_genpds",
+        "dev_pm_domain_detach",
+        "unregister_framebuffer"
+      ],
+      "specific_variables": [
+        "par->genpds",
+        "par->num_genpds",
+        "i"
+      ],
+      "exploitability": "The vulnerability could be exploited if the graphics driver is used.  By triggering device removal, the use-after-free could be triggered. The stack trace indicates this happens during the removal of the platform device."
+    },
+    "fixed": {
+      "description": "The fix calls `simplefb_detach_genpds` directly within `simplefb_destroy()` which is called as part of the `unregister_framebuffer()` to free the resources managed by simplefb. This ensures the function is called before the memory is freed. The `devm_add_action_or_reset` was removed which was attempting to register the detach function with `devres` management.",
+      "required_checks": [],
+      "code_context": "static void simplefb_destroy(struct fb_info *info)\n{\n\tsimplefb_regulators_destroy(info->par);\n\tsimplefb_clocks_destroy(info->par);\n\tsimplefb_detach_genpds(info->par);\n\tif (info->screen_base)\n\t\tiounmap(info->screen_base);\n\tfb_dealloc_cmap(info);\n\tfb_destroy(info);\n}\n",
+      "protection_mechanism": "Moving the `simplefb_detach_genpds` call to within `simplefb_destroy` to be executed before the resources are freed."
+    }
+  },
+  "context": {
+    "impact": "The vulnerability leads to a use-after-free condition which can cause a system crash or potentially allow for arbitrary code execution if carefully exploited.",
+    "affected_subsystem": "fbdev (framebuffer)",
+    "exploitability": "The vulnerability could be exploited if the graphics driver is used.  By triggering device removal, the use-after-free could be triggered. The stack trace indicates this happens during the removal of the platform device."
+  },
+  "template_hints": {
+    "base_template": "MustCheckErrsCheck",
+    "modifications_needed": [
+      "Specific pattern: Match calls to `simplefb_detach_genpds` inside of `simplefb_destroy`"
+    ]
+  }
+}

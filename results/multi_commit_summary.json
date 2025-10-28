@@ -1,0 +1,17 @@
+{
+  "commit_hashes": [
+    "bc9ea787079671cb19a8b25ff9f02be5ef6bfcf5",
+    "da1bb9135213744e7ec398826c8f2e843de4fb94",
+    "60cd16a3b7439ccb699d0bf533799eeb894fd217",
+    "ecb9a843be4d6fd710d7026e359f21015a062572",
+    "67600ccfc4f38ebd331b9332ac94717bfbc87ea7",
+    "3e31a6bc07312b448fad3b45de578471f86f0e77",
+    "b549113738e8c751b613118032a724b772aa83f2",
+    "9e622804d57e2d08f0271200606bd1270f75126f",
+    "5feef67b646d8f5064bac288e22204ffba2b9a4a",
+    "4de37a48b6b58faaded9eb765047cf0d8785ea18"
+  ],
+  "anti_pattern_type": "use-after-free",
+  "severity": "high",
+  "vulnerability_class": "CWE-416"
+}

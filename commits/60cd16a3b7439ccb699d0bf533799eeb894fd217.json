@@ -1,0 +1,55 @@
+{
+  "commit_hash": "60cd16a3b7439ccb699d0bf533799eeb894fd217",
+  "fetch_date": "2025-10-23T21:27:06.421334",
+  "commit_info": {
+    "subject": "",
+    "author": {
+      "name": "Duoming Zhou",
+      "email": "duoming@zju.edu.cn",
+      "date": "2025-09-20T13:42:01Z"
+    },
+    "date": "Sat Sep 20 21:42:01 2025 +0800",
+    "message_body": "",
+    "signed_off_by": [],
+    "reviewed_by": [],
+    "reported_by": [],
+    "fixes": [],
+    "cc": [],
+    "sha": "60cd16a3b7439ccb699d0bf533799eeb894fd217",
+    "committer": {
+      "name": "Martin K. Petersen",
+      "email": "martin.petersen@oracle.com",
+      "date": "2025-09-29T21:26:20Z"
+    },
+    "message": "scsi: mvsas: Fix use-after-free bugs in mvs_work_queue\n\nDuring the detaching of Marvell's SAS/SATA controller, the original code\ncalls cancel_delayed_work() in mvs_free() to cancel the delayed work\nitem mwq->work_q. However, if mwq->work_q is already running, the\ncancel_delayed_work() may fail to cancel it. This can lead to\nuse-after-free scenarios where mvs_free() frees the mvs_info while\nmvs_work_queue() is still executing and attempts to access the\nalready-freed mvs_info.\n\nA typical race condition is illustrated below:\n\nCPU 0 (remove)            | CPU 1 (delayed work callback)\nmvs_pci_remove()          |\n  mvs_free()              | mvs_work_queue()\n    cancel_delayed_work() |\n      kfree(mvi)          |\n                          |   mvi-> // UAF\n\nReplace cancel_delayed_work() with cancel_delayed_work_sync() to ensure\nthat the delayed work item is properly canceled and any executing\ndelayed work item completes before the mvs_info is deallocated.\n\nThis bug was found by static analysis.\n\nFixes: 20b09c2992fe (\"[SCSI] mvsas: add support for 94xx; layout change; bug fixes\")\nSigned-off-by: Duoming Zhou <duoming@zju.edu.cn>\nSigned-off-by: Martin K. Petersen <martin.petersen@oracle.com>",
+    "stats": {
+      "total": 2,
+      "additions": 1,
+      "deletions": 1
+    },
+    "files": [
+      {
+        "filename": "drivers/scsi/mvsas/mv_init.c",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1,
+        "changes": 2
+      }
+    ]
+  },
+  "patch_file": "commits/60cd16a3b7439ccb699d0bf533799eeb894fd217.patch",
+  "summary": {
+    "subject": "",
+    "author": {
+      "name": "Duoming Zhou",
+      "email": "duoming@zju.edu.cn",
+      "date": "2025-09-20T13:42:01Z"
+    },
+    "date": "Sat Sep 20 21:42:01 2025 +0800",
+    "files_changed": 1,
+    "additions": 1,
+    "deletions": 1,
+    "has_fixes_tag": false,
+    "reporters": []
+  }
+}

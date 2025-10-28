@@ -11,12 +11,12 @@ import os
 import sys
 import argparse
 from pathlib import Path
-from typing import Dict, Optional, Tuple, List
+from typing import Any, Dict, Optional, Tuple, List, Set
 from dotenv import load_dotenv
 import google.generativeai as genai
 import time
 from datetime import datetime
-from prompt_library import build_repair_prompt
+from prompt_library import build_multi_commit_guidance_prompt, build_repair_prompt
 
 # Load environment variables
 load_dotenv()
@@ -115,13 +115,16 @@ class StatusDisplay:
 class PipelineOrchestrator:
     """Orchestrates the complete pipeline with iterative generation and repair."""
 
-    def __init__(self, base_dir: Optional[str] = None):
+    def __init__(self, base_dir: Optional[str] = None, seed_commits: Optional[List[str]] = None):
         self.base_dir = Path(base_dir) if base_dir else Path(__file__).resolve().parent.parent
         self.max_iterations = 3
         self.max_repair_attempts = 5
         self.validation_sample = None
         self.validation_kernel = None
         self.display = StatusDisplay()
+        self.seed_commits = seed_commits or []
+        self.current_candidate_commits: List[str] = []
+        self.integrated_guidance: Optional[Dict[str, Any]] = None
 
         # Initialize Gemini for repairs
         api_key = os.getenv('GEMINI_API_KEY')
@@ -131,6 +134,8 @@ class PipelineOrchestrator:
         genai.configure(api_key=api_key)
         model_name = os.getenv('GEMINI_MODEL', 'gemini-2.0-flash-lite')
         self.repair_model = genai.GenerativeModel(model_name)
+        integration_model_name = os.getenv('GEMINI_MULTI_COMMIT_MODEL', model_name)
+        self.integration_model = genai.GenerativeModel(integration_model_name)
 
         # Module paths
         self.scripts_dir = self.base_dir / "scripts"
@@ -191,6 +196,53 @@ class PipelineOrchestrator:
         }
         return checker
 
+    def _cleanup_checker_artifacts(self, checker_info: Dict) -> None:
+        """Remove generated checker artifacts when a candidate fails."""
+
+        files = checker_info.get('files') or {}
+        anti_pattern_folder = checker_info.get('anti_pattern_folder')
+        generation_id = checker_info.get('generation_id')
+
+        metadata_rel = files.get('metadata_path')
+        if metadata_rel:
+            metadata_path = self._resolve_project_path(metadata_rel)
+        elif anti_pattern_folder and generation_id:
+            metadata_path = self.checkers_dir / anti_pattern_folder / generation_id / 'metadata.json'
+        else:
+            metadata_path = None
+
+        generation_dir = metadata_path.parent if metadata_path else None
+        if generation_dir and generation_dir.exists():
+            try:
+                shutil.rmtree(generation_dir)
+            except OSError:
+                pass
+
+        registry_path = self.checkers_dir / 'generated_checkers.json'
+        if not registry_path.exists():
+            return
+
+        try:
+            with open(registry_path, 'r') as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            return
+
+        entries = data if isinstance(data, list) else [data]
+        updated = [
+            entry for entry in entries
+            if entry.get('generation_id') != generation_id
+        ]
+
+        if len(updated) == len(entries):
+            return
+
+        try:
+            with open(registry_path, 'w') as f:
+                json.dump(updated, f, indent=2)
+        except OSError:
+            pass
+
     def _count_error_lines(self, output: str) -> int:
         if not output:
             return 0
@@ -200,6 +252,260 @@ class PipelineOrchestrator:
             if 'error' in lower or 'failed' in lower:
                 count += 1
         return count
+
+    def _truncate_field(self, value: Any, limit: int = 1600) -> Any:
+        """Trim long string fields to keep prompts within reasonable bounds."""
+        if isinstance(value, str):
+            if len(value) <= limit:
+                return value
+            return value[:limit] + " …[truncated]"
+        if isinstance(value, list):
+            return [self._truncate_field(item, limit) for item in value]
+        if isinstance(value, dict):
+            return {key: self._truncate_field(val, limit) for key, val in value.items()}
+        return value
+
+    def _prepare_bundle_for_prompt(self, bundle: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract only the high-value signals from a commit analysis for prompting."""
+        analysis = bundle["analysis"]
+        guidance = bundle["guidance"]
+
+        vulnerable = analysis.get("vulnerable_pattern", {}) or {}
+        fix_pattern = analysis.get("fix_pattern", {}) or {}
+
+        prepared = {
+            "commit_hash": bundle["commit_hash"],
+            "anti_pattern_type": analysis.get("anti_pattern_type", "unknown"),
+            "severity": analysis.get("severity"),
+            "vulnerability_class": analysis.get("vulnerability_class"),
+            "vulnerable_pattern": self._truncate_field(
+                {
+                    "description": vulnerable.get("description"),
+                    "key_indicators": vulnerable.get("key_indicators", []),
+                    "code_context": vulnerable.get("code_context"),
+                    "specific_functions": vulnerable.get("specific_functions", []),
+                    "specific_variables": vulnerable.get("specific_variables", []),
+                    "exploitability": vulnerable.get("exploitability"),
+                }
+            ),
+            "fix_pattern": self._truncate_field(
+                {
+                    "description": fix_pattern.get("description"),
+                    "required_checks": fix_pattern.get("required_checks", []),
+                    "code_context": fix_pattern.get("code_context"),
+                    "protection_mechanism": fix_pattern.get("protection_mechanism"),
+                }
+            ),
+            "checker_requirements": self._truncate_field(guidance.get("checker_requirements", {})),
+            "pattern_description": self._truncate_field(guidance.get("pattern_description", {})),
+            "context": self._truncate_field(guidance.get("context", {})),
+            "template_hints": self._truncate_field(guidance.get("template_hints", {})),
+        }
+        return prepared
+
+    def _strip_model_response(self, text: str) -> str:
+        """Remove markdown fences from model responses."""
+        stripped = (text or "").strip()
+        if stripped.startswith("```"):
+            newline_index = stripped.find('\n')
+            if newline_index != -1:
+                stripped = stripped[newline_index + 1:]
+            else:
+                stripped = ''
+        if stripped.endswith("```"):
+            stripped = stripped[:-3]
+        return stripped.strip()
+
+    def collect_candidate_commits(self, seed_commit: str) -> Optional[List[str]]:
+        """Select unique commit hashes to feed into the multi-commit flow."""
+
+        proposed = self.seed_commits[:] if self.seed_commits else [seed_commit]
+        commits: List[str] = []
+        seen = set()
+        for item in proposed:
+            if not item:
+                continue
+            candidate = item.strip()
+            if not candidate or candidate in seen:
+                continue
+            commits.append(candidate)
+            seen.add(candidate)
+
+        if len(commits) < 10:
+            self.display.error(f"At least 10 commits are required for multi-commit synthesis (found {len(commits)}).")
+            return None
+
+        self.current_candidate_commits = commits
+
+        candidates_path = self.base_dir / "results" / "candidate_commits.json"
+        candidates_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(candidates_path, 'w') as f:
+            json.dump(commits, f, indent=2)
+
+        self.display.status("Candidates", f"Selected {len(commits)} commits for aggregation")
+        return commits
+
+    def _run_module1_for_commit(self, commit_hash: str) -> bool:
+        """Execute Module 1 for a single commit and ensure outputs exist."""
+
+        cmd = [
+            "python3",
+            str(self.scripts_dir / "module1_pattern_extraction.py"),
+            commit_hash,
+            "--commit-dir",
+            str(self.base_dir / "commits"),
+            "--results-dir",
+            str(self.base_dir / "results"),
+        ]
+
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            preview = (result.stderr or result.stdout or "").splitlines()[:5]
+            self.display.error(f"Module 1 failed for commit {commit_hash[:12]}")
+            if preview:
+                print("    " + "\n    ".join(preview))
+            return False
+
+        results_dir = self.base_dir / "results"
+        analysis_path = results_dir / f"{commit_hash}_analysis.json"
+        guidance_path = results_dir / f"{commit_hash}_guidance.json"
+
+        if not analysis_path.exists() or not guidance_path.exists():
+            self.display.error(f"Module 1 outputs missing for commit {commit_hash[:12]}")
+            return False
+
+        return True
+
+    def integrate_guidance_reports(self, bundles: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """Combine multiple commit analyses into one generalized guidance package."""
+
+        if not bundles:
+            return None
+
+        trimmed_payload = [self._prepare_bundle_for_prompt(bundle) for bundle in bundles]
+        commit_hashes = [bundle["commit_hash"] for bundle in bundles]
+        prompt = build_multi_commit_guidance_prompt(trimmed_payload)
+
+        try:
+            response = self.integration_model.generate_content(prompt)
+            response_text = self._strip_model_response(getattr(response, "text", ""))
+            integration = json.loads(response_text)
+        except Exception as exc:
+            self.display.error(f"Failed to integrate multi-commit guidance: {exc}")
+            return None
+
+        aggregated_pattern = integration.get("aggregated_pattern")
+        guidance = integration.get("checker_guidance")
+        if not aggregated_pattern or not guidance:
+            self.display.error("Integration response missing aggregated_pattern or checker_guidance.")
+            return None
+
+        aggregated_pattern.setdefault("commit_hashes", commit_hashes)
+        aggregated_pattern.setdefault("is_security_fix", True)
+
+        guidance.setdefault("commit_hash", "multi_commit")
+        guidance.setdefault("commit_hashes", commit_hashes)
+        if "anti_pattern_type" not in guidance:
+            guidance["anti_pattern_type"] = aggregated_pattern.get("anti_pattern_type")
+        if "severity" not in guidance:
+            guidance["severity"] = aggregated_pattern.get("severity")
+        if "confidence" not in guidance:
+            guidance["confidence"] = aggregated_pattern.get("confidence", "medium")
+        if "vulnerability_class" not in guidance:
+            guidance["vulnerability_class"] = aggregated_pattern.get("vulnerability_class")
+        if "cwe_ids" not in guidance:
+            guidance["cwe_ids"] = aggregated_pattern.get("cwe_ids", [])
+
+        sample_guidance = bundles[0]["guidance"]
+        for field in ("checker_requirements", "pattern_description", "context", "template_hints"):
+            if not guidance.get(field):
+                guidance[field] = sample_guidance.get(field, {})
+
+        return {
+            "aggregated_pattern": aggregated_pattern,
+            "checker_guidance": guidance,
+            "prompt_payload": trimmed_payload,
+        }
+
+    def analyze_commits(self, commit_hashes: List[str]) -> Optional[Tuple[Dict[str, Any], Dict[str, Any]]]:
+        """Run Module 1 on multiple commits and integrate their outputs."""
+
+        results_dir = self.base_dir / "results"
+        bundles: List[Dict[str, Any]] = []
+
+        for index, commit_hash in enumerate(commit_hashes, start=1):
+            self.display.status(
+                "Analysis",
+                f"Module 1 on commit {index}/{len(commit_hashes)} ({commit_hash[:12]})"
+            )
+            if not self._run_module1_for_commit(commit_hash):
+                return None
+
+            analysis_path = results_dir / f"{commit_hash}_analysis.json"
+            guidance_path = results_dir / f"{commit_hash}_guidance.json"
+
+            try:
+                with open(analysis_path, 'r') as f:
+                    analysis = json.load(f)
+                with open(guidance_path, 'r') as f:
+                    guidance = json.load(f)
+            except json.JSONDecodeError as exc:
+                self.display.error(f"Failed to parse Module 1 output for {commit_hash[:12]}: {exc}")
+                return None
+
+            if not analysis.get("is_security_fix"):
+                self.display.error(f"Commit {commit_hash[:12]} was not classified as a security fix.")
+                return None
+
+            bundles.append({
+                "commit_hash": commit_hash,
+                "analysis": analysis,
+                "guidance": guidance,
+            })
+
+        anti_pattern_types = {
+            bundle["analysis"].get("anti_pattern_type", "unknown")
+            for bundle in bundles
+        }
+        if len(anti_pattern_types) > 1:
+            self.display.error(f"Commits cover multiple anti-pattern types: {', '.join(sorted(anti_pattern_types))}")
+            return None
+
+        integration = self.integrate_guidance_reports(bundles)
+        if not integration:
+            return None
+
+        trimmed_payload_path = results_dir / "multi_commit_prompt_payload.json"
+        with open(trimmed_payload_path, 'w') as f:
+            json.dump(integration["prompt_payload"], f, indent=2)
+
+        aggregated_pattern = integration["aggregated_pattern"]
+        guidance = integration["checker_guidance"]
+
+        pattern_path = results_dir / "anti_patterns.json"
+        with open(pattern_path, 'w') as f:
+            json.dump(aggregated_pattern, f, indent=2)
+
+        guidance_path = results_dir / "checker_guidance.json"
+        with open(guidance_path, 'w') as f:
+            json.dump(guidance, f, indent=2)
+
+        multi_summary_path = results_dir / "multi_commit_summary.json"
+        with open(multi_summary_path, 'w') as f:
+            json.dump(
+                {
+                    "commit_hashes": commit_hashes,
+                    "anti_pattern_type": aggregated_pattern.get("anti_pattern_type"),
+                    "severity": aggregated_pattern.get("severity"),
+                    "vulnerability_class": aggregated_pattern.get("vulnerability_class"),
+                },
+                f,
+                indent=2,
+            )
+
+        self.integrated_guidance = guidance
+        self.display.success(f"Integrated guidance across {len(commit_hashes)} commits")
+        return aggregated_pattern, guidance
 
     def generate_checker(self, commit_hash: str) -> Optional[Dict]:
         """Main orchestration function implementing the iterative generation algorithm."""
@@ -216,16 +522,25 @@ class PipelineOrchestrator:
             # Display iteration header prominently
             print(f"\n{Colors.BOLD}{Colors.CYAN}━━━ Iteration {iteration}/{self.max_iterations} ━━━{Colors.ENDC}")
 
-            # Stage 1: Bug Pattern Analysis
-            print(f"{Colors.BOLD}Stage 1:{Colors.ENDC} Analyzing patch")
-            self.display.status("Analysis", "Extracting bug patterns...")
-            pattern = self.analyze_patch(commit_hash)
+            # Stage 1: Bug Pattern Analysis (multi-commit)
+            print(f"{Colors.BOLD}Stage 1:{Colors.ENDC} Multi-commit pattern extraction")
+            self.display.status("Candidates", "Selecting commit cohort...")
+            candidate_commits = self.collect_candidate_commits(commit_hash)
+            if not candidate_commits:
+                self.display.error("Unable to select candidate commits")
+                return None
 
-            if not pattern:
-                self.display.error("Failed to extract pattern")
+            analysis_result = self.analyze_commits(candidate_commits)
+            if not analysis_result:
+                self.display.error("Failed to aggregate guidance across commits")
                 continue
 
-            self.display.success(f"Pattern detected: {pattern.get('anti_pattern_type', 'unknown')}")
+            pattern, aggregated_guidance = analysis_result
+            guidance_commit_id = aggregated_guidance.get("commit_hash", "multi_commit")
+
+            self.display.success(
+                f"Pattern aggregated ({pattern.get('anti_pattern_type', 'unknown')}) from {len(candidate_commits)} commits"
+            )
 
             # Stage 2: Detection Plan Synthesis
             print(f"\n{Colors.BOLD}Stage 2:{Colors.ENDC} Synthesis")
@@ -235,7 +550,7 @@ class PipelineOrchestrator:
             # Stage 3: Checker Implementation
             print(f"\n{Colors.BOLD}Stage 3:{Colors.ENDC} Implementation")
             self.display.status("Generation", "Creating checker code...")
-            checker_info = self.implement_checker(pattern, commit_hash)
+            checker_info = self.implement_checker(pattern, guidance_commit_id)
 
             if not checker_info:
                 self.display.error("Failed to generate checker")
@@ -289,13 +604,14 @@ class PipelineOrchestrator:
                     self.display.error(f"Maximum repair attempts reached ({error_count} errors remaining)")
 
             if not build_result:
+                self._cleanup_checker_artifacts(checker_info)
                 self.display.error(f"Failed to build after {self.max_repair_attempts} attempts")
                 continue
 
             # Stage 5: Validation
             print(f"\n{Colors.BOLD}Stage 5:{Colors.ENDC} Validation")
             self.display.status("Testing", "Validating checker...")
-            is_valid = self.validate_checker(checker_info, commit_hash)
+            is_valid = self.validate_checker(checker_info, guidance_commit_id)
 
             if is_valid:
                 print(f"\n{Colors.GREEN}{'='*80}{Colors.ENDC}")
@@ -344,7 +660,7 @@ class PipelineOrchestrator:
 
         return None
 
-    def implement_checker(self, pattern: Dict, commit_hash: str) -> Optional[Dict]:
+    def implement_checker(self, pattern: Dict, guidance_commit_id: str) -> Optional[Dict]:
         """Stage 3: Implement checker from pattern."""
 
         result = subprocess.run([
@@ -374,7 +690,7 @@ class PipelineOrchestrator:
 
         selected = None
         for entry in reversed(checkers):
-            if entry.get("commit_hash") == commit_hash:
+            if entry.get("commit_hash") == guidance_commit_id:
                 selected = entry
                 break
 
@@ -566,9 +882,6 @@ class PipelineOrchestrator:
     def validate_checker(self, checker_info: Dict, commit_hash: str) -> bool:
         """Stage 4: Validate the checker by scanning and checking results."""
 
-        # Convert checker name to pattern
-        checker_pattern = self.get_checker_pattern(checker_info['checker_name'])
-
         # Get anti-pattern type for organized output
         anti_pattern_type = checker_info.get("anti_pattern_type", "unknown")
         anti_pattern_folder = checker_info.get("anti_pattern_folder") or anti_pattern_type.lower().replace('_', '-')
@@ -578,16 +891,10 @@ class PipelineOrchestrator:
         output_path = validation_dir / "validation_report.json"
         validation_dir.mkdir(parents=True, exist_ok=True)
 
-        # Show scanning progress
-        if self.validation_sample:
-            total_files = self.validation_sample
-        else:
-            total_files = 100  # Estimate for progress display
-
         # Run Module 4 - scan files in kernel
         cmd = [
             "python3", str(self.scripts_dir / "module4_validation.py"),
-            "--checker-pattern", checker_pattern,
+            "--anti-pattern", checker_info['checker_name'],
             "--output", str(output_path),
             "--anti-pattern-type", anti_pattern_type
         ]
@@ -600,15 +907,32 @@ class PipelineOrchestrator:
 
         result = subprocess.run(cmd, capture_output=True, text=True)
 
+        if result.returncode != 0:
+            error_output = result.stderr.strip() or result.stdout.strip()
+            if error_output:
+                headline = error_output.splitlines()[0]
+                self.display.error(f"Validation run failed: {headline}")
+            else:
+                self.display.error("Validation run failed: module4 exited with non-zero status")
+            return False
+
         # Load and check results from anti-pattern specific folder
         folder_name = anti_pattern_type.lower().replace('_', '-')
-        report_file = self.base_dir / "results" / folder_name / "validation_report.json"
+        candidate_reports = [
+            output_path,
+            output_path.parent / folder_name / output_path.name,
+            self.base_dir / "results" / folder_name / "validation_report.json",
+            self.base_dir / "results" / "validation_report.json"
+        ]
 
-        # Fallback to old location if not found
-        if not report_file.exists():
-            report_file = self.base_dir / "results" / "validation_report.json"
+        report_file = None
+        for path in candidate_reports:
+            if path.exists():
+                report_file = path
+                break
 
-        if not report_file.exists():
+        if report_file is None:
+            self.display.error("Validation report not found after scan")
             return False
 
         with open(report_file, 'r') as f:
@@ -626,24 +950,11 @@ class PipelineOrchestrator:
 
         return False
 
-    def get_checker_pattern(self, checker_name: str) -> str:
-        """Convert checker name to clang-tidy pattern."""
-
-        name = checker_name.replace('Check', '')
-        result = []
-
-        for i, char in enumerate(name):
-            if char.isupper() and i > 0:
-                result.append('-')
-            result.append(char.lower())
-
-        return f"linuxkernel-{''.join(result)}"
-
 def main():
     parser = argparse.ArgumentParser(description='LinuxGuard Pipeline')
     parser.add_argument('--commit', default='80af3745ca465c6c47e833c1902004a7fa944f37',
                       help='Commit hash to analyze')
-    parser.add_argument('--max-iterations', type=int, default=3,
+    parser.add_argument('--max-iterations', type=int, default=10,
                       help='Maximum generation iterations')
     parser.add_argument('--max-repairs', type=int, default=5,
                       help='Maximum repair attempts per iteration')
@@ -653,10 +964,58 @@ def main():
                       help='Limit validation to a specific kernel version (scan all by default)')
     parser.add_argument('--validation-sample', type=int, default=None,
                       help='Number of files to scan for validation')
+    parser.add_argument('--commits', nargs='+',
+                      help='Explicit list of commit hashes for multi-commit analysis')
+    parser.add_argument('--commit-file', default=None,
+                      help='Path to a file containing commit hashes (JSON array or newline separated)')
 
     args = parser.parse_args()
 
-    orchestrator = PipelineOrchestrator(base_dir=args.base_dir)
+    seed_commits: List[str] = []
+    seen: Set[str] = set()
+
+    def _add_commits(commits: List[str]):
+        for raw in commits:
+            if not raw:
+                continue
+            commit = raw.strip()
+            if not commit or commit in seen:
+                continue
+            seed_commits.append(commit)
+            seen.add(commit)
+
+    if args.commit_file:
+        commit_path = Path(args.commit_file)
+        if not commit_path.exists():
+            print(f"Commit file not found: {commit_path}", file=sys.stderr)
+            return
+        try:
+            if commit_path.suffix.lower() == ".json":
+                with open(commit_path, 'r') as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    if isinstance(data.get("commits"), list):
+                        data = data["commits"]
+                    elif isinstance(data.get("commit_hashes"), list):
+                        data = data["commit_hashes"]
+                if not isinstance(data, list):
+                    raise ValueError("JSON commit file must be a list or contain 'commits'.")
+                _add_commits([str(item) for item in data])
+            else:
+                with open(commit_path, 'r') as f:
+                    lines = [line.strip() for line in f.readlines()]
+                _add_commits([line for line in lines if line])
+        except (json.JSONDecodeError, ValueError) as exc:
+            print(f"Failed to load commit file: {exc}", file=sys.stderr)
+            return
+
+    if args.commits:
+        _add_commits(args.commits)
+
+    if not seed_commits:
+        _add_commits([args.commit])
+
+    orchestrator = PipelineOrchestrator(base_dir=args.base_dir, seed_commits=seed_commits)
     orchestrator.max_iterations = args.max_iterations
     orchestrator.max_repair_attempts = args.max_repairs
     orchestrator.validation_sample = args.validation_sample
@@ -664,7 +1023,8 @@ def main():
 
     # Run the orchestrated pipeline
     start_time = time.time()
-    checker = orchestrator.generate_checker(args.commit)
+    entry_commit = seed_commits[0] if seed_commits else args.commit
+    checker = orchestrator.generate_checker(entry_commit)
     elapsed = time.time() - start_time
 
     if checker:

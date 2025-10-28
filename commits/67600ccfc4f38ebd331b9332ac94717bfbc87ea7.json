@@ -1,0 +1,55 @@
+{
+  "commit_hash": "67600ccfc4f38ebd331b9332ac94717bfbc87ea7",
+  "fetch_date": "2025-10-23T21:27:08.966640",
+  "commit_info": {
+    "subject": "",
+    "author": {
+      "name": "Duoming Zhou",
+      "email": "duoming@zju.edu.cn",
+      "date": "2025-09-23T05:13:57Z"
+    },
+    "date": "Tue Sep 23 13:13:57 2025 +0800",
+    "message_body": "",
+    "signed_off_by": [],
+    "reviewed_by": [],
+    "reported_by": [],
+    "fixes": [],
+    "cc": [],
+    "sha": "67600ccfc4f38ebd331b9332ac94717bfbc87ea7",
+    "committer": {
+      "name": "Mika Westerberg",
+      "email": "mika.westerberg@linux.intel.com",
+      "date": "2025-09-23T15:16:38Z"
+    },
+    "message": "thunderbolt: Fix use-after-free in tb_dp_dprx_work\n\nThe original code relies on cancel_delayed_work() in tb_dp_dprx_stop(),\nwhich does not ensure that the delayed work item tunnel->dprx_work has\nfully completed if it was already running. This leads to use-after-free\nscenarios where tb_tunnel is deallocated by tb_tunnel_put(), while\ntunnel->dprx_work remains active and attempts to dereference tb_tunnel\nin tb_dp_dprx_work().\n\nA typical race condition is illustrated below:\n\nCPU 0                            | CPU 1\ntb_dp_tunnel_active()            |\n  tb_deactivate_and_free_tunnel()| tb_dp_dprx_start()\n    tb_tunnel_deactivate()       |   queue_delayed_work()\n      tb_dp_activate()           |\n        tb_dp_dprx_stop()        | tb_dp_dprx_work() //delayed worker\n          cancel_delayed_work()  |\n    tb_tunnel_put(tunnel);       |\n                                 |   tunnel = container_of(...); //UAF\n                                 |   tunnel-> //UAF\n\nReplacing cancel_delayed_work() with cancel_delayed_work_sync() is\nnot feasible as it would introduce a deadlock: both tb_dp_dprx_work()\nand the cleanup path acquire tb->lock, and cancel_delayed_work_sync()\nwould wait indefinitely for the work item that cannot proceed.\n\nInstead, implement proper reference counting:\n- If cancel_delayed_work() returns true (work is pending), we release\n  the reference in the stop function.\n- If it returns false (work is executing or already completed), the\n  reference is released in delayed work function itself.\n\nThis ensures the tb_tunnel remains valid during work item execution\nwhile preventing memory leaks.\n\nThis bug was found by static analysis.\n\nFixes: d6d458d42e1e (\"thunderbolt: Handle DisplayPort tunnel activation asynchronously\")\nCc: stable@vger.kernel.org\nSigned-off-by: Duoming Zhou <duoming@zju.edu.cn>\nSigned-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>",
+    "stats": {
+      "total": 5,
+      "additions": 3,
+      "deletions": 2
+    },
+    "files": [
+      {
+        "filename": "drivers/thunderbolt/tunnel.c",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 2,
+        "changes": 5
+      }
+    ]
+  },
+  "patch_file": "commits/67600ccfc4f38ebd331b9332ac94717bfbc87ea7.patch",
+  "summary": {
+    "subject": "",
+    "author": {
+      "name": "Duoming Zhou",
+      "email": "duoming@zju.edu.cn",
+      "date": "2025-09-23T05:13:57Z"
+    },
+    "date": "Tue Sep 23 13:13:57 2025 +0800",
+    "files_changed": 1,
+    "additions": 3,
+    "deletions": 2,
+    "has_fixes_tag": false,
+    "reporters": []
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "commit_hash": "9e622804d57e2d08f0271200606bd1270f75126f",
+  "anti_pattern_type": "use-after-free",
+  "severity": "critical",
+  "confidence": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "vulnerability_class": "CWE-416",
+  "checker_requirements": {
+    "checker_name": "UseAfterFreeCheck",
+    "ast_matchers_needed": [
+      "IfStmt",
+      "CallExpr"
+    ],
+    "conditions_to_check": [
+      "!conn",
+      "conn->role == HCI_ROLE_MASTER",
+      "conn->state != BT_CONNECT"
+    ],
+    "relationships": [
+      "CallExpr is child of IfStmt",
+      "BinaryOperator and MemberExpr used in condition"
+    ],
+    "pattern_description": "Match calls to `hci_conn_hash_lookup_ba` or `hci_conn_hash_lookup_role`, followed by an if-statement that checks the return value of the call (conn) and its state. The condition check will include the 'BT_CONNECT' state."
+  },
+  "pattern_description": {
+    "vulnerable": {
+      "description": "A use-after-free vulnerability exists in hci_acl_create_conn_sync where a connection object can be freed while still in use, specifically when a connection is in the BT_OPEN state. This can happen in hci_acl_create_conn_sync and hci_le_create_conn_sync. The vulnerability is triggered when the connection object is prematurely freed, and subsequent operations attempt to access the freed memory.",
+      "key_indicators": [
+        "hcon->state == BT_OPEN",
+        "hci_conn_hash_lookup_ba (or hci_conn_hash_lookup_role)",
+        "conn object freed while it's still being used"
+      ],
+      "code_context": "The vulnerability lies in the race condition between connection establishment and connection cleanup. When the connection's state is BT_OPEN, it might be freed. The `hci_conn_hash_lookup_ba` (or `hci_conn_hash_lookup_role`) function retrieves an existing connection object. If the object has been freed, the subsequent operations on the object lead to UAF.",
+      "specific_functions": [
+        "hci_conn_hash_lookup_ba",
+        "hci_conn_hash_lookup_role",
+        "hci_conn_complete_evt",
+        "le_conn_complete_evt"
+      ],
+      "specific_variables": [
+        "conn",
+        "ev->link_type",
+        "ev->bdaddr",
+        "bdaddr",
+        "role"
+      ],
+      "exploitability": "The vulnerability can be triggered by manipulating connection establishment and teardown to cause a race condition, leading to the use of a freed object. An attacker could potentially cause a denial of service or potentially execute arbitrary code."
+    },
+    "fixed": {
+      "description": "The fix adds checks to ensure that connection objects in the BT_OPEN state are not prematurely cleaned up. Specifically, the fix checks the state of the connection object retrieved via `hci_conn_hash_lookup_ba` or `hci_conn_hash_lookup_role` and prevents cleanup if it's still connecting or in BT_CONNECT state before deleting it.",
+      "required_checks": [
+        "if (!conn || (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT))"
+      ],
+      "code_context": "```c\n\tconn = hci_conn_hash_lookup_ba(hdev, ev->link_type, &ev->bdaddr);\n\tif (!conn ||\n\t    (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT)) {\n\t\t/* In case of error status and there is no connection pending\n\t\t * just unlock as there is nothing to cleanup.\n\t\t */\n\t\thci_dev_unlock(hdev);\n\t\treturn;\n\t}\n```\n```c\n\tconn = hci_conn_hash_lookup_role(hdev, LE_LINK, role, bdaddr);\n\tif (!conn ||\n\t    (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT)) {\n\t\t/* In case of error status and there is no connection pending\n\t\t * just unlock as there is nothing to cleanup.\n\t\t */\n\t\thci_dev_unlock(hdev);\n\t\treturn;\n\t}\n```",
+      "protection_mechanism": "Added checks on the state of the connection to prevent premature cleanup and ensure that the connection object is in a valid state before any operations are performed."
+    }
+  },
+  "context": {
+    "impact": "Denial of service and potential code execution.",
+    "affected_subsystem": "Bluetooth HCI",
+    "exploitability": "The vulnerability can be triggered by manipulating connection establishment and teardown to cause a race condition, leading to the use of a freed object. An attacker could potentially cause a denial of service or potentially execute arbitrary code."
+  },
+  "template_hints": {
+    "base_template": "MustCheckErrsCheck",
+    "modifications_needed": [
+      "Specific pattern: Match calls to `hci_conn_hash_lookup_ba` or `hci_conn_hash_lookup_role`, followed by an if-statement that checks the return value of the call (conn) and its state. The condition check will include the 'BT_CONNECT' state."
+    ]
+  }
+}

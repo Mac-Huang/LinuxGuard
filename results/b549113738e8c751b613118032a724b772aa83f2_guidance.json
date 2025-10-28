@@ -1,0 +1,67 @@
+{
+  "commit_hash": "b549113738e8c751b613118032a724b772aa83f2",
+  "anti_pattern_type": "use-after-free",
+  "severity": "high",
+  "confidence": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "vulnerability_class": "CWE-416",
+  "checker_requirements": {
+    "checker_name": "UseAfterFreeCheck",
+    "ast_matchers_needed": [
+      "FunctionDecl",
+      "CompoundStmt"
+    ],
+    "conditions_to_check": [
+      "Call to wake_up_state uses `q->task` before fix, after fix, it uses a local variable assigned by READ_ONCE(q->task)",
+      "READ_ONCE is introduced before the call to wake_up_state"
+    ],
+    "relationships": [
+      "CallExpr inside FunctionDecl",
+      "MemberExpr used as parameter"
+    ],
+    "pattern_description": "Match calls to wake_up_state with q->task as argument that were not guarded by READ_ONCE(q->task)."
+  },
+  "pattern_description": {
+    "vulnerable": {
+      "description": "A use-after-free vulnerability exists in the futex requeue-PI mechanism. In a specific race condition involving futex_wait_requeue_pi() and futex_requeue(), futex_wait_requeue_pi() could leave without synchronizing the usage of futex_q::lock_ptr. The `wake_up_state()` function uses `q->task` which, after preemption, may point to freed memory if the task structure is terminated. The `futex_q` structure's `task` member could be accessed after the task structure is freed.",
+      "key_indicators": [
+        "futex_wait_requeue_pi() and futex_requeue() involved.",
+        "Race condition leading to a use-after-free",
+        "Accessing `q->task` without proper synchronization"
+      ],
+      "code_context": "void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,\n\t\t\t   struct futex_hash_bucket *hb)\n{\n\tq->key = *key;\n\t__futex_unqueue(q);\n\n\tWARN_ON(!q->rt_waiter);\n\n\tfutex_lock_waiter(q);\n\tfutex_hash_get(hb);\n\tq->drop_hb_ref = true;\n\tq->lock_ptr = &hb->lock;\n\n\t/* Signal locked state to the waiter */\n\tfutex_requeue_pi_complete(q, 1);\n\twake_up_state(q->task, TASK_NORMAL);\n}",
+      "specific_functions": [
+        "futex_wait_requeue_pi",
+        "futex_requeue",
+        "requeue_pi_wake_futex",
+        "wake_up_state",
+        "futex_requeue_pi_complete"
+      ],
+      "specific_variables": [
+        "q->task"
+      ],
+      "exploitability": "By triggering the described race, an attacker could potentially overwrite critical data structures or execute arbitrary code after gaining control of the freed task structure memory. This could lead to a system crash or privilege escalation."
+    },
+    "fixed": {
+      "description": "The fix introduces a READ_ONCE() operation on `q->task` before `futex_requeue_pi_complete()` and uses this value for `wake_up_state()` ensuring the task pointer is read before the requeue state is updated, preventing the use-after-free.",
+      "required_checks": [
+        "READ_ONCE(q->task) before using q->task in wake_up_state."
+      ],
+      "code_context": "void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,\n\t\t\t   struct futex_hash_bucket *hb)\n{\n\tstruct task_struct *task;\n\n\tq->key = *key;\n\t__futex_unqueue(q);\n\n\tWARN_ON(!q->rt_waiter);\n\n\tfutex_lock_waiter(q);\n\tfutex_hash_get(hb);\n\tq->drop_hb_ref = true;\n\tq->lock_ptr = &hb->lock;\n\ttask = READ_ONCE(q->task);\n\n\t/* Signal locked state to the waiter */\n\tfutex_requeue_pi_complete(q, 1);\n\twake_up_state(task, TASK_NORMAL);\n}",
+      "protection_mechanism": "Use of READ_ONCE to read the task pointer to ensure its validity and avoid use-after-free during context switches and race conditions."
+    }
+  },
+  "context": {
+    "impact": "Potential for arbitrary code execution or system crash.",
+    "affected_subsystem": "futex",
+    "exploitability": "By triggering the described race, an attacker could potentially overwrite critical data structures or execute arbitrary code after gaining control of the freed task structure memory. This could lead to a system crash or privilege escalation."
+  },
+  "template_hints": {
+    "base_template": "MustCheckErrsCheck",
+    "modifications_needed": [
+      "Specific pattern: Match calls to wake_up_state with q->task as argument that were not guarded by READ_ONCE(q->task)."
+    ]
+  }
+}

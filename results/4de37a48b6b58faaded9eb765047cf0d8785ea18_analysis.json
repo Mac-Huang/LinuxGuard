@@ -1,0 +1,54 @@
+{
+  "is_security_fix": true,
+  "confidence": "high",
+  "anti_pattern_type": "use-after-free",
+  "vulnerability_class": "CWE-416",
+  "vulnerable_pattern": {
+    "description": "The code iterates through child nodes using `for_each_child_of_node()`.  Inside the loop, it incorrectly calls `of_node_put(node)` at each iteration step. Since the loop iterator already drops the reference, this leads to a double free, potentially causing a use-after-free if the node is accessed elsewhere after being freed.",
+    "key_indicators": [
+      "for_each_child_of_node() is used.",
+      "of_node_put(node) is called inside the loop at each iteration.",
+      "The loop iterates through OF nodes.",
+      "The loop may continue even if errors occur."
+    ],
+    "code_context": "        of_id = of_match_node(mtk_drm_of_ids, node);\n        if (!of_id)\n            goto next_put_node;\n\n        pdev = of_find_device_by_node(node);\n        if (!pdev)\n            goto next_put_node;\n\n\nnext_put_node:\n        of_node_put(node);",
+    "specific_functions": [
+      "for_each_child_of_node",
+      "of_node_put"
+    ],
+    "specific_variables": [
+      "node"
+    ],
+    "exploitability": "An attacker could potentially trigger a use-after-free by manipulating the OF tree and how the code accesses nodes, leading to a crash or code execution."
+  },
+  "fix_pattern": {
+    "description": "The fix removes the unnecessary `of_node_put(node)` call from the loop's iteration body.  The `of_node_put` is kept only if the loop is broken prematurely.",
+    "required_checks": [
+      "Removed `of_node_put(node)` from the normal loop flow."
+    ],
+    "code_context": "        of_id = of_match_node(mtk_drm_of_ids, node);\n        if (!of_id)\n            continue;\n\n        pdev = of_find_device_by_node(node);\n        if (!pdev)\n            continue;\n\n        drm_dev = device_find_child(&pdev->dev, NULL, mtk_drm_match);\n        if (!drm_dev)\n            continue;\n\n\n        if (cnt == MAX_CRTC) {\n            of_node_put(node);\n            break;\n        }",
+    "protection_mechanism": "Correct reference counting within the OF node traversal."
+  },
+  "ast_matcher_hints": {
+    "node_types": [
+      "CallExpr",
+      "ForStmt"
+    ],
+    "exact_function_names": [
+      "of_node_put"
+    ],
+    "relationships": [
+      "Parent-child relationship:  'of_node_put' call is within the for loop body"
+    ],
+    "conditions": [
+      "Call to of_node_put(node) is directly called inside the loop body, and NOT inside a special handling block for early exits."
+    ],
+    "pattern_description": "Match calls to `of_node_put` inside loop, where `for_each_child_of_node` is used for iteration"
+  },
+  "severity": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "impact": "Potential denial-of-service, or possible code execution.",
+  "affected_subsystem": "drm/mediatek"
+}

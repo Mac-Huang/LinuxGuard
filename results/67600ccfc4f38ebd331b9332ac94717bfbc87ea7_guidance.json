@@ -1,0 +1,73 @@
+{
+  "commit_hash": "67600ccfc4f38ebd331b9332ac94717bfbc87ea7",
+  "anti_pattern_type": "use-after-free",
+  "severity": "high",
+  "confidence": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "vulnerability_class": "CWE-416",
+  "checker_requirements": {
+    "checker_name": "UseAfterFreeCheck",
+    "ast_matchers_needed": [
+      "FunctionDecl",
+      "IfStmt",
+      "CallExpr",
+      "ReturnStmt"
+    ],
+    "conditions_to_check": [
+      "Check if cancel_delayed_work return value is true.",
+      "if cancel_delayed_work returns true, call tb_tunnel_put in the same scope."
+    ],
+    "relationships": [
+      "Find CallExpr of cancel_delayed_work within tb_dp_dprx_stop",
+      "Find CallExpr of tb_tunnel_put, which is immediately after cancel_delayed_work in the same function",
+      "In tb_dp_dprx_work find CallExpr tb_tunnel_put at the end of the function"
+    ],
+    "pattern_description": "Match calls to `cancel_delayed_work` followed by `tb_tunnel_put` in `tb_dp_dprx_stop`.  Modify the code to put tb_tunnel_put into `tb_dp_dprx_stop` only if cancel_delayed_work returns true. Also, find tb_tunnel_put at the end of `tb_dp_dprx_work`."
+  },
+  "pattern_description": {
+    "vulnerable": {
+      "description": "The code has a use-after-free vulnerability.  `tb_tunnel` is being freed by `tb_tunnel_put` while the delayed work item `tunnel->dprx_work` is still running, leading to a use-after-free in `tb_dp_dprx_work`. The issue is caused by a race condition where `cancel_delayed_work()` in `tb_dp_dprx_stop` does not guarantee the completion of the worker function and may cause `tb_tunnel` to be freed before `tb_dp_dprx_work` is completed.  `tb_dp_dprx_work` will dereference the freed `tb_tunnel`.",
+      "key_indicators": [
+        "Race condition between `tb_dp_dprx_stop` and `tb_dp_dprx_work`.",
+        "Call to `cancel_delayed_work()` in `tb_dp_dprx_stop`.",
+        "Call to `tb_tunnel_put()` after `cancel_delayed_work`.",
+        "Access to `tunnel` within `tb_dp_dprx_work` after it has been potentially freed.",
+        "Use of `tunnel->callback` within `tb_dp_dprx_work`."
+      ],
+      "code_context": "static void tb_dp_dprx_work(struct work_struct *work)\n{\n\tstruct tb_tunnel *tunnel = container_of(work, struct tb_tunnel, dprx_work.work);\n\n\tif (tunnel->callback)\n\t\ttunnel->callback(tunnel, tunnel->callback_data);\n}\n\nstatic void tb_dp_dprx_stop(struct tb_tunnel *tunnel)\n{\n\tif (tunnel->dprx_started) {\n\t\ttunnel->dprx_started = false;\n\t\ttunnel->dprx_canceled = true;\n\t\tcancel_delayed_work(&tunnel->dprx_work);\n\t\ttb_tunnel_put(tunnel);\n\t}\n}",
+      "specific_functions": [
+        "tb_dp_dprx_work",
+        "tb_dp_dprx_stop",
+        "cancel_delayed_work",
+        "tb_tunnel_put"
+      ],
+      "specific_variables": [
+        "tunnel"
+      ],
+      "exploitability": "The vulnerability is exploitable by triggering the race condition where tb_dp_dprx_work is running at the same time tb_dp_dprx_stop is called which will release the memory. This could lead to a crash or potentially arbitrary code execution if memory is reallocated and controlled."
+    },
+    "fixed": {
+      "description": "The fix adds a check to see if `cancel_delayed_work` returns true (work pending). If true, then `tb_tunnel_put` is called in `tb_dp_dprx_stop`, otherwise the tb_tunnel_put is called in `tb_dp_dprx_work` after the callback has been executed.",
+      "required_checks": [
+        "Check return value of `cancel_delayed_work(&tunnel->dprx_work)`",
+        "Conditionally call `tb_tunnel_put(tunnel)` in `tb_dp_dprx_stop` based on the return value of `cancel_delayed_work`.",
+        "Call `tb_tunnel_put(tunnel)` at the end of `tb_dp_dprx_work`."
+      ],
+      "code_context": "static void tb_dp_dprx_work(struct work_struct *work)\n{\n\tstruct tb_tunnel *tunnel = container_of(work, struct tb_tunnel, dprx_work.work);\n\n\tif (tunnel->callback)\n\t\ttunnel->callback(tunnel, tunnel->callback_data);\n\ttb_tunnel_put(tunnel);\n}\n\nstatic void tb_dp_dprx_stop(struct tb_tunnel *tunnel)\n{\n\tif (tunnel->dprx_started) {\n\t\ttunnel->dprx_started = false;\n\t\ttunnel->dprx_canceled = true;\n\t\tif (cancel_delayed_work(&tunnel->dprx_work))\n\t\t\ttb_tunnel_put(tunnel);\n\t}\n}",
+      "protection_mechanism": "Reference counting to ensure the lifetime of tb_tunnel is properly managed in the presence of delayed work."
+    }
+  },
+  "context": {
+    "impact": "Crash, or potentially arbitrary code execution if the freed memory is reused and controlled.",
+    "affected_subsystem": "thunderbolt",
+    "exploitability": "The vulnerability is exploitable by triggering the race condition where tb_dp_dprx_work is running at the same time tb_dp_dprx_stop is called which will release the memory. This could lead to a crash or potentially arbitrary code execution if memory is reallocated and controlled."
+  },
+  "template_hints": {
+    "base_template": "MustCheckErrsCheck",
+    "modifications_needed": [
+      "Specific pattern: Match calls to `cancel_delayed_work` followed by `tb_tunnel_put` in `tb_dp_dprx_stop`.  Modify the code to put tb_tunnel_put into `tb_dp_dprx_stop` only if cancel_delayed_work returns true. Also, find tb_tunnel_put at the end of `tb_dp_dprx_work`."
+    ]
+  }
+}

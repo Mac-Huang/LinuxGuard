@@ -1,0 +1,64 @@
+{
+  "commit_hash": "60cd16a3b7439ccb699d0bf533799eeb894fd217",
+  "anti_pattern_type": "use-after-free",
+  "severity": "high",
+  "confidence": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "vulnerability_class": "CWE-416",
+  "checker_requirements": {
+    "checker_name": "UseAfterFreeCheck",
+    "ast_matchers_needed": [
+      "CallExpr"
+    ],
+    "conditions_to_check": [
+      "the call is to cancel a delayed work item related to mvsas"
+    ],
+    "relationships": [
+      "inside function \"mvs_free\""
+    ],
+    "pattern_description": "Match calls to `cancel_delayed_work` inside the `mvs_free` function."
+  },
+  "pattern_description": {
+    "vulnerable": {
+      "description": "The `mvs_free` function, called during device removal, attempts to cancel a delayed work item `mwq->work_q` using `cancel_delayed_work`.  If the delayed work item is already running, `cancel_delayed_work` might fail to cancel it. This allows `mvs_free` to proceed, freeing `mvi` (the `mvs_info` struct).  The delayed work callback function `mvs_work_queue`, however, can still be executing and try to access the freed `mvi` leading to a use-after-free vulnerability.",
+      "key_indicators": [
+        "The function `mvs_free` frees the `mvs_info` struct.",
+        "The function `cancel_delayed_work` is used to attempt to cancel a delayed work item.",
+        "A race condition exists between the removal of the device and the delayed work execution.",
+        "The delayed work item accesses members of the `mvs_info` struct, after it has been freed."
+      ],
+      "code_context": "```c\nstatic void mvs_free(struct mvs_info *mvi)\n{\n\tstruct mvs_work_queue *mwq;\n\tif (mvi->shost)\n\t\tscsi_host_put(mvi->shost);\n\tlist_for_each_entry(mwq, &mvi->wq_list, entry)\n\t\tcancel_delayed_work(&mwq->work_q);\n\tkfree(mvi->rsvd_tags);\n\tkfree(mvi);\n}\n```",
+      "specific_functions": [
+        "mvs_free",
+        "cancel_delayed_work",
+        "mvs_work_queue"
+      ],
+      "specific_variables": [
+        "mvi",
+        "mwq"
+      ],
+      "exploitability": "An attacker could potentially trigger this by removing the device while the delayed work is executing, potentially leading to kernel crashes or information disclosure."
+    },
+    "fixed": {
+      "description": "The fix replaces `cancel_delayed_work` with `cancel_delayed_work_sync`.  This ensures that the delayed work item is properly canceled and completes before `mvi` is freed.",
+      "required_checks": [
+        "The use of `cancel_delayed_work_sync` to ensure work item completion before freeing the memory."
+      ],
+      "code_context": "```c\nstatic void mvs_free(struct mvs_info *mvi)\n{\n\tstruct mvs_work_queue *mwq;\n\tif (mvi->shost)\n\t\tscsi_host_put(mvi->shost);\n\tlist_for_each_entry(mwq, &mvi->wq_list, entry)\n\t\tcancel_delayed_work_sync(&mwq->work_q);\n\tkfree(mvi->rsvd_tags);\n\tkfree(mvi);\n}\n```",
+      "protection_mechanism": "Synchronization to prevent use-after-free."
+    }
+  },
+  "context": {
+    "impact": "Potential for denial of service (system crash) or information disclosure.",
+    "affected_subsystem": "SCSI, mvsas driver",
+    "exploitability": "An attacker could potentially trigger this by removing the device while the delayed work is executing, potentially leading to kernel crashes or information disclosure."
+  },
+  "template_hints": {
+    "base_template": "MustCheckErrsCheck",
+    "modifications_needed": [
+      "Specific pattern: Match calls to `cancel_delayed_work` inside the `mvs_free` function."
+    ]
+  }
+}

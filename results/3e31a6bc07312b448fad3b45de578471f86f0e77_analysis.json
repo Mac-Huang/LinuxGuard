@@ -1,0 +1,73 @@
+{
+  "is_security_fix": true,
+  "confidence": "high",
+  "anti_pattern_type": "use-after-free",
+  "vulnerability_class": "CWE-416",
+  "vulnerable_pattern": {
+    "description": "The vulnerability is a use-after-free in `rtw89_core_tx_kick_off_and_wait`.  A race condition exists between a waiting thread and a completing thread. The waiting thread calls `wait_for_completion_timeout` which can return before the completion is signaled. The completing thread, in `rtw89_pci_tx_status`  can free the skb associated with `skb_data` after the waiting thread has returned, but before the waiting thread dereferences and nullifies the `skb_data->wait` pointer, leading to a use-after-free.  The fix introduces a work function to collect the freed skbs so that no locks are needed in the completing thread.",
+    "key_indicators": [
+      "rtw89_core_tx_kick_off_and_wait calls `wait_for_completion_timeout`",
+      "rtw89_pci_tx_status calls `rtw89_core_tx_wait_complete`",
+      "The use of RCU protected `skb_data->wait` variable.",
+      "race condition is described in the commit message"
+    ],
+    "code_context": "```c\nint rtw89_core_tx_kick_off_and_wait(struct rtw89_dev *rtwdev, struct sk_buff *skb,\n\t\t\t\t\t u8 qsel, u32 timeout)\n{\n\tstruct rtw89_tx_skb_data *skb_data = RTW89_TX_SKB_CB(skb);\n\tstruct rtw89_tx_wait_info *wait;\n\tunsigned long time_left;\n\tint ret = 0;\n\n\twait = kzalloc(sizeof(*wait), GFP_KERNEL);\n\tif (!wait) {\n\t\trtw89_core_tx_kick_off(rtwdev, qsel);\n\t\treturn -ENOMEM;\n\t}\n\n\tinit_completion(&wait->completion);\n\trcu_assign_pointer(skb_data->wait, wait);\n\n\trtw89_core_tx_kick_off(rtwdev, qsel);\n\ttime_left = wait_for_completion_timeout(&wait->completion,\n\t\t\t\t\t\tmsecs_to_jiffies(timeout));\n\tif (time_left == 0)\n\t\tret = -ETIMEDOUT;\n\telse if (!wait->tx_done)\n\t\tret = -EAGAIN;\n\n\trcu_assign_pointer(skb_data->wait, NULL);\n\tkfree_rcu(wait, rcu_head);\n\n\treturn ret;\n}\n```",
+    "specific_functions": [
+      "rtw89_core_tx_kick_off_and_wait",
+      "rtw89_pci_tx_status",
+      "wait_for_completion_timeout"
+    ],
+    "specific_variables": [
+      "skb_data",
+      "wait"
+    ],
+    "exploitability": "The use-after-free can be triggered by a carefully timed sequence of events on the TX path. The attacker can potentially crash the kernel or execute arbitrary code. The use-after-free occurs in `rtw89_core_tx_kick_off_and_wait` when `wait_for_completion_timeout` returns while the completion is still being processed by `rtw89_pci_tx_status`."
+  },
+  "fix_pattern": {
+    "description": "The fix addresses the race condition by adding a workqueue (`tx_wait_work`) and associated list (`tx_waits`) to manage the cleanup of `rtw89_tx_wait_info` objects and the associated skbs.  Instead of directly freeing the memory in `rtw89_pci_tx_status`, the completion flag is set, and the `wait` object is added to the `tx_waits` list. A delayed work item is queued to process the list and free the resources. `rtw89_core_tx_wait_complete` is modified to call `complete_all` so that skb is not used after the completion",
+    "required_checks": [
+      "The fix uses a workqueue and a list to manage deallocation",
+      "The completion is called using `complete_all`",
+      "A workqueue is triggered after timeout in  `rtw89_core_tx_kick_off_and_wait`"
+    ],
+    "code_context": "```c\nint rtw89_core_tx_kick_off_and_wait(struct rtw89_dev *rtwdev, struct sk_buff *skb,\n\t\t\t\t\t u8 qsel, u32 timeout)\n{\n\tunsigned long time_left;\n\t\n\tinit_completion(&wait->completion);\n\twait->skb = skb;\n\trcu_assign_pointer(skb_data->wait, wait);\n\n\trtw89_core_tx_kick_off(rtwdev, qsel);\n\ttime_left = wait_for_completion_timeout(&wait->completion,\n\t\t\t\t\t\tmsecs_to_jiffies(timeout));\n\n\tif (time_left == 0) {\n\t\tlist_add_tail(&wait->list, &rtwdev->tx_waits);\n\t\twiphy_delayed_work_queue(rtwdev->hw->wiphy, &rtwdev->tx_wait_work,\n\t\t\t\t\t RTW89_TX_WAIT_WORK_TIMEOUT);\n\t} else {\n\t\tif (!wait->tx_done)\n\t\t\tret = -EAGAIN;\n\t\t\n\t\t rtw89_tx_wait_release(wait);\n\t}\n}\n\nstatic inline void rtw89_tx_wait_release(struct rtw89_tx_wait_info *wait)\n{\n\tdev_kfree_skb_any(wait->skb);\n\tkfree_rcu(wait, rcu_head);\n}\n\nstatic inline bool rtw89_core_tx_wait_complete(struct rtw89_dev *rtwdev,\n\t\t\t\t\t\t\t   struct rtw89_tx_skb_data *skb_data,\n\t\t\t\t\t\t\t   bool tx_done)\n{\n\tstruct rtw89_tx_wait_info *wait;\n\tbool ret = false;\n\n\t\n\tif (!wait)\n\t\tgoto out;\n\n\tret = true;\n\t\n\tcomplete_all(&wait->completion);\n\nout:\n\t\n\treturn ret;\n}\n```",
+    "protection_mechanism": "Workqueue-based delayed cleanup and RCU read-side critical section."
+  },
+  "ast_matcher_hints": {
+    "node_types": [
+      "CallExpression",
+      "IfStatement",
+      "AssignmentExpression",
+      "MemberExpression"
+    ],
+    "exact_function_names": [
+      "rtw89_core_tx_kick_off_and_wait",
+      "wait_for_completion_timeout",
+      "rtw89_pci_tx_status",
+      "rtw89_core_tx_wait_complete",
+      "complete_all",
+      "kfree_rcu",
+      "rcu_assign_pointer"
+    ],
+    "relationships": [
+      "CallExpression -> BlockStatement",
+      "IfStatement -> BlockStatement",
+      "BlockStatement -> ExpressionStatement",
+      "MemberExpression -> Identifier",
+      "AssignmentExpression -> MemberExpression",
+      "CallExpression -> Identifier"
+    ],
+    "conditions": [
+      "Check if wait for completion returns timeout.",
+      "Check for setting wait->tx_done inside `rtw89_core_tx_wait_complete`",
+      "Accessing `skb_data->wait` with rcu_assign_pointer and rcu_read_lock"
+    ],
+    "pattern_description": "Match calls to `wait_for_completion_timeout` within `rtw89_core_tx_kick_off_and_wait`, and corresponding `rtw89_core_tx_wait_complete` being called from  `rtw89_pci_tx_status`, along with all associated RCU and completion usages."
+  },
+  "severity": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "impact": "Potential kernel crash or arbitrary code execution.",
+  "affected_subsystem": "Wireless networking (Realtek rtw89 driver)"
+}

@@ -1,0 +1,923 @@
+[
+  {
+    "commit_hash": "bc9ea787079671cb19a8b25ff9f02be5ef6bfcf5",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "The `ocelot_stats_deinit` function attempts to cancel a delayed work item (`ocelot->stats_work`) using `cancel_delayed_work()`. However, `cancel_delayed_work()` may fail if the work item is already executing, leading to a race condition. When the workqueue is destroyed with `destroy_workqueue()`, it may not have visibility of the pending work item. Later, if the delayed work timer expires after the workqueue is destroyed, the work item gets queued again, resulting in a use-after-free when the callback `ocelot_check_stats_work()` is executed.",
+      "key_indicators": [
+        "cancel_delayed_work(&ocelot->stats_work)",
+        "destroy_workqueue(ocelot->stats_queue)",
+        "ocelot_check_stats_work() is called after the workqueue is destroyed",
+        "Race condition on delayed work item."
+      ],
+      "code_context": "void ocelot_stats_deinit(struct ocelot *ocelot)\n{\n\tcancel_delayed_work(&ocelot->stats_work);\n\tdestroy_workqueue(ocelot->stats_queue);\n}",
+      "specific_functions": [
+        "cancel_delayed_work",
+        "destroy_workqueue",
+        "ocelot_stats_deinit",
+        "ocelot_check_stats_work"
+      ],
+      "specific_variables": [
+        "ocelot->stats_work",
+        "ocelot->stats_queue"
+      ],
+      "exploitability": "The vulnerability can be triggered during device removal or resource destruction when `ocelot_stats_deinit` is called. A specially crafted network configuration or timing could potentially trigger the race condition and lead to a crash or potential information leak. Triggering the timer expiration after the workqueue is freed is the key to exploiting this UAF."
+    },
+    "fix_pattern": {
+      "description": "The fix replaces `cancel_delayed_work()` with `disable_delayed_work_sync()`. This function ensures proper cancellation of the delayed work item and waits for any executing work to complete before the workqueue is destroyed. This prevents the delayed work from being rescheduled after the workqueue is destroyed.",
+      "required_checks": [
+        "Using `disable_delayed_work_sync` to ensure completion before destruction"
+      ],
+      "code_context": "void ocelot_stats_deinit(struct ocelot *ocelot)\n{\n\tdisable_delayed_work_sync(&ocelot->stats_work);\n\tdestroy_workqueue(ocelot->stats_queue);\n}",
+      "protection_mechanism": "Synchronization to prevent UAF."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "CallExpr"
+      ],
+      "conditions_to_check": [
+        "The order of function calls matters: cancel/disable then destroy"
+      ],
+      "relationships": [
+        "Call to `destroy_workqueue` must follow call to `cancel_delayed_work` in the same function",
+        "The argument of `cancel_delayed_work` must match the argument of `disable_delayed_work_sync`"
+      ],
+      "pattern_description": "Match calls to `cancel_delayed_work` followed by `destroy_workqueue` in a function. Or replace `cancel_delayed_work` with `disable_delayed_work_sync`."
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "The `ocelot_stats_deinit` function attempts to cancel a delayed work item (`ocelot->stats_work`) using `cancel_delayed_work()`. However, `cancel_delayed_work()` may fail if the work item is already executing, leading to a race condition. When the workqueue is destroyed with `destroy_workqueue()`, it may not have visibility of the pending work item. Later, if the delayed work timer expires after the workqueue is destroyed, the work item gets queued again, resulting in a use-after-free when the callback `ocelot_check_stats_work()` is executed.",
+        "key_indicators": [
+          "cancel_delayed_work(&ocelot->stats_work)",
+          "destroy_workqueue(ocelot->stats_queue)",
+          "ocelot_check_stats_work() is called after the workqueue is destroyed",
+          "Race condition on delayed work item."
+        ],
+        "code_context": "void ocelot_stats_deinit(struct ocelot *ocelot)\n{\n\tcancel_delayed_work(&ocelot->stats_work);\n\tdestroy_workqueue(ocelot->stats_queue);\n}",
+        "specific_functions": [
+          "cancel_delayed_work",
+          "destroy_workqueue",
+          "ocelot_stats_deinit",
+          "ocelot_check_stats_work"
+        ],
+        "specific_variables": [
+          "ocelot->stats_work",
+          "ocelot->stats_queue"
+        ],
+        "exploitability": "The vulnerability can be triggered during device removal or resource destruction when `ocelot_stats_deinit` is called. A specially crafted network configuration or timing could potentially trigger the race condition and lead to a crash or potential information leak. Triggering the timer expiration after the workqueue is freed is the key to exploiting this UAF."
+      },
+      "fixed": {
+        "description": "The fix replaces `cancel_delayed_work()` with `disable_delayed_work_sync()`. This function ensures proper cancellation of the delayed work item and waits for any executing work to complete before the workqueue is destroyed. This prevents the delayed work from being rescheduled after the workqueue is destroyed.",
+        "required_checks": [
+          "Using `disable_delayed_work_sync` to ensure completion before destruction"
+        ],
+        "code_context": "void ocelot_stats_deinit(struct ocelot *ocelot)\n{\n\tdisable_delayed_work_sync(&ocelot->stats_work);\n\tdestroy_workqueue(ocelot->stats_queue);\n}",
+        "protection_mechanism": "Synchronization to prevent UAF."
+      }
+    },
+    "context": {
+      "impact": "Potential for denial of service (system crash) or possible information leakage due to memory corruption.",
+      "affected_subsystem": "net: mscc: ocelot",
+      "exploitability": "The vulnerability can be triggered during device removal or resource destruction when `ocelot_stats_deinit` is called. A specially crafted network configuration or timing could potentially trigger the race condition and lead to a crash or potential information leak. Triggering the timer expiration after the workqueue is freed is the key to exploiting this UAF."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to `cancel_delayed_work` followed by `destroy_workqueue` in a function. Or replace `cancel_delayed_work` with `disable_delayed_work_sync`."
+      ]
+    }
+  },
+  {
+    "commit_hash": "da1bb9135213744e7ec398826c8f2e843de4fb94",
+    "anti_pattern_type": "use-after-free",
+    "severity": "critical",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "The `simplefb_detach_genpds` function was called during device removal via `devres` management. However, the memory for `struct simplefb_par` was freed in `simplefb_remove()` by `unregister_framebuffer()` before the `devres` cleanup happened.  This resulted in a use-after-free when `simplefb_detach_genpds` tried to access the freed `struct simplefb_par` memory, specifically `par->genpds[i]` and `dev_pm_domain_detach(par->genpds[i], true)`.",
+      "key_indicators": [
+        "Call to `simplefb_detach_genpds`",
+        "Memory of `struct simplefb_par` freed by `unregister_framebuffer()`",
+        "The order of operations: `simplefb_detach_genpds` called after `simplefb_remove()`",
+        "Accessing `par->genpds` after the free"
+      ],
+      "code_context": "static void simplefb_destroy(struct fb_info *info) {\n\tsimplefb_regulators_destroy(info->par);\n\tsimplefb_clocks_destroy(info->par);\n\t//simplefb_detach_genpds(info->par); //  INCORRECT, as it runs after the framebuffer is unregistered and its memory freed\n\tif (info->screen_base)\n\t\tiounmap(info->screen_base);\n\tfb_dealloc_cmap(info);\n\tfb_destroy(info);\n}\n\nstatic void simplefb_detach_genpds(void *res)\n{\n\tstruct simplefb_par *par = res;\n\tunsigned int i;\n\n\tif (!par || !par->num_genpds) \n\t\treturn;\n\n\tfor (i = 0; i < par->num_genpds; i++) {\n\t\tif (!IS_ERR_OR_NULL(par->genpds[i]))\n\t\t\tdev_pm_domain_detach(par->genpds[i], true);\n\t}",
+      "specific_functions": [
+        "simplefb_detach_genpds",
+        "dev_pm_domain_detach",
+        "unregister_framebuffer"
+      ],
+      "specific_variables": [
+        "par->genpds",
+        "par->num_genpds",
+        "i"
+      ],
+      "exploitability": "The vulnerability could be exploited if the graphics driver is used.  By triggering device removal, the use-after-free could be triggered. The stack trace indicates this happens during the removal of the platform device."
+    },
+    "fix_pattern": {
+      "description": "The fix calls `simplefb_detach_genpds` directly within `simplefb_destroy()` which is called as part of the `unregister_framebuffer()` to free the resources managed by simplefb. This ensures the function is called before the memory is freed. The `devm_add_action_or_reset` was removed which was attempting to register the detach function with `devres` management.",
+      "required_checks": [],
+      "code_context": "static void simplefb_destroy(struct fb_info *info)\n{\n\tsimplefb_regulators_destroy(info->par);\n\tsimplefb_clocks_destroy(info->par);\n\tsimplefb_detach_genpds(info->par);\n\tif (info->screen_base)\n\t\tiounmap(info->screen_base);\n\tfb_dealloc_cmap(info);\n\tfb_destroy(info);\n}\n",
+      "protection_mechanism": "Moving the `simplefb_detach_genpds` call to within `simplefb_destroy` to be executed before the resources are freed."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "CallExpr"
+      ],
+      "conditions_to_check": [
+        "The function call should happen before the memory is freed by fb_destroy"
+      ],
+      "relationships": [
+        "inside of a CallExpr of simplefb_destroy"
+      ],
+      "pattern_description": "Match calls to `simplefb_detach_genpds` inside of `simplefb_destroy`"
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "The `simplefb_detach_genpds` function was called during device removal via `devres` management. However, the memory for `struct simplefb_par` was freed in `simplefb_remove()` by `unregister_framebuffer()` before the `devres` cleanup happened.  This resulted in a use-after-free when `simplefb_detach_genpds` tried to access the freed `struct simplefb_par` memory, specifically `par->genpds[i]` and `dev_pm_domain_detach(par->genpds[i], true)`.",
+        "key_indicators": [
+          "Call to `simplefb_detach_genpds`",
+          "Memory of `struct simplefb_par` freed by `unregister_framebuffer()`",
+          "The order of operations: `simplefb_detach_genpds` called after `simplefb_remove()`",
+          "Accessing `par->genpds` after the free"
+        ],
+        "code_context": "static void simplefb_destroy(struct fb_info *info) {\n\tsimplefb_regulators_destroy(info->par);\n\tsimplefb_clocks_destroy(info->par);\n\t//simplefb_detach_genpds(info->par); //  INCORRECT, as it runs after the framebuffer is unregistered and its memory freed\n\tif (info->screen_base)\n\t\tiounmap(info->screen_base);\n\tfb_dealloc_cmap(info);\n\tfb_destroy(info);\n}\n\nstatic void simplefb_detach_genpds(void *res)\n{\n\tstruct simplefb_par *par = res;\n\tunsigned int i;\n\n\tif (!par || !par->num_genpds) \n\t\treturn;\n\n\tfor (i = 0; i < par->num_genpds; i++) {\n\t\tif (!IS_ERR_OR_NULL(par->genpds[i]))\n\t\t\tdev_pm_domain_detach(par->genpds[i], true);\n\t}",
+        "specific_functions": [
+          "simplefb_detach_genpds",
+          "dev_pm_domain_detach",
+          "unregister_framebuffer"
+        ],
+        "specific_variables": [
+          "par->genpds",
+          "par->num_genpds",
+          "i"
+        ],
+        "exploitability": "The vulnerability could be exploited if the graphics driver is used.  By triggering device removal, the use-after-free could be triggered. The stack trace indicates this happens during the removal of the platform device."
+      },
+      "fixed": {
+        "description": "The fix calls `simplefb_detach_genpds` directly within `simplefb_destroy()` which is called as part of the `unregister_framebuffer()` to free the resources managed by simplefb. This ensures the function is called before the memory is freed. The `devm_add_action_or_reset` was removed which was attempting to register the detach function with `devres` management.",
+        "required_checks": [],
+        "code_context": "static void simplefb_destroy(struct fb_info *info)\n{\n\tsimplefb_regulators_destroy(info->par);\n\tsimplefb_clocks_destroy(info->par);\n\tsimplefb_detach_genpds(info->par);\n\tif (info->screen_base)\n\t\tiounmap(info->screen_base);\n\tfb_dealloc_cmap(info);\n\tfb_destroy(info);\n}\n",
+        "protection_mechanism": "Moving the `simplefb_detach_genpds` call to within `simplefb_destroy` to be executed before the resources are freed."
+      }
+    },
+    "context": {
+      "impact": "The vulnerability leads to a use-after-free condition which can cause a system crash or potentially allow for arbitrary code execution if carefully exploited.",
+      "affected_subsystem": "fbdev (framebuffer)",
+      "exploitability": "The vulnerability could be exploited if the graphics driver is used.  By triggering device removal, the use-after-free could be triggered. The stack trace indicates this happens during the removal of the platform device."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to `simplefb_detach_genpds` inside of `simplefb_destroy`"
+      ]
+    }
+  },
+  {
+    "commit_hash": "60cd16a3b7439ccb699d0bf533799eeb894fd217",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "The `mvs_free` function, called during device removal, attempts to cancel a delayed work item `mwq->work_q` using `cancel_delayed_work`.  If the delayed work item is already running, `cancel_delayed_work` might fail to cancel it. This allows `mvs_free` to proceed, freeing `mvi` (the `mvs_info` struct).  The delayed work callback function `mvs_work_queue`, however, can still be executing and try to access the freed `mvi` leading to a use-after-free vulnerability.",
+      "key_indicators": [
+        "The function `mvs_free` frees the `mvs_info` struct.",
+        "The function `cancel_delayed_work` is used to attempt to cancel a delayed work item.",
+        "A race condition exists between the removal of the device and the delayed work execution.",
+        "The delayed work item accesses members of the `mvs_info` struct, after it has been freed."
+      ],
+      "code_context": "```c\nstatic void mvs_free(struct mvs_info *mvi)\n{\n\tstruct mvs_work_queue *mwq;\n\tif (mvi->shost)\n\t\tscsi_host_put(mvi->shost);\n\tlist_for_each_entry(mwq, &mvi->wq_list, entry)\n\t\tcancel_delayed_work(&mwq->work_q);\n\tkfree(mvi->rsvd_tags);\n\tkfree(mvi);\n}\n```",
+      "specific_functions": [
+        "mvs_free",
+        "cancel_delayed_work",
+        "mvs_work_queue"
+      ],
+      "specific_variables": [
+        "mvi",
+        "mwq"
+      ],
+      "exploitability": "An attacker could potentially trigger this by removing the device while the delayed work is executing, potentially leading to kernel crashes or information disclosure."
+    },
+    "fix_pattern": {
+      "description": "The fix replaces `cancel_delayed_work` with `cancel_delayed_work_sync`.  This ensures that the delayed work item is properly canceled and completes before `mvi` is freed.",
+      "required_checks": [
+        "The use of `cancel_delayed_work_sync` to ensure work item completion before freeing the memory."
+      ],
+      "code_context": "```c\nstatic void mvs_free(struct mvs_info *mvi)\n{\n\tstruct mvs_work_queue *mwq;\n\tif (mvi->shost)\n\t\tscsi_host_put(mvi->shost);\n\tlist_for_each_entry(mwq, &mvi->wq_list, entry)\n\t\tcancel_delayed_work_sync(&mwq->work_q);\n\tkfree(mvi->rsvd_tags);\n\tkfree(mvi);\n}\n```",
+      "protection_mechanism": "Synchronization to prevent use-after-free."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "CallExpr"
+      ],
+      "conditions_to_check": [
+        "the call is to cancel a delayed work item related to mvsas"
+      ],
+      "relationships": [
+        "inside function \"mvs_free\""
+      ],
+      "pattern_description": "Match calls to `cancel_delayed_work` inside the `mvs_free` function."
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "The `mvs_free` function, called during device removal, attempts to cancel a delayed work item `mwq->work_q` using `cancel_delayed_work`.  If the delayed work item is already running, `cancel_delayed_work` might fail to cancel it. This allows `mvs_free` to proceed, freeing `mvi` (the `mvs_info` struct).  The delayed work callback function `mvs_work_queue`, however, can still be executing and try to access the freed `mvi` leading to a use-after-free vulnerability.",
+        "key_indicators": [
+          "The function `mvs_free` frees the `mvs_info` struct.",
+          "The function `cancel_delayed_work` is used to attempt to cancel a delayed work item.",
+          "A race condition exists between the removal of the device and the delayed work execution.",
+          "The delayed work item accesses members of the `mvs_info` struct, after it has been freed."
+        ],
+        "code_context": "```c\nstatic void mvs_free(struct mvs_info *mvi)\n{\n\tstruct mvs_work_queue *mwq;\n\tif (mvi->shost)\n\t\tscsi_host_put(mvi->shost);\n\tlist_for_each_entry(mwq, &mvi->wq_list, entry)\n\t\tcancel_delayed_work(&mwq->work_q);\n\tkfree(mvi->rsvd_tags);\n\tkfree(mvi);\n}\n```",
+        "specific_functions": [
+          "mvs_free",
+          "cancel_delayed_work",
+          "mvs_work_queue"
+        ],
+        "specific_variables": [
+          "mvi",
+          "mwq"
+        ],
+        "exploitability": "An attacker could potentially trigger this by removing the device while the delayed work is executing, potentially leading to kernel crashes or information disclosure."
+      },
+      "fixed": {
+        "description": "The fix replaces `cancel_delayed_work` with `cancel_delayed_work_sync`.  This ensures that the delayed work item is properly canceled and completes before `mvi` is freed.",
+        "required_checks": [
+          "The use of `cancel_delayed_work_sync` to ensure work item completion before freeing the memory."
+        ],
+        "code_context": "```c\nstatic void mvs_free(struct mvs_info *mvi)\n{\n\tstruct mvs_work_queue *mwq;\n\tif (mvi->shost)\n\t\tscsi_host_put(mvi->shost);\n\tlist_for_each_entry(mwq, &mvi->wq_list, entry)\n\t\tcancel_delayed_work_sync(&mwq->work_q);\n\tkfree(mvi->rsvd_tags);\n\tkfree(mvi);\n}\n```",
+        "protection_mechanism": "Synchronization to prevent use-after-free."
+      }
+    },
+    "context": {
+      "impact": "Potential for denial of service (system crash) or information disclosure.",
+      "affected_subsystem": "SCSI, mvsas driver",
+      "exploitability": "An attacker could potentially trigger this by removing the device while the delayed work is executing, potentially leading to kernel crashes or information disclosure."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to `cancel_delayed_work` inside the `mvs_free` function."
+      ]
+    }
+  },
+  {
+    "commit_hash": "ecb9a843be4d6fd710d7026e359f21015a062572",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "A use-after-free vulnerability exists in the Bluetooth SCO (Synchronous Connection-Oriented) subsystem. The `sco_conn` structure, associated with a Bluetooth socket, can be freed while a reference to the associated `sock` structure (accessed via `sco_pi(sk)->conn->sk`) still exists. Specifically, the fix addresses a scenario where `sco_sock_kill` is called to terminate a socket. If the `sco_conn` is not properly cleared the sk pointer might still be valid leading to a use-after-free. This can lead to a crash due to accessing freed memory when the `sco_conn` is accessed through `sco_pi(sk)->conn->sk`.",
+      "key_indicators": [
+        "sco_sock_kill(struct sock *sk)",
+        "sco_pi(sk)->conn",
+        "Access to sco_pi(sk)->conn->sk after `sco_sock_kill` and `sco_conn_free`"
+      ],
+      "code_context": "```c\nstatic void sco_sock_kill(struct sock *sk)\n{\n\tBT_DBG(\"sk %p state %d\", sk, sk->sk_state);\n\n\t/* Kill poor orphan */\n\tbt_sock_unlink(&sco_sk_list, sk);\n\tsock_set_flag(sk, SOCK_DEAD);\n}\n```",
+      "specific_functions": [
+        "sco_sock_kill"
+      ],
+      "specific_variables": [
+        "sk",
+        "sco_pi(sk)->conn"
+      ],
+      "exploitability": "An attacker can trigger the use-after-free by causing the SCO socket to be killed while there are still active references to the associated `sco_conn` and its `sk` pointer."
+    },
+    "fix_pattern": {
+      "description": "The fix adds a check inside `sco_sock_kill` to set `sco_pi(sk)->conn->sk` to NULL before the sock is unlinked and marked as dead. This prevents a use-after-free if the `sco_conn` is accessed later, because the sk pointer will be NULL.",
+      "required_checks": [
+        "Check if sco_pi(sk)->conn is not NULL",
+        "Set sco_pi(sk)->conn->sk = NULL within the lock"
+      ],
+      "code_context": "```c\nstatic void sco_sock_kill(struct sock *sk)\n{\n\tBT_DBG(\"sk %p state %d\", sk, sk->sk_state);\n\n\t/* Sock is dead, so set conn->sk to NULL to avoid possible UAF */\n\tif (sco_pi(sk)->conn) {\n\t\tsco_conn_lock(sco_pi(sk)->conn);\n\t\tsco_pi(sk)->conn->sk = NULL;\n\t\tsco_conn_unlock(sco_pi(sk)->conn);\n\t}\n\n\t/* Kill poor orphan */\n\tbt_sock_unlink(&sco_sk_list, sk);\n\tsock_set_flag(sk, SOCK_DEAD);\n}\n```",
+      "protection_mechanism": "Nullifying the potentially dangling pointer to prevent future dereferences."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "FunctionDecl",
+        "IfStmt",
+        "MemberExpr",
+        "UnaryOperator",
+        "BinaryOperator",
+        "CallExpr"
+      ],
+      "conditions_to_check": [
+        "Call to sco_sock_kill function",
+        "Conditional check on sco_pi(sk)->conn not being NULL",
+        "Assignment of NULL to sco_pi(sk)->conn->sk within the if block"
+      ],
+      "relationships": [
+        "CallExpr inside FunctionDecl",
+        "IfStmt containing CallExpr and MemberExpr",
+        "MemberExpr accessing conn->sk",
+        "CallExpr setting conn->sk to NULL inside IfStmt"
+      ],
+      "pattern_description": "Match calls to sco_sock_kill followed by a check if sco_pi(sk)->conn is not NULL and then setting sco_pi(sk)->conn->sk to NULL"
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "A use-after-free vulnerability exists in the Bluetooth SCO (Synchronous Connection-Oriented) subsystem. The `sco_conn` structure, associated with a Bluetooth socket, can be freed while a reference to the associated `sock` structure (accessed via `sco_pi(sk)->conn->sk`) still exists. Specifically, the fix addresses a scenario where `sco_sock_kill` is called to terminate a socket. If the `sco_conn` is not properly cleared the sk pointer might still be valid leading to a use-after-free. This can lead to a crash due to accessing freed memory when the `sco_conn` is accessed through `sco_pi(sk)->conn->sk`.",
+        "key_indicators": [
+          "sco_sock_kill(struct sock *sk)",
+          "sco_pi(sk)->conn",
+          "Access to sco_pi(sk)->conn->sk after `sco_sock_kill` and `sco_conn_free`"
+        ],
+        "code_context": "```c\nstatic void sco_sock_kill(struct sock *sk)\n{\n\tBT_DBG(\"sk %p state %d\", sk, sk->sk_state);\n\n\t/* Kill poor orphan */\n\tbt_sock_unlink(&sco_sk_list, sk);\n\tsock_set_flag(sk, SOCK_DEAD);\n}\n```",
+        "specific_functions": [
+          "sco_sock_kill"
+        ],
+        "specific_variables": [
+          "sk",
+          "sco_pi(sk)->conn"
+        ],
+        "exploitability": "An attacker can trigger the use-after-free by causing the SCO socket to be killed while there are still active references to the associated `sco_conn` and its `sk` pointer."
+      },
+      "fixed": {
+        "description": "The fix adds a check inside `sco_sock_kill` to set `sco_pi(sk)->conn->sk` to NULL before the sock is unlinked and marked as dead. This prevents a use-after-free if the `sco_conn` is accessed later, because the sk pointer will be NULL.",
+        "required_checks": [
+          "Check if sco_pi(sk)->conn is not NULL",
+          "Set sco_pi(sk)->conn->sk = NULL within the lock"
+        ],
+        "code_context": "```c\nstatic void sco_sock_kill(struct sock *sk)\n{\n\tBT_DBG(\"sk %p state %d\", sk, sk->sk_state);\n\n\t/* Sock is dead, so set conn->sk to NULL to avoid possible UAF */\n\tif (sco_pi(sk)->conn) {\n\t\tsco_conn_lock(sco_pi(sk)->conn);\n\t\tsco_pi(sk)->conn->sk = NULL;\n\t\tsco_conn_unlock(sco_pi(sk)->conn);\n\t}\n\n\t/* Kill poor orphan */\n\tbt_sock_unlink(&sco_sk_list, sk);\n\tsock_set_flag(sk, SOCK_DEAD);\n}\n```",
+        "protection_mechanism": "Nullifying the potentially dangling pointer to prevent future dereferences."
+      }
+    },
+    "context": {
+      "impact": "Remote code execution or denial of service due to memory corruption",
+      "affected_subsystem": "Bluetooth SCO",
+      "exploitability": "An attacker can trigger the use-after-free by causing the SCO socket to be killed while there are still active references to the associated `sco_conn` and its `sk` pointer."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to sco_sock_kill followed by a check if sco_pi(sk)->conn is not NULL and then setting sco_pi(sk)->conn->sk to NULL"
+      ]
+    }
+  },
+  {
+    "commit_hash": "67600ccfc4f38ebd331b9332ac94717bfbc87ea7",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "The code has a use-after-free vulnerability.  `tb_tunnel` is being freed by `tb_tunnel_put` while the delayed work item `tunnel->dprx_work` is still running, leading to a use-after-free in `tb_dp_dprx_work`. The issue is caused by a race condition where `cancel_delayed_work()` in `tb_dp_dprx_stop` does not guarantee the completion of the worker function and may cause `tb_tunnel` to be freed before `tb_dp_dprx_work` is completed.  `tb_dp_dprx_work` will dereference the freed `tb_tunnel`.",
+      "key_indicators": [
+        "Race condition between `tb_dp_dprx_stop` and `tb_dp_dprx_work`.",
+        "Call to `cancel_delayed_work()` in `tb_dp_dprx_stop`.",
+        "Call to `tb_tunnel_put()` after `cancel_delayed_work`.",
+        "Access to `tunnel` within `tb_dp_dprx_work` after it has been potentially freed.",
+        "Use of `tunnel->callback` within `tb_dp_dprx_work`."
+      ],
+      "code_context": "static void tb_dp_dprx_work(struct work_struct *work)\n{\n\tstruct tb_tunnel *tunnel = container_of(work, struct tb_tunnel, dprx_work.work);\n\n\tif (tunnel->callback)\n\t\ttunnel->callback(tunnel, tunnel->callback_data);\n}\n\nstatic void tb_dp_dprx_stop(struct tb_tunnel *tunnel)\n{\n\tif (tunnel->dprx_started) {\n\t\ttunnel->dprx_started = false;\n\t\ttunnel->dprx_canceled = true;\n\t\tcancel_delayed_work(&tunnel->dprx_work);\n\t\ttb_tunnel_put(tunnel);\n\t}\n}",
+      "specific_functions": [
+        "tb_dp_dprx_work",
+        "tb_dp_dprx_stop",
+        "cancel_delayed_work",
+        "tb_tunnel_put"
+      ],
+      "specific_variables": [
+        "tunnel"
+      ],
+      "exploitability": "The vulnerability is exploitable by triggering the race condition where tb_dp_dprx_work is running at the same time tb_dp_dprx_stop is called which will release the memory. This could lead to a crash or potentially arbitrary code execution if memory is reallocated and controlled."
+    },
+    "fix_pattern": {
+      "description": "The fix adds a check to see if `cancel_delayed_work` returns true (work pending). If true, then `tb_tunnel_put` is called in `tb_dp_dprx_stop`, otherwise the tb_tunnel_put is called in `tb_dp_dprx_work` after the callback has been executed.",
+      "required_checks": [
+        "Check return value of `cancel_delayed_work(&tunnel->dprx_work)`",
+        "Conditionally call `tb_tunnel_put(tunnel)` in `tb_dp_dprx_stop` based on the return value of `cancel_delayed_work`.",
+        "Call `tb_tunnel_put(tunnel)` at the end of `tb_dp_dprx_work`."
+      ],
+      "code_context": "static void tb_dp_dprx_work(struct work_struct *work)\n{\n\tstruct tb_tunnel *tunnel = container_of(work, struct tb_tunnel, dprx_work.work);\n\n\tif (tunnel->callback)\n\t\ttunnel->callback(tunnel, tunnel->callback_data);\n\ttb_tunnel_put(tunnel);\n}\n\nstatic void tb_dp_dprx_stop(struct tb_tunnel *tunnel)\n{\n\tif (tunnel->dprx_started) {\n\t\ttunnel->dprx_started = false;\n\t\ttunnel->dprx_canceled = true;\n\t\tif (cancel_delayed_work(&tunnel->dprx_work))\n\t\t\ttb_tunnel_put(tunnel);\n\t}\n}",
+      "protection_mechanism": "Reference counting to ensure the lifetime of tb_tunnel is properly managed in the presence of delayed work."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "FunctionDecl",
+        "IfStmt",
+        "CallExpr",
+        "ReturnStmt"
+      ],
+      "conditions_to_check": [
+        "Check if cancel_delayed_work return value is true.",
+        "if cancel_delayed_work returns true, call tb_tunnel_put in the same scope."
+      ],
+      "relationships": [
+        "Find CallExpr of cancel_delayed_work within tb_dp_dprx_stop",
+        "Find CallExpr of tb_tunnel_put, which is immediately after cancel_delayed_work in the same function",
+        "In tb_dp_dprx_work find CallExpr tb_tunnel_put at the end of the function"
+      ],
+      "pattern_description": "Match calls to `cancel_delayed_work` followed by `tb_tunnel_put` in `tb_dp_dprx_stop`.  Modify the code to put tb_tunnel_put into `tb_dp_dprx_stop` only if cancel_delayed_work returns true. Also, find tb_tunnel_put at the end of `tb_dp_dprx_work`."
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "The code has a use-after-free vulnerability.  `tb_tunnel` is being freed by `tb_tunnel_put` while the delayed work item `tunnel->dprx_work` is still running, leading to a use-after-free in `tb_dp_dprx_work`. The issue is caused by a race condition where `cancel_delayed_work()` in `tb_dp_dprx_stop` does not guarantee the completion of the worker function and may cause `tb_tunnel` to be freed before `tb_dp_dprx_work` is completed.  `tb_dp_dprx_work` will dereference the freed `tb_tunnel`.",
+        "key_indicators": [
+          "Race condition between `tb_dp_dprx_stop` and `tb_dp_dprx_work`.",
+          "Call to `cancel_delayed_work()` in `tb_dp_dprx_stop`.",
+          "Call to `tb_tunnel_put()` after `cancel_delayed_work`.",
+          "Access to `tunnel` within `tb_dp_dprx_work` after it has been potentially freed.",
+          "Use of `tunnel->callback` within `tb_dp_dprx_work`."
+        ],
+        "code_context": "static void tb_dp_dprx_work(struct work_struct *work)\n{\n\tstruct tb_tunnel *tunnel = container_of(work, struct tb_tunnel, dprx_work.work);\n\n\tif (tunnel->callback)\n\t\ttunnel->callback(tunnel, tunnel->callback_data);\n}\n\nstatic void tb_dp_dprx_stop(struct tb_tunnel *tunnel)\n{\n\tif (tunnel->dprx_started) {\n\t\ttunnel->dprx_started = false;\n\t\ttunnel->dprx_canceled = true;\n\t\tcancel_delayed_work(&tunnel->dprx_work);\n\t\ttb_tunnel_put(tunnel);\n\t}\n}",
+        "specific_functions": [
+          "tb_dp_dprx_work",
+          "tb_dp_dprx_stop",
+          "cancel_delayed_work",
+          "tb_tunnel_put"
+        ],
+        "specific_variables": [
+          "tunnel"
+        ],
+        "exploitability": "The vulnerability is exploitable by triggering the race condition where tb_dp_dprx_work is running at the same time tb_dp_dprx_stop is called which will release the memory. This could lead to a crash or potentially arbitrary code execution if memory is reallocated and controlled."
+      },
+      "fixed": {
+        "description": "The fix adds a check to see if `cancel_delayed_work` returns true (work pending). If true, then `tb_tunnel_put` is called in `tb_dp_dprx_stop`, otherwise the tb_tunnel_put is called in `tb_dp_dprx_work` after the callback has been executed.",
+        "required_checks": [
+          "Check return value of `cancel_delayed_work(&tunnel->dprx_work)`",
+          "Conditionally call `tb_tunnel_put(tunnel)` in `tb_dp_dprx_stop` based on the return value of `cancel_delayed_work`.",
+          "Call `tb_tunnel_put(tunnel)` at the end of `tb_dp_dprx_work`."
+        ],
+        "code_context": "static void tb_dp_dprx_work(struct work_struct *work)\n{\n\tstruct tb_tunnel *tunnel = container_of(work, struct tb_tunnel, dprx_work.work);\n\n\tif (tunnel->callback)\n\t\ttunnel->callback(tunnel, tunnel->callback_data);\n\ttb_tunnel_put(tunnel);\n}\n\nstatic void tb_dp_dprx_stop(struct tb_tunnel *tunnel)\n{\n\tif (tunnel->dprx_started) {\n\t\ttunnel->dprx_started = false;\n\t\ttunnel->dprx_canceled = true;\n\t\tif (cancel_delayed_work(&tunnel->dprx_work))\n\t\t\ttb_tunnel_put(tunnel);\n\t}\n}",
+        "protection_mechanism": "Reference counting to ensure the lifetime of tb_tunnel is properly managed in the presence of delayed work."
+      }
+    },
+    "context": {
+      "impact": "Crash, or potentially arbitrary code execution if the freed memory is reused and controlled.",
+      "affected_subsystem": "thunderbolt",
+      "exploitability": "The vulnerability is exploitable by triggering the race condition where tb_dp_dprx_work is running at the same time tb_dp_dprx_stop is called which will release the memory. This could lead to a crash or potentially arbitrary code execution if memory is reallocated and controlled."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to `cancel_delayed_work` followed by `tb_tunnel_put` in `tb_dp_dprx_stop`.  Modify the code to put tb_tunnel_put into `tb_dp_dprx_stop` only if cancel_delayed_work returns true. Also, find tb_tunnel_put at the end of `tb_dp_dprx_work`."
+      ]
+    }
+  },
+  {
+    "commit_hash": "3e31a6bc07312b448fad3b45de578471f86f0e77",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "The vulnerability is a use-after-free in `rtw89_core_tx_kick_off_and_wait`.  A race condition exists between a waiting thread and a completing thread. The waiting thread calls `wait_for_completion_timeout` which can return before the completion is signaled. The completing thread, in `rtw89_pci_tx_status`  can free the skb associated with `skb_data` after the waiting thread has returned, but before the waiting thread dereferences and nullifies the `skb_data->wait` pointer, leading to a use-after-free.  The fix introduces a work function to collect the freed skbs so that no locks are needed in the completing thread.",
+      "key_indicators": [
+        "rtw89_core_tx_kick_off_and_wait calls `wait_for_completion_timeout`",
+        "rtw89_pci_tx_status calls `rtw89_core_tx_wait_complete`",
+        "The use of RCU protected `skb_data->wait` variable.",
+        "race condition is described in the commit message"
+      ],
+      "code_context": "```c\nint rtw89_core_tx_kick_off_and_wait(struct rtw89_dev *rtwdev, struct sk_buff *skb,\n\t\t\t\t\t u8 qsel, u32 timeout)\n{\n\tstruct rtw89_tx_skb_data *skb_data = RTW89_TX_SKB_CB(skb);\n\tstruct rtw89_tx_wait_info *wait;\n\tunsigned long time_left;\n\tint ret = 0;\n\n\twait = kzalloc(sizeof(*wait), GFP_KERNEL);\n\tif (!wait) {\n\t\trtw89_core_tx_kick_off(rtwdev, qsel);\n\t\treturn -ENOMEM;\n\t}\n\n\tinit_completion(&wait->completion);\n\trcu_assign_pointer(skb_data->wait, wait);\n\n\trtw89_core_tx_kick_off(rtwdev, qsel);\n\ttime_left = wait_for_completion_timeout(&wait->completion,\n\t\t\t\t\t\tmsecs_to_jiffies(timeout));\n\tif (time_left == 0)\n\t\tret = -ETIMEDOUT;\n\telse if (!wait->tx_done)\n\t\tret = -EAGAIN;\n\n\trcu_assign_pointer(skb_data->wait, NULL);\n\tkfree_rcu(wait, rcu_head);\n\n\treturn ret;\n}\n```",
+      "specific_functions": [
+        "rtw89_core_tx_kick_off_and_wait",
+        "rtw89_pci_tx_status",
+        "wait_for_completion_timeout"
+      ],
+      "specific_variables": [
+        "skb_data",
+        "wait"
+      ],
+      "exploitability": "The use-after-free can be triggered by a carefully timed sequence of events on the TX path. The attacker can potentially crash the kernel or execute arbitrary code. The use-after-free occurs in `rtw89_core_tx_kick_off_and_wait` when `wait_for_completion_timeout` returns while the completion is still being processed by `rtw89_pci_tx_status`."
+    },
+    "fix_pattern": {
+      "description": "The fix addresses the race condition by adding a workqueue (`tx_wait_work`) and associated list (`tx_waits`) to manage the cleanup of `rtw89_tx_wait_info` objects and the associated skbs.  Instead of directly freeing the memory in `rtw89_pci_tx_status`, the completion flag is set, and the `wait` object is added to the `tx_waits` list. A delayed work item is queued to process the list and free the resources. `rtw89_core_tx_wait_complete` is modified to call `complete_all` so that skb is not used after the completion",
+      "required_checks": [
+        "The fix uses a workqueue and a list to manage deallocation",
+        "The completion is called using `complete_all`",
+        "A workqueue is triggered after timeout in  `rtw89_core_tx_kick_off_and_wait`"
+      ],
+      "code_context": "```c\nint rtw89_core_tx_kick_off_and_wait(struct rtw89_dev *rtwdev, struct sk_buff *skb,\n\t\t\t\t\t u8 qsel, u32 timeout)\n{\n\tunsigned long time_left;\n\t\n\tinit_completion(&wait->completion);\n\twait->skb = skb;\n\trcu_assign_pointer(skb_data->wait, wait);\n\n\trtw89_core_tx_kick_off(rtwdev, qsel);\n\ttime_left = wait_for_completion_timeout(&wait->completion,\n\t\t\t\t\t\tmsecs_to_jiffies(timeout));\n\n\tif (time_left == 0) {\n\t\tlist_add_tail(&wait->list, &rtwdev->tx_waits);\n\t\twiphy_delayed_work_queue(rtwdev->hw->wiphy, &rtwdev->tx_wait_work,\n\t\t\t\t\t RTW89_TX_WAIT_WORK_TIMEOUT);\n\t} else {\n\t\tif (!wait->tx_done)\n\t\t\tret = -EAGAIN;\n\t\t\n\t\t rtw89_tx_wait_release(wait);\n\t}\n}\n\nstatic inline void rtw89_tx_wait_release(struct rtw89_tx_wait_info *wait)\n{\n\tdev_kfree_skb_any(wait->skb);\n\tkfree_rcu(wait, rcu_head);\n}\n\nstatic inline bool rtw89_core_tx_wait_complete(struct rtw89_dev *rtwdev,\n\t\t\t\t\t\t\t   struct rtw89_tx_skb_data *skb_data,\n\t\t\t\t\t\t\t   bool tx_done)\n{\n\tstruct rtw89_tx_wait_info *wait;\n\tbool ret = false;\n\n\t\n\tif (!wait)\n\t\tgoto out;\n\n\tret = true;\n\t\n\tcomplete_all(&wait->completion);\n\nout:\n\t\n\treturn ret;\n}\n```",
+      "protection_mechanism": "Workqueue-based delayed cleanup and RCU read-side critical section."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "CallExpression",
+        "IfStatement",
+        "AssignmentExpression",
+        "MemberExpression"
+      ],
+      "conditions_to_check": [
+        "Check if wait for completion returns timeout.",
+        "Check for setting wait->tx_done inside `rtw89_core_tx_wait_complete`",
+        "Accessing `skb_data->wait` with rcu_assign_pointer and rcu_read_lock"
+      ],
+      "relationships": [
+        "CallExpression -> BlockStatement",
+        "IfStatement -> BlockStatement",
+        "BlockStatement -> ExpressionStatement",
+        "MemberExpression -> Identifier",
+        "AssignmentExpression -> MemberExpression",
+        "CallExpression -> Identifier"
+      ],
+      "pattern_description": "Match calls to `wait_for_completion_timeout` within `rtw89_core_tx_kick_off_and_wait`, and corresponding `rtw89_core_tx_wait_complete` being called from  `rtw89_pci_tx_status`, along with all associated RCU and completion usages."
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "The vulnerability is a use-after-free in `rtw89_core_tx_kick_off_and_wait`.  A race condition exists between a waiting thread and a completing thread. The waiting thread calls `wait_for_completion_timeout` which can return before the completion is signaled. The completing thread, in `rtw89_pci_tx_status`  can free the skb associated with `skb_data` after the waiting thread has returned, but before the waiting thread dereferences and nullifies the `skb_data->wait` pointer, leading to a use-after-free.  The fix introduces a work function to collect the freed skbs so that no locks are needed in the completing thread.",
+        "key_indicators": [
+          "rtw89_core_tx_kick_off_and_wait calls `wait_for_completion_timeout`",
+          "rtw89_pci_tx_status calls `rtw89_core_tx_wait_complete`",
+          "The use of RCU protected `skb_data->wait` variable.",
+          "race condition is described in the commit message"
+        ],
+        "code_context": "```c\nint rtw89_core_tx_kick_off_and_wait(struct rtw89_dev *rtwdev, struct sk_buff *skb,\n\t\t\t\t\t u8 qsel, u32 timeout)\n{\n\tstruct rtw89_tx_skb_data *skb_data = RTW89_TX_SKB_CB(skb);\n\tstruct rtw89_tx_wait_info *wait;\n\tunsigned long time_left;\n\tint ret = 0;\n\n\twait = kzalloc(sizeof(*wait), GFP_KERNEL);\n\tif (!wait) {\n\t\trtw89_core_tx_kick_off(rtwdev, qsel);\n\t\treturn -ENOMEM;\n\t}\n\n\tinit_completion(&wait->completion);\n\trcu_assign_pointer(skb_data->wait, wait);\n\n\trtw89_core_tx_kick_off(rtwdev, qsel);\n\ttime_left = wait_for_completion_timeout(&wait->completion,\n\t\t\t\t\t\tmsecs_to_jiffies(timeout));\n\tif (time_left == 0)\n\t\tret = -ETIMEDOUT;\n\telse if (!wait->tx_done)\n\t\tret = -EAGAIN;\n\n\trcu_assign_pointer(skb_data->wait, NULL);\n\tkfree_rcu(wait, rcu_head);\n\n\treturn ret;\n}\n```",
+        "specific_functions": [
+          "rtw89_core_tx_kick_off_and_wait",
+          "rtw89_pci_tx_status",
+          "wait_for_completion_timeout"
+        ],
+        "specific_variables": [
+          "skb_data",
+          "wait"
+        ],
+        "exploitability": "The use-after-free can be triggered by a carefully timed sequence of events on the TX path. The attacker can potentially crash the kernel or execute arbitrary code. The use-after-free occurs in `rtw89_core_tx_kick_off_and_wait` when `wait_for_completion_timeout` returns while the completion is still being processed by `rtw89_pci_tx_status`."
+      },
+      "fixed": {
+        "description": "The fix addresses the race condition by adding a workqueue (`tx_wait_work`) and associated list (`tx_waits`) to manage the cleanup of `rtw89_tx_wait_info` objects and the associated skbs.  Instead of directly freeing the memory in `rtw89_pci_tx_status`, the completion flag is set, and the `wait` object is added to the `tx_waits` list. A delayed work item is queued to process the list and free the resources. `rtw89_core_tx_wait_complete` is modified to call `complete_all` so that skb is not used after the completion",
+        "required_checks": [
+          "The fix uses a workqueue and a list to manage deallocation",
+          "The completion is called using `complete_all`",
+          "A workqueue is triggered after timeout in  `rtw89_core_tx_kick_off_and_wait`"
+        ],
+        "code_context": "```c\nint rtw89_core_tx_kick_off_and_wait(struct rtw89_dev *rtwdev, struct sk_buff *skb,\n\t\t\t\t\t u8 qsel, u32 timeout)\n{\n\tunsigned long time_left;\n\t\n\tinit_completion(&wait->completion);\n\twait->skb = skb;\n\trcu_assign_pointer(skb_data->wait, wait);\n\n\trtw89_core_tx_kick_off(rtwdev, qsel);\n\ttime_left = wait_for_completion_timeout(&wait->completion,\n\t\t\t\t\t\tmsecs_to_jiffies(timeout));\n\n\tif (time_left == 0) {\n\t\tlist_add_tail(&wait->list, &rtwdev->tx_waits);\n\t\twiphy_delayed_work_queue(rtwdev->hw->wiphy, &rtwdev->tx_wait_work,\n\t\t\t\t\t RTW89_TX_WAIT_WORK_TIMEOUT);\n\t} else {\n\t\tif (!wait->tx_done)\n\t\t\tret = -EAGAIN;\n\t\t\n\t\t rtw89_tx_wait_release(wait);\n\t}\n}\n\nstatic inline void rtw89_tx_wait_release(struct rtw89_tx_wait_info *wait)\n{\n\tdev_kfree_skb_any(wait->skb);\n\tkfree_rcu(wait, rcu_head);\n}\n\nstatic inline bool rtw89_core_tx_wait_complete(struct rtw89_dev *rtwdev,\n\t\t\t\t\t\t\t   struct rtw89_tx_skb_data *skb_data,\n\t\t\t\t\t\t\t   bool tx_done)\n{\n\tstruct rtw89_tx_wait_info *wait;\n\tbool ret = false;\n\n\t\n\tif (!wait)\n\t\tgoto out;\n\n\tret = true;\n\t\n\tcomplete_all(&wait->completion);\n\nout:\n\t\n\treturn ret;\n}\n```",
+        "protection_mechanism": "Workqueue-based delayed cleanup and RCU read-side critical section."
+      }
+    },
+    "context": {
+      "impact": "Potential kernel crash or arbitrary code execution.",
+      "affected_subsystem": "Wireless networking (Realtek rtw89 driver)",
+      "exploitability": "The use-after-free can be triggered by a carefully timed sequence of events on the TX path. The attacker can potentially crash the kernel or execute arbitrary code. The use-after-free occurs in `rtw89_core_tx_kick_off_and_wait` when `wait_for_completion_timeout` returns while the completion is still being processed by `rtw89_pci_tx_status`."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to `wait_for_completion_timeout` within `rtw89_core_tx_kick_off_and_wait`, and corresponding `rtw89_core_tx_wait_complete` being called from  `rtw89_pci_tx_status`, along with all associated RCU and completion usages."
+      ]
+    }
+  },
+  {
+    "commit_hash": "b549113738e8c751b613118032a724b772aa83f2",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "A use-after-free vulnerability exists in the futex requeue-PI mechanism. In a specific race condition involving futex_wait_requeue_pi() and futex_requeue(), futex_wait_requeue_pi() could leave without synchronizing the usage of futex_q::lock_ptr. The `wake_up_state()` function uses `q->task` which, after preemption, may point to freed memory if the task structure is terminated. The `futex_q` structure's `task` member could be accessed after the task structure is freed.",
+      "key_indicators": [
+        "futex_wait_requeue_pi() and futex_requeue() involved.",
+        "Race condition leading to a use-after-free",
+        "Accessing `q->task` without proper synchronization"
+      ],
+      "code_context": "void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,\n\t\t\t   struct futex_hash_bucket *hb)\n{\n\tq->key = *key;\n\t__futex_unqueue(q);\n\n\tWARN_ON(!q->rt_waiter);\n\n\tfutex_lock_waiter(q);\n\tfutex_hash_get(hb);\n\tq->drop_hb_ref = true;\n\tq->lock_ptr = &hb->lock;\n\n\t/* Signal locked state to the waiter */\n\tfutex_requeue_pi_complete(q, 1);\n\twake_up_state(q->task, TASK_NORMAL);\n}",
+      "specific_functions": [
+        "futex_wait_requeue_pi",
+        "futex_requeue",
+        "requeue_pi_wake_futex",
+        "wake_up_state",
+        "futex_requeue_pi_complete"
+      ],
+      "specific_variables": [
+        "q->task"
+      ],
+      "exploitability": "By triggering the described race, an attacker could potentially overwrite critical data structures or execute arbitrary code after gaining control of the freed task structure memory. This could lead to a system crash or privilege escalation."
+    },
+    "fix_pattern": {
+      "description": "The fix introduces a READ_ONCE() operation on `q->task` before `futex_requeue_pi_complete()` and uses this value for `wake_up_state()` ensuring the task pointer is read before the requeue state is updated, preventing the use-after-free.",
+      "required_checks": [
+        "READ_ONCE(q->task) before using q->task in wake_up_state."
+      ],
+      "code_context": "void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,\n\t\t\t   struct futex_hash_bucket *hb)\n{\n\tstruct task_struct *task;\n\n\tq->key = *key;\n\t__futex_unqueue(q);\n\n\tWARN_ON(!q->rt_waiter);\n\n\tfutex_lock_waiter(q);\n\tfutex_hash_get(hb);\n\tq->drop_hb_ref = true;\n\tq->lock_ptr = &hb->lock;\n\ttask = READ_ONCE(q->task);\n\n\t/* Signal locked state to the waiter */\n\tfutex_requeue_pi_complete(q, 1);\n\twake_up_state(task, TASK_NORMAL);\n}",
+      "protection_mechanism": "Use of READ_ONCE to read the task pointer to ensure its validity and avoid use-after-free during context switches and race conditions."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "FunctionDecl",
+        "CompoundStmt"
+      ],
+      "conditions_to_check": [
+        "Call to wake_up_state uses `q->task` before fix, after fix, it uses a local variable assigned by READ_ONCE(q->task)",
+        "READ_ONCE is introduced before the call to wake_up_state"
+      ],
+      "relationships": [
+        "CallExpr inside FunctionDecl",
+        "MemberExpr used as parameter"
+      ],
+      "pattern_description": "Match calls to wake_up_state with q->task as argument that were not guarded by READ_ONCE(q->task)."
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "A use-after-free vulnerability exists in the futex requeue-PI mechanism. In a specific race condition involving futex_wait_requeue_pi() and futex_requeue(), futex_wait_requeue_pi() could leave without synchronizing the usage of futex_q::lock_ptr. The `wake_up_state()` function uses `q->task` which, after preemption, may point to freed memory if the task structure is terminated. The `futex_q` structure's `task` member could be accessed after the task structure is freed.",
+        "key_indicators": [
+          "futex_wait_requeue_pi() and futex_requeue() involved.",
+          "Race condition leading to a use-after-free",
+          "Accessing `q->task` without proper synchronization"
+        ],
+        "code_context": "void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,\n\t\t\t   struct futex_hash_bucket *hb)\n{\n\tq->key = *key;\n\t__futex_unqueue(q);\n\n\tWARN_ON(!q->rt_waiter);\n\n\tfutex_lock_waiter(q);\n\tfutex_hash_get(hb);\n\tq->drop_hb_ref = true;\n\tq->lock_ptr = &hb->lock;\n\n\t/* Signal locked state to the waiter */\n\tfutex_requeue_pi_complete(q, 1);\n\twake_up_state(q->task, TASK_NORMAL);\n}",
+        "specific_functions": [
+          "futex_wait_requeue_pi",
+          "futex_requeue",
+          "requeue_pi_wake_futex",
+          "wake_up_state",
+          "futex_requeue_pi_complete"
+        ],
+        "specific_variables": [
+          "q->task"
+        ],
+        "exploitability": "By triggering the described race, an attacker could potentially overwrite critical data structures or execute arbitrary code after gaining control of the freed task structure memory. This could lead to a system crash or privilege escalation."
+      },
+      "fixed": {
+        "description": "The fix introduces a READ_ONCE() operation on `q->task` before `futex_requeue_pi_complete()` and uses this value for `wake_up_state()` ensuring the task pointer is read before the requeue state is updated, preventing the use-after-free.",
+        "required_checks": [
+          "READ_ONCE(q->task) before using q->task in wake_up_state."
+        ],
+        "code_context": "void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,\n\t\t\t   struct futex_hash_bucket *hb)\n{\n\tstruct task_struct *task;\n\n\tq->key = *key;\n\t__futex_unqueue(q);\n\n\tWARN_ON(!q->rt_waiter);\n\n\tfutex_lock_waiter(q);\n\tfutex_hash_get(hb);\n\tq->drop_hb_ref = true;\n\tq->lock_ptr = &hb->lock;\n\ttask = READ_ONCE(q->task);\n\n\t/* Signal locked state to the waiter */\n\tfutex_requeue_pi_complete(q, 1);\n\twake_up_state(task, TASK_NORMAL);\n}",
+        "protection_mechanism": "Use of READ_ONCE to read the task pointer to ensure its validity and avoid use-after-free during context switches and race conditions."
+      }
+    },
+    "context": {
+      "impact": "Potential for arbitrary code execution or system crash.",
+      "affected_subsystem": "futex",
+      "exploitability": "By triggering the described race, an attacker could potentially overwrite critical data structures or execute arbitrary code after gaining control of the freed task structure memory. This could lead to a system crash or privilege escalation."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to wake_up_state with q->task as argument that were not guarded by READ_ONCE(q->task)."
+      ]
+    }
+  },
+  {
+    "commit_hash": "9e622804d57e2d08f0271200606bd1270f75126f",
+    "anti_pattern_type": "use-after-free",
+    "severity": "critical",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "A use-after-free vulnerability exists in hci_acl_create_conn_sync where a connection object can be freed while still in use, specifically when a connection is in the BT_OPEN state. This can happen in hci_acl_create_conn_sync and hci_le_create_conn_sync. The vulnerability is triggered when the connection object is prematurely freed, and subsequent operations attempt to access the freed memory.",
+      "key_indicators": [
+        "hcon->state == BT_OPEN",
+        "hci_conn_hash_lookup_ba (or hci_conn_hash_lookup_role)",
+        "conn object freed while it's still being used"
+      ],
+      "code_context": "The vulnerability lies in the race condition between connection establishment and connection cleanup. When the connection's state is BT_OPEN, it might be freed. The `hci_conn_hash_lookup_ba` (or `hci_conn_hash_lookup_role`) function retrieves an existing connection object. If the object has been freed, the subsequent operations on the object lead to UAF.",
+      "specific_functions": [
+        "hci_conn_hash_lookup_ba",
+        "hci_conn_hash_lookup_role",
+        "hci_conn_complete_evt",
+        "le_conn_complete_evt"
+      ],
+      "specific_variables": [
+        "conn",
+        "ev->link_type",
+        "ev->bdaddr",
+        "bdaddr",
+        "role"
+      ],
+      "exploitability": "The vulnerability can be triggered by manipulating connection establishment and teardown to cause a race condition, leading to the use of a freed object. An attacker could potentially cause a denial of service or potentially execute arbitrary code."
+    },
+    "fix_pattern": {
+      "description": "The fix adds checks to ensure that connection objects in the BT_OPEN state are not prematurely cleaned up. Specifically, the fix checks the state of the connection object retrieved via `hci_conn_hash_lookup_ba` or `hci_conn_hash_lookup_role` and prevents cleanup if it's still connecting or in BT_CONNECT state before deleting it.",
+      "required_checks": [
+        "if (!conn || (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT))"
+      ],
+      "code_context": "```c\n\tconn = hci_conn_hash_lookup_ba(hdev, ev->link_type, &ev->bdaddr);\n\tif (!conn ||\n\t    (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT)) {\n\t\t/* In case of error status and there is no connection pending\n\t\t * just unlock as there is nothing to cleanup.\n\t\t */\n\t\thci_dev_unlock(hdev);\n\t\treturn;\n\t}\n```\n```c\n\tconn = hci_conn_hash_lookup_role(hdev, LE_LINK, role, bdaddr);\n\tif (!conn ||\n\t    (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT)) {\n\t\t/* In case of error status and there is no connection pending\n\t\t * just unlock as there is nothing to cleanup.\n\t\t */\n\t\thci_dev_unlock(hdev);\n\t\treturn;\n\t}\n```",
+      "protection_mechanism": "Added checks on the state of the connection to prevent premature cleanup and ensure that the connection object is in a valid state before any operations are performed."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "IfStmt",
+        "CallExpr"
+      ],
+      "conditions_to_check": [
+        "!conn",
+        "conn->role == HCI_ROLE_MASTER",
+        "conn->state != BT_CONNECT"
+      ],
+      "relationships": [
+        "CallExpr is child of IfStmt",
+        "BinaryOperator and MemberExpr used in condition"
+      ],
+      "pattern_description": "Match calls to `hci_conn_hash_lookup_ba` or `hci_conn_hash_lookup_role`, followed by an if-statement that checks the return value of the call (conn) and its state. The condition check will include the 'BT_CONNECT' state."
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "A use-after-free vulnerability exists in hci_acl_create_conn_sync where a connection object can be freed while still in use, specifically when a connection is in the BT_OPEN state. This can happen in hci_acl_create_conn_sync and hci_le_create_conn_sync. The vulnerability is triggered when the connection object is prematurely freed, and subsequent operations attempt to access the freed memory.",
+        "key_indicators": [
+          "hcon->state == BT_OPEN",
+          "hci_conn_hash_lookup_ba (or hci_conn_hash_lookup_role)",
+          "conn object freed while it's still being used"
+        ],
+        "code_context": "The vulnerability lies in the race condition between connection establishment and connection cleanup. When the connection's state is BT_OPEN, it might be freed. The `hci_conn_hash_lookup_ba` (or `hci_conn_hash_lookup_role`) function retrieves an existing connection object. If the object has been freed, the subsequent operations on the object lead to UAF.",
+        "specific_functions": [
+          "hci_conn_hash_lookup_ba",
+          "hci_conn_hash_lookup_role",
+          "hci_conn_complete_evt",
+          "le_conn_complete_evt"
+        ],
+        "specific_variables": [
+          "conn",
+          "ev->link_type",
+          "ev->bdaddr",
+          "bdaddr",
+          "role"
+        ],
+        "exploitability": "The vulnerability can be triggered by manipulating connection establishment and teardown to cause a race condition, leading to the use of a freed object. An attacker could potentially cause a denial of service or potentially execute arbitrary code."
+      },
+      "fixed": {
+        "description": "The fix adds checks to ensure that connection objects in the BT_OPEN state are not prematurely cleaned up. Specifically, the fix checks the state of the connection object retrieved via `hci_conn_hash_lookup_ba` or `hci_conn_hash_lookup_role` and prevents cleanup if it's still connecting or in BT_CONNECT state before deleting it.",
+        "required_checks": [
+          "if (!conn || (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT))"
+        ],
+        "code_context": "```c\n\tconn = hci_conn_hash_lookup_ba(hdev, ev->link_type, &ev->bdaddr);\n\tif (!conn ||\n\t    (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT)) {\n\t\t/* In case of error status and there is no connection pending\n\t\t * just unlock as there is nothing to cleanup.\n\t\t */\n\t\thci_dev_unlock(hdev);\n\t\treturn;\n\t}\n```\n```c\n\tconn = hci_conn_hash_lookup_role(hdev, LE_LINK, role, bdaddr);\n\tif (!conn ||\n\t    (conn->role == HCI_ROLE_MASTER && conn->state != BT_CONNECT)) {\n\t\t/* In case of error status and there is no connection pending\n\t\t * just unlock as there is nothing to cleanup.\n\t\t */\n\t\thci_dev_unlock(hdev);\n\t\treturn;\n\t}\n```",
+        "protection_mechanism": "Added checks on the state of the connection to prevent premature cleanup and ensure that the connection object is in a valid state before any operations are performed."
+      }
+    },
+    "context": {
+      "impact": "Denial of service and potential code execution.",
+      "affected_subsystem": "Bluetooth HCI",
+      "exploitability": "The vulnerability can be triggered by manipulating connection establishment and teardown to cause a race condition, leading to the use of a freed object. An attacker could potentially cause a denial of service or potentially execute arbitrary code."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to `hci_conn_hash_lookup_ba` or `hci_conn_hash_lookup_role`, followed by an if-statement that checks the return value of the call (conn) and its state. The condition check will include the 'BT_CONNECT' state."
+      ]
+    }
+  },
+  {
+    "commit_hash": "5feef67b646d8f5064bac288e22204ffba2b9a4a",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "The `ixgbe_remove` function prematurely calls `devlink_free(adapter->devlink)`, potentially leading to a Use-After-Free (UAF) condition. Later calls, such as `ixgbe_clear_interrupt_scheme` and other functions, could operate on the freed memory if called after `devlink_free` but before the adapter is fully cleaned up, which can happen if the `ixgbe_remove` function continues to use adapter->devlink after freeing it.",
+      "key_indicators": [
+        "Premature call to `devlink_free(adapter->devlink)` within `ixgbe_remove`.",
+        "The `ixgbe_remove` function continues to use `adapter->devlink` after the premature `devlink_free` call",
+        "KASAN reports a UAF in `ixgbe_reset_interrupt_capability`",
+        "Control flow: `ixgbe_remove` calls `devlink_free` then continues with other operations using related data."
+      ],
+      "code_context": "```c\nstatic void ixgbe_remove(struct pci_dev *pdev)\n{\n\t...\n\tdevl_port_unregister(&adapter->devlink_port);\n\tdevl_unlock(adapter->devlink);\n\tdevlink_free(adapter->devlink);\n\t...\n\tixgbe_clear_interrupt_scheme(adapter);\n\t...\n}\n```",
+      "specific_functions": [
+        "ixgbe_remove",
+        "devlink_free",
+        "ixgbe_clear_interrupt_scheme",
+        "ixgbe_reset_interrupt_capability"
+      ],
+      "specific_variables": [
+        "adapter->devlink"
+      ],
+      "exploitability": "An attacker could trigger the UAF by causing the `ixgbe_remove` function to be called, then manipulating the system to access the freed memory region via functions such as `ixgbe_clear_interrupt_scheme` or others that use the freed data."
+    },
+    "fix_pattern": {
+      "description": "The fix moves the call to `devlink_free(adapter->devlink)` to the end of the `ixgbe_remove` function to ensure that no subsequent code attempts to use the freed memory. This prevents the Use-After-Free condition.",
+      "required_checks": [],
+      "code_context": "```c\nstatic void ixgbe_remove(struct pci_dev *pdev)\n{\n\t...\n\tdevl_port_unregister(&adapter->devlink_port);\n\tdevl_unlock(adapter->devlink);\n\n\t...\n\tif (disable_dev)\n\t\tpci_disable_device(pdev);\n\n\tdevlink_free(adapter->devlink);\n}\n```",
+      "protection_mechanism": "Memory management adjustment"
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "FunctionDecl",
+        "CallExpr"
+      ],
+      "conditions_to_check": [
+        "devlink_free(adapter->devlink) is called before other operations, like ixgbe_clear_interrupt_scheme"
+      ],
+      "relationships": [
+        "CallExpr: Inside FunctionDecl: ixgbe_remove",
+        "CallExpr: devlink_free BEFORE other operations on the adapter"
+      ],
+      "pattern_description": "Match calls to devlink_free within ixgbe_remove function before other adapter operations"
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "The `ixgbe_remove` function prematurely calls `devlink_free(adapter->devlink)`, potentially leading to a Use-After-Free (UAF) condition. Later calls, such as `ixgbe_clear_interrupt_scheme` and other functions, could operate on the freed memory if called after `devlink_free` but before the adapter is fully cleaned up, which can happen if the `ixgbe_remove` function continues to use adapter->devlink after freeing it.",
+        "key_indicators": [
+          "Premature call to `devlink_free(adapter->devlink)` within `ixgbe_remove`.",
+          "The `ixgbe_remove` function continues to use `adapter->devlink` after the premature `devlink_free` call",
+          "KASAN reports a UAF in `ixgbe_reset_interrupt_capability`",
+          "Control flow: `ixgbe_remove` calls `devlink_free` then continues with other operations using related data."
+        ],
+        "code_context": "```c\nstatic void ixgbe_remove(struct pci_dev *pdev)\n{\n\t...\n\tdevl_port_unregister(&adapter->devlink_port);\n\tdevl_unlock(adapter->devlink);\n\tdevlink_free(adapter->devlink);\n\t...\n\tixgbe_clear_interrupt_scheme(adapter);\n\t...\n}\n```",
+        "specific_functions": [
+          "ixgbe_remove",
+          "devlink_free",
+          "ixgbe_clear_interrupt_scheme",
+          "ixgbe_reset_interrupt_capability"
+        ],
+        "specific_variables": [
+          "adapter->devlink"
+        ],
+        "exploitability": "An attacker could trigger the UAF by causing the `ixgbe_remove` function to be called, then manipulating the system to access the freed memory region via functions such as `ixgbe_clear_interrupt_scheme` or others that use the freed data."
+      },
+      "fixed": {
+        "description": "The fix moves the call to `devlink_free(adapter->devlink)` to the end of the `ixgbe_remove` function to ensure that no subsequent code attempts to use the freed memory. This prevents the Use-After-Free condition.",
+        "required_checks": [],
+        "code_context": "```c\nstatic void ixgbe_remove(struct pci_dev *pdev)\n{\n\t...\n\tdevl_port_unregister(&adapter->devlink_port);\n\tdevl_unlock(adapter->devlink);\n\n\t...\n\tif (disable_dev)\n\t\tpci_disable_device(pdev);\n\n\tdevlink_free(adapter->devlink);\n}\n```",
+        "protection_mechanism": "Memory management adjustment"
+      }
+    },
+    "context": {
+      "impact": "Denial of service, potential for arbitrary code execution if memory is controlled.",
+      "affected_subsystem": "ixgbe network driver",
+      "exploitability": "An attacker could trigger the UAF by causing the `ixgbe_remove` function to be called, then manipulating the system to access the freed memory region via functions such as `ixgbe_clear_interrupt_scheme` or others that use the freed data."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to devlink_free within ixgbe_remove function before other adapter operations"
+      ]
+    }
+  },
+  {
+    "commit_hash": "4de37a48b6b58faaded9eb765047cf0d8785ea18",
+    "anti_pattern_type": "use-after-free",
+    "severity": "high",
+    "vulnerability_class": "CWE-416",
+    "vulnerable_pattern": {
+      "description": "The code iterates through child nodes using `for_each_child_of_node()`.  Inside the loop, it incorrectly calls `of_node_put(node)` at each iteration step. Since the loop iterator already drops the reference, this leads to a double free, potentially causing a use-after-free if the node is accessed elsewhere after being freed.",
+      "key_indicators": [
+        "for_each_child_of_node() is used.",
+        "of_node_put(node) is called inside the loop at each iteration.",
+        "The loop iterates through OF nodes.",
+        "The loop may continue even if errors occur."
+      ],
+      "code_context": "        of_id = of_match_node(mtk_drm_of_ids, node);\n        if (!of_id)\n            goto next_put_node;\n\n        pdev = of_find_device_by_node(node);\n        if (!pdev)\n            goto next_put_node;\n\n\nnext_put_node:\n        of_node_put(node);",
+      "specific_functions": [
+        "for_each_child_of_node",
+        "of_node_put"
+      ],
+      "specific_variables": [
+        "node"
+      ],
+      "exploitability": "An attacker could potentially trigger a use-after-free by manipulating the OF tree and how the code accesses nodes, leading to a crash or code execution."
+    },
+    "fix_pattern": {
+      "description": "The fix removes the unnecessary `of_node_put(node)` call from the loop's iteration body.  The `of_node_put` is kept only if the loop is broken prematurely.",
+      "required_checks": [
+        "Removed `of_node_put(node)` from the normal loop flow."
+      ],
+      "code_context": "        of_id = of_match_node(mtk_drm_of_ids, node);\n        if (!of_id)\n            continue;\n\n        pdev = of_find_device_by_node(node);\n        if (!pdev)\n            continue;\n\n        drm_dev = device_find_child(&pdev->dev, NULL, mtk_drm_match);\n        if (!drm_dev)\n            continue;\n\n\n        if (cnt == MAX_CRTC) {\n            of_node_put(node);\n            break;\n        }",
+      "protection_mechanism": "Correct reference counting within the OF node traversal."
+    },
+    "checker_requirements": {
+      "checker_name": "UseAfterFreeCheck",
+      "ast_matchers_needed": [
+        "CallExpr",
+        "ForStmt"
+      ],
+      "conditions_to_check": [
+        "Call to of_node_put(node) is directly called inside the loop body, and NOT inside a special handling block for early exits."
+      ],
+      "relationships": [
+        "Parent-child relationship:  'of_node_put' call is within the for loop body"
+      ],
+      "pattern_description": "Match calls to `of_node_put` inside loop, where `for_each_child_of_node` is used for iteration"
+    },
+    "pattern_description": {
+      "vulnerable": {
+        "description": "The code iterates through child nodes using `for_each_child_of_node()`.  Inside the loop, it incorrectly calls `of_node_put(node)` at each iteration step. Since the loop iterator already drops the reference, this leads to a double free, potentially causing a use-after-free if the node is accessed elsewhere after being freed.",
+        "key_indicators": [
+          "for_each_child_of_node() is used.",
+          "of_node_put(node) is called inside the loop at each iteration.",
+          "The loop iterates through OF nodes.",
+          "The loop may continue even if errors occur."
+        ],
+        "code_context": "        of_id = of_match_node(mtk_drm_of_ids, node);\n        if (!of_id)\n            goto next_put_node;\n\n        pdev = of_find_device_by_node(node);\n        if (!pdev)\n            goto next_put_node;\n\n\nnext_put_node:\n        of_node_put(node);",
+        "specific_functions": [
+          "for_each_child_of_node",
+          "of_node_put"
+        ],
+        "specific_variables": [
+          "node"
+        ],
+        "exploitability": "An attacker could potentially trigger a use-after-free by manipulating the OF tree and how the code accesses nodes, leading to a crash or code execution."
+      },
+      "fixed": {
+        "description": "The fix removes the unnecessary `of_node_put(node)` call from the loop's iteration body.  The `of_node_put` is kept only if the loop is broken prematurely.",
+        "required_checks": [
+          "Removed `of_node_put(node)` from the normal loop flow."
+        ],
+        "code_context": "        of_id = of_match_node(mtk_drm_of_ids, node);\n        if (!of_id)\n            continue;\n\n        pdev = of_find_device_by_node(node);\n        if (!pdev)\n            continue;\n\n        drm_dev = device_find_child(&pdev->dev, NULL, mtk_drm_match);\n        if (!drm_dev)\n            continue;\n\n\n        if (cnt == MAX_CRTC) {\n            of_node_put(node);\n            break;\n        }",
+        "protection_mechanism": "Correct reference counting within the OF node traversal."
+      }
+    },
+    "context": {
+      "impact": "Potential denial-of-service, or possible code execution.",
+      "affected_subsystem": "drm/mediatek",
+      "exploitability": "An attacker could potentially trigger a use-after-free by manipulating the OF tree and how the code accesses nodes, leading to a crash or code execution."
+    },
+    "template_hints": {
+      "base_template": "MustCheckErrsCheck",
+      "modifications_needed": [
+        "Specific pattern: Match calls to `of_node_put` inside loop, where `for_each_child_of_node` is used for iteration"
+      ]
+    }
+  }
+]

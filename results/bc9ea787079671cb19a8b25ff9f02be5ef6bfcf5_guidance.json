@@ -1,0 +1,66 @@
+{
+  "commit_hash": "bc9ea787079671cb19a8b25ff9f02be5ef6bfcf5",
+  "anti_pattern_type": "use-after-free",
+  "severity": "high",
+  "confidence": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "vulnerability_class": "CWE-416",
+  "checker_requirements": {
+    "checker_name": "UseAfterFreeCheck",
+    "ast_matchers_needed": [
+      "CallExpr"
+    ],
+    "conditions_to_check": [
+      "The order of function calls matters: cancel/disable then destroy"
+    ],
+    "relationships": [
+      "Call to `destroy_workqueue` must follow call to `cancel_delayed_work` in the same function",
+      "The argument of `cancel_delayed_work` must match the argument of `disable_delayed_work_sync`"
+    ],
+    "pattern_description": "Match calls to `cancel_delayed_work` followed by `destroy_workqueue` in a function. Or replace `cancel_delayed_work` with `disable_delayed_work_sync`."
+  },
+  "pattern_description": {
+    "vulnerable": {
+      "description": "The `ocelot_stats_deinit` function attempts to cancel a delayed work item (`ocelot->stats_work`) using `cancel_delayed_work()`. However, `cancel_delayed_work()` may fail if the work item is already executing, leading to a race condition. When the workqueue is destroyed with `destroy_workqueue()`, it may not have visibility of the pending work item. Later, if the delayed work timer expires after the workqueue is destroyed, the work item gets queued again, resulting in a use-after-free when the callback `ocelot_check_stats_work()` is executed.",
+      "key_indicators": [
+        "cancel_delayed_work(&ocelot->stats_work)",
+        "destroy_workqueue(ocelot->stats_queue)",
+        "ocelot_check_stats_work() is called after the workqueue is destroyed",
+        "Race condition on delayed work item."
+      ],
+      "code_context": "void ocelot_stats_deinit(struct ocelot *ocelot)\n{\n\tcancel_delayed_work(&ocelot->stats_work);\n\tdestroy_workqueue(ocelot->stats_queue);\n}",
+      "specific_functions": [
+        "cancel_delayed_work",
+        "destroy_workqueue",
+        "ocelot_stats_deinit",
+        "ocelot_check_stats_work"
+      ],
+      "specific_variables": [
+        "ocelot->stats_work",
+        "ocelot->stats_queue"
+      ],
+      "exploitability": "The vulnerability can be triggered during device removal or resource destruction when `ocelot_stats_deinit` is called. A specially crafted network configuration or timing could potentially trigger the race condition and lead to a crash or potential information leak. Triggering the timer expiration after the workqueue is freed is the key to exploiting this UAF."
+    },
+    "fixed": {
+      "description": "The fix replaces `cancel_delayed_work()` with `disable_delayed_work_sync()`. This function ensures proper cancellation of the delayed work item and waits for any executing work to complete before the workqueue is destroyed. This prevents the delayed work from being rescheduled after the workqueue is destroyed.",
+      "required_checks": [
+        "Using `disable_delayed_work_sync` to ensure completion before destruction"
+      ],
+      "code_context": "void ocelot_stats_deinit(struct ocelot *ocelot)\n{\n\tdisable_delayed_work_sync(&ocelot->stats_work);\n\tdestroy_workqueue(ocelot->stats_queue);\n}",
+      "protection_mechanism": "Synchronization to prevent UAF."
+    }
+  },
+  "context": {
+    "impact": "Potential for denial of service (system crash) or possible information leakage due to memory corruption.",
+    "affected_subsystem": "net: mscc: ocelot",
+    "exploitability": "The vulnerability can be triggered during device removal or resource destruction when `ocelot_stats_deinit` is called. A specially crafted network configuration or timing could potentially trigger the race condition and lead to a crash or potential information leak. Triggering the timer expiration after the workqueue is freed is the key to exploiting this UAF."
+  },
+  "template_hints": {
+    "base_template": "MustCheckErrsCheck",
+    "modifications_needed": [
+      "Specific pattern: Match calls to `cancel_delayed_work` followed by `destroy_workqueue` in a function. Or replace `cancel_delayed_work` with `disable_delayed_work_sync`."
+    ]
+  }
+}

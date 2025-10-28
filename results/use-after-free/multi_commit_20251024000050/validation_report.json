@@ -1,0 +1,75 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-10-24T02:20:11.429880",
+    "clang_tidy_binary": "/nvme/write/mac/private/linux-guard/llvm-project/build/bin/clang-tidy",
+    "kernels_scanned": 4,
+    "anti_pattern_type": "use-after-free"
+  },
+  "results_by_version": {
+    "linux-v3.0": {
+      "total_issues": 0,
+      "files_scanned": 16201,
+      "scan_time": "2025-10-24T00:01:43.591581",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    },
+    "linux-v4.0": {
+      "total_issues": 0,
+      "files_scanned": 20985,
+      "scan_time": "2025-10-24T00:01:44.635102",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    },
+    "linux-v5.0": {
+      "total_issues": 0,
+      "files_scanned": 26665,
+      "scan_time": "2025-10-24T00:01:46.127982",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    },
+    "linux-v6.0": {
+      "total_issues": 0,
+      "files_scanned": 31809,
+      "scan_time": "2025-10-24T00:01:47.700814",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    }
+  },
+  "cross_version_analysis": {
+    "temporal_trends": {},
+    "persistent_issues": [],
+    "evolution": {}
+  }
+}

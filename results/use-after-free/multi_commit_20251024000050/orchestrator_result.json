@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "checker": {
+    "checker_name": "UseAfterFreeCheck",
+    "anti_pattern_type": "use-after-free",
+    "anti_pattern_folder": "use-after-free",
+    "generation_id": "multi_commit_20251024000050",
+    "files": {
+      "header_path": "checkers/generated/use-after-free/multi_commit_20251024000050/UseAfterFreeCheck.h",
+      "cpp_path": "checkers/generated/use-after-free/multi_commit_20251024000050/UseAfterFreeCheck.cpp",
+      "metadata_path": "checkers/generated/use-after-free/multi_commit_20251024000050/metadata.json"
+    },
+    "commit_hash": "multi_commit",
+    "status": "generated"
+  },
+  "commit": "80af3745ca465c6c47e833c1902004a7fa944f37",
+  "elapsed_time": 9305.461809873581,
+  "completed_at": "2025-10-24T02:20:11.480345"
+}

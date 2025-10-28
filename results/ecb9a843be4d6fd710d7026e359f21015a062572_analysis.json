@@ -1,0 +1,65 @@
+{
+  "is_security_fix": true,
+  "confidence": "high",
+  "anti_pattern_type": "use-after-free",
+  "vulnerability_class": "CWE-416",
+  "vulnerable_pattern": {
+    "description": "A use-after-free vulnerability exists in the Bluetooth SCO (Synchronous Connection-Oriented) subsystem. The `sco_conn` structure, associated with a Bluetooth socket, can be freed while a reference to the associated `sock` structure (accessed via `sco_pi(sk)->conn->sk`) still exists. Specifically, the fix addresses a scenario where `sco_sock_kill` is called to terminate a socket. If the `sco_conn` is not properly cleared the sk pointer might still be valid leading to a use-after-free. This can lead to a crash due to accessing freed memory when the `sco_conn` is accessed through `sco_pi(sk)->conn->sk`.",
+    "key_indicators": [
+      "sco_sock_kill(struct sock *sk)",
+      "sco_pi(sk)->conn",
+      "Access to sco_pi(sk)->conn->sk after `sco_sock_kill` and `sco_conn_free`"
+    ],
+    "code_context": "```c\nstatic void sco_sock_kill(struct sock *sk)\n{\n\tBT_DBG(\"sk %p state %d\", sk, sk->sk_state);\n\n\t/* Kill poor orphan */\n\tbt_sock_unlink(&sco_sk_list, sk);\n\tsock_set_flag(sk, SOCK_DEAD);\n}\n```",
+    "specific_functions": [
+      "sco_sock_kill"
+    ],
+    "specific_variables": [
+      "sk",
+      "sco_pi(sk)->conn"
+    ],
+    "exploitability": "An attacker can trigger the use-after-free by causing the SCO socket to be killed while there are still active references to the associated `sco_conn` and its `sk` pointer."
+  },
+  "fix_pattern": {
+    "description": "The fix adds a check inside `sco_sock_kill` to set `sco_pi(sk)->conn->sk` to NULL before the sock is unlinked and marked as dead. This prevents a use-after-free if the `sco_conn` is accessed later, because the sk pointer will be NULL.",
+    "required_checks": [
+      "Check if sco_pi(sk)->conn is not NULL",
+      "Set sco_pi(sk)->conn->sk = NULL within the lock"
+    ],
+    "code_context": "```c\nstatic void sco_sock_kill(struct sock *sk)\n{\n\tBT_DBG(\"sk %p state %d\", sk, sk->sk_state);\n\n\t/* Sock is dead, so set conn->sk to NULL to avoid possible UAF */\n\tif (sco_pi(sk)->conn) {\n\t\tsco_conn_lock(sco_pi(sk)->conn);\n\t\tsco_pi(sk)->conn->sk = NULL;\n\t\tsco_conn_unlock(sco_pi(sk)->conn);\n\t}\n\n\t/* Kill poor orphan */\n\tbt_sock_unlink(&sco_sk_list, sk);\n\tsock_set_flag(sk, SOCK_DEAD);\n}\n```",
+    "protection_mechanism": "Nullifying the potentially dangling pointer to prevent future dereferences."
+  },
+  "ast_matcher_hints": {
+    "node_types": [
+      "FunctionDecl",
+      "IfStmt",
+      "MemberExpr",
+      "UnaryOperator",
+      "BinaryOperator",
+      "CallExpr"
+    ],
+    "exact_function_names": [
+      "sco_sock_kill",
+      "sco_conn_lock",
+      "sco_conn_unlock"
+    ],
+    "relationships": [
+      "CallExpr inside FunctionDecl",
+      "IfStmt containing CallExpr and MemberExpr",
+      "MemberExpr accessing conn->sk",
+      "CallExpr setting conn->sk to NULL inside IfStmt"
+    ],
+    "conditions": [
+      "Call to sco_sock_kill function",
+      "Conditional check on sco_pi(sk)->conn not being NULL",
+      "Assignment of NULL to sco_pi(sk)->conn->sk within the if block"
+    ],
+    "pattern_description": "Match calls to sco_sock_kill followed by a check if sco_pi(sk)->conn is not NULL and then setting sco_pi(sk)->conn->sk to NULL"
+  },
+  "severity": "high",
+  "cwe_ids": [
+    "CWE-416"
+  ],
+  "impact": "Remote code execution or denial of service due to memory corruption",
+  "affected_subsystem": "Bluetooth SCO"
+}
