@@ -1,0 +1,26 @@
+{
+  "scan_metadata": {
+    "timestamp": "2025-10-29T11:23:28.061790",
+    "clang_tidy_binary": "/nvme/write/mac/private/linux-guard/llvm-project/build/bin/clang-tidy",
+    "kernels_scanned": 1,
+    "anti_pattern_type": null
+  },
+  "results_by_version": {
+    "use-after-free-origin": {
+      "total_issues": 0,
+      "files_scanned": 12,
+      "scan_time": "2025-10-29T11:23:23.460514",
+      "issues": [],
+      "analysis": {
+        "summary": {
+          "total_issues": 0,
+          "unique_files_affected": 0
+        },
+        "by_subsystem": {},
+        "by_checker": {},
+        "hotspots": []
+      }
+    }
+  },
+  "cross_version_analysis": {}
+}

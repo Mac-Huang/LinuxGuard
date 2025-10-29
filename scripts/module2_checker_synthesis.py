@@ -159,6 +159,7 @@ class CheckerSynthesizer:
     def get_pattern_specific_hints(self, anti_pattern_type: str) -> str:
         """Provide pattern-specific hints for AST matcher generation."""
 
+        # Can use RAG here in the future
         hints = {
             "unchecked-error": """
 - Match function calls that return error pointers (ERR_PTR, IS_ERR, etc.)

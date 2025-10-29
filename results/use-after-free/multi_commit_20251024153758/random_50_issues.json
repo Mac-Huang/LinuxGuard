@@ -1,0 +1,502 @@
+[
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/arch/x86/xen/smp_pv.c",
+    "line": 99,
+    "column": 53,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "architecture",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/arch/x86/xen/smp_pv.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/soc/qcom/rpmh.c",
+    "line": 323,
+    "column": 58,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/soc/qcom/rpmh.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/fs/ubifs/replay.c",
+    "line": 366,
+    "column": 52,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "filesystem",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/fs/ubifs/replay.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/sound/soc/soc-topology.c",
+    "line": 517,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "sound",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/sound/soc/soc-topology.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/s390/block/dcssblk.c",
+    "line": 793,
+    "column": 50,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/s390/block/dcssblk.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/infiniband/hw/usnic/usnic_uiom_interval_tree.c",
+    "line": 165,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/infiniband/hw/usnic/usnic_uiom_interval_tree.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/target/target_core_hba.c",
+    "line": 61,
+    "column": 42,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/target/target_core_hba.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/ethernet/aquantia/atlantic/aq_filters.c",
+    "line": 725,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/ethernet/aquantia/atlantic/aq_filters.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/wireless/ath/dfs_pri_detector.c",
+    "line": 105,
+    "column": 48,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/wireless/ath/dfs_pri_detector.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/md/persistent-data/dm-transaction-manager.c",
+    "line": 149,
+    "column": 46,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/md/persistent-data/dm-transaction-manager.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v6.0/net/openvswitch/flow_netlink.c",
+    "line": 2483,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "networking",
+    "kernel_version": "linux-v6.0",
+    "repo_relative_file": "kernels/linux-v6.0/net/openvswitch/flow_netlink.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/fs/btrfs/scrub.c",
+    "line": 2709,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "filesystem",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/fs/btrfs/scrub.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/security/smack/smackfs.c",
+    "line": 1245,
+    "column": 51,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "security",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/security/smack/smackfs.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/soundwire/stream.c",
+    "line": 981,
+    "column": 50,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/soundwire/stream.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/wireless/intersil/orinoco/main.c",
+    "line": 2316,
+    "column": 58,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/wireless/intersil/orinoco/main.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/gpu/drm/nouveau/nouveau_abi16.c",
+    "line": 172,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/gpu/drm/nouveau/nouveau_abi16.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/ethernet/sfc/ef10.c",
+    "line": 5026,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/ethernet/sfc/ef10.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/sound/soc/codecs/wm_adsp.c",
+    "line": 1394,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "sound",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/sound/soc/codecs/wm_adsp.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v6.0/drivers/gpu/drm/radeon/radeon_semaphore.c",
+    "line": 46,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v6.0",
+    "repo_relative_file": "kernels/linux-v6.0/drivers/gpu/drm/radeon/radeon_semaphore.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/rapidio/rio.c",
+    "line": 503,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/rapidio/rio.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/ethernet/cisco/enic/enic_clsf.c",
+    "line": 99,
+    "column": 4,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/ethernet/cisco/enic/enic_clsf.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/scsi/esas2r/esas2r_init.c",
+    "line": 521,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/scsi/esas2r/esas2r_init.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/block/xen-blkback/blkback.c",
+    "line": 352,
+    "column": 66,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/block/xen-blkback/blkback.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/scsi/smartpqi/smartpqi_init.c",
+    "line": 2159,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/scsi/smartpqi/smartpqi_init.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/fs/ubifs/orphan.c",
+    "line": 532,
+    "column": 4,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "filesystem",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/fs/ubifs/orphan.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/scsi/mpt3sas/mpt3sas_base.c",
+    "line": 2695,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/scsi/mpt3sas/mpt3sas_base.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/usb/chipidea/udc.c",
+    "line": 1421,
+    "column": 55,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/usb/chipidea/udc.c"
+  },
+  {
+    "file": "kernel/audit.c",
+    "line": 971,
+    "column": 53,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "other",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/kernel/audit.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/iommu/arm-smmu.c",
+    "line": 1684,
+    "column": 46,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/iommu/arm-smmu.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v6.0/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c",
+    "line": 1757,
+    "column": 25,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v6.0",
+    "repo_relative_file": "kernels/linux-v6.0/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/ethernet/intel/i40e/i40e_client.c",
+    "line": 460,
+    "column": 53,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/ethernet/intel/i40e/i40e_client.c"
+  },
+  {
+    "file": "net/netlink/genetlink.c",
+    "line": 586,
+    "column": 36,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "other",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/net/netlink/genetlink.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/kernel/locking/test-ww_mutex.c",
+    "line": 529,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "core-kernel",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/kernel/locking/test-ww_mutex.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c",
+    "line": 171,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/staging/wilc1000/wilc_wfi_cfgoperations.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v6.0/drivers/infiniband/core/mad.c",
+    "line": 1300,
+    "column": 23,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v6.0",
+    "repo_relative_file": "kernels/linux-v6.0/drivers/infiniband/core/mad.c"
+  },
+  {
+    "file": "drivers/thermal/intel/x86_pkg_temp_thermal.c",
+    "line": 484,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "other",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/thermal/intel/x86_pkg_temp_thermal.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/ps3/ps3-vuart.c",
+    "line": 771,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/ps3/ps3-vuart.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/scsi/lpfc/lpfc_bsg.c",
+    "line": 817,
+    "column": 57,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/scsi/lpfc/lpfc_bsg.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/net/rds/rdma.c",
+    "line": 728,
+    "column": 17,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "networking",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/net/rds/rdma.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/hid/hid-sensor-hub.c",
+    "line": 195,
+    "column": 4,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/hid/hid-sensor-hub.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/sound/usb/pcm.c",
+    "line": 1177,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "sound",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/sound/usb/pcm.c"
+  },
+  {
+    "file": "arch/x86/kernel/cpu/mce/amd.c",
+    "line": 1164,
+    "column": 43,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "core-kernel",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/arch/x86/kernel/cpu/mce/amd.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/net/netfilter/nfnetlink_cttimeout.c",
+    "line": 153,
+    "column": 2,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "networking",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/net/netfilter/nfnetlink_cttimeout.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/gpu/drm/radeon/radeon_semaphore.c",
+    "line": 99,
+    "column": 20,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/gpu/drm/radeon/radeon_semaphore.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/wireless/mac80211_hwsim.c",
+    "line": 3517,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/wireless/mac80211_hwsim.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c",
+    "line": 4577,
+    "column": 54,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/scsi/lpfc/lpfc_bsg.c",
+    "line": 1361,
+    "column": 3,
+    "message": "Potential use-after-free vulnerability: Memory freed but possibly accessed later.",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/scsi/lpfc/lpfc_bsg.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/gpu/drm/gma500/psb_intel_lvds.c",
+    "line": 758,
+    "column": 54,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/gpu/drm/gma500/psb_intel_lvds.c"
+  },
+  {
+    "file": "/nvme/write/mac/private/linux-guard/kernels/linux-v5.0/drivers/vfio/vfio_iommu_spapr_tce.c",
+    "line": 1305,
+    "column": 54,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "drivers",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/vfio/vfio_iommu_spapr_tce.c"
+  },
+  {
+    "file": "drivers/gpu/drm/drm_bufs.c",
+    "line": 499,
+    "column": 58,
+    "message": "Use of memory after potential free",
+    "checker": "linuxkernel-use-after-free",
+    "subsystem": "other",
+    "kernel_version": "linux-v5.0",
+    "repo_relative_file": "kernels/linux-v5.0/drivers/gpu/drm/drm_bufs.c"
+  }
+]

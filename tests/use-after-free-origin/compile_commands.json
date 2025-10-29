@@ -1,0 +1,62 @@
+[
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/bc9ea787079671cb19a8b25ff9f02be5ef6bfcf5/drivers/net/ethernet/mscc",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c ocelot_stats.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/bc9ea787079671cb19a8b25ff9f02be5ef6bfcf5/drivers/net/ethernet/mscc/ocelot_stats.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/da1bb9135213744e7ec398826c8f2e843de4fb94/drivers/video/fbdev",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c simplefb.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/da1bb9135213744e7ec398826c8f2e843de4fb94/drivers/video/fbdev/simplefb.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/60cd16a3b7439ccb699d0bf533799eeb894fd217/drivers/scsi/mvsas",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c mv_init.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/60cd16a3b7439ccb699d0bf533799eeb894fd217/drivers/scsi/mvsas/mv_init.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/ecb9a843be4d6fd710d7026e359f21015a062572/net/bluetooth",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c sco.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/ecb9a843be4d6fd710d7026e359f21015a062572/net/bluetooth/sco.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/67600ccfc4f38ebd331b9332ac94717bfbc87ea7/drivers/thunderbolt",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c tunnel.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/67600ccfc4f38ebd331b9332ac94717bfbc87ea7/drivers/thunderbolt/tunnel.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/3e31a6bc07312b448fad3b45de578471f86f0e77/drivers/net/wireless/realtek/rtw89",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c core.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/3e31a6bc07312b448fad3b45de578471f86f0e77/drivers/net/wireless/realtek/rtw89/core.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/3e31a6bc07312b448fad3b45de578471f86f0e77/drivers/net/wireless/realtek/rtw89",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c pci.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/3e31a6bc07312b448fad3b45de578471f86f0e77/drivers/net/wireless/realtek/rtw89/pci.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/3e31a6bc07312b448fad3b45de578471f86f0e77/drivers/net/wireless/realtek/rtw89",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c ser.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/3e31a6bc07312b448fad3b45de578471f86f0e77/drivers/net/wireless/realtek/rtw89/ser.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/b549113738e8c751b613118032a724b772aa83f2/kernel/futex",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c requeue.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/b549113738e8c751b613118032a724b772aa83f2/kernel/futex/requeue.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/9e622804d57e2d08f0271200606bd1270f75126f/net/bluetooth",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c hci_event.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/9e622804d57e2d08f0271200606bd1270f75126f/net/bluetooth/hci_event.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/5feef67b646d8f5064bac288e22204ffba2b9a4a/drivers/net/ethernet/intel/ixgbe",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c ixgbe_main.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/5feef67b646d8f5064bac288e22204ffba2b9a4a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c"
+  },
+  {
+    "directory": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/4de37a48b6b58faaded9eb765047cf0d8785ea18/drivers/gpu/drm/mediatek",
+    "command": "clang -I/nvme/write/mac/private/linux-guard/kernels/linux.git/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include -I/nvme/write/mac/private/linux-guard/kernels/linux.git/arch/x86/include/generated -I/nvme/write/mac/private/linux-guard/kernels/linux.git/drivers -I/nvme/write/mac/private/linux-guard/kernels/linux.git/net -I/nvme/write/mac/private/linux-guard/kernels/linux.git/kernel -I/nvme/write/mac/private/linux-guard/kernels/linux.git/mm -I/nvme/write/mac/private/linux-guard/kernels/linux.git/security -c mtk_drm_drv.c",
+    "file": "/nvme/write/mac/private/linux-guard/tests/use-after-free-origin/4de37a48b6b58faaded9eb765047cf0d8785ea18/drivers/gpu/drm/mediatek/mtk_drm_drv.c"
+  }
+]
